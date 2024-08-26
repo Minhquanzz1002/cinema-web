@@ -16,7 +16,7 @@ const config: Config = {
             },
         },
         colors: {
-            white: '#000000',
+            white: '#FF0000',
             background: {
                 100: 'rgb(244 247 254)',
                 900: '#070f2e',

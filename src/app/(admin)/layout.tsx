@@ -1,12 +1,6 @@
-import type { Metadata } from "next";
+"use client";
 import React, {useState} from "react";
-import "@/styles/globals.css";
-
-
-export const metadata: Metadata = {
-  title: "Galaxy Cinema | Admin",
-  description: "Galaxy Cinema",
-};
+import "@/styles/global.admin.css";
 
 export default function AdminLayout({
   children,
@@ -18,7 +12,7 @@ export default function AdminLayout({
     <html lang="en">
       <body>
         <div className="w-full h-full flex bg-background-100 dark:bg-background-900">
-
+          {children}
         </div>
       </body>
     </html>

@@ -2,13 +2,19 @@
 ## GIT COMMIT RULES
 
 ```git
-type(scope?): subject
+type(scope?): subject (#issue-id?)
 ```
 
 Example
 ```git
 feat(UI): home page
 ```
+
+Example
+```git
+feat(API): handle login (#10)
+```
+
 ### type ở trên có thể là:
 + build: Changes that affect the build system or external dependencies (example scopes: gulp, broccoli, npm)
 + ci: Changes to our CI configuration files and scripts (example scopes: Gitlab CI, Circle, BrowserStack, SauceLabs)
@@ -21,3 +27,17 @@ feat(UI): home page
 + revert: Reverts a previous commit
 + style: Changes that do not affect the meaning of the code (Eg: adding white-space, formatting, missing semi-colons, etc)
 + test: Adding missing tests or correcting existing tests
+
+## GIT BRANCH RULES
+`type/(issues-id?)-branch-name`
+
+Example: 
+
+Feature by issue: `feature/1-login`
+
+Feature normal: `feature/login` 
+
+### type ở trên có thể là:
++ feature: A new feature
++ fix: A bug fix
++ hotfix: hotfix bug
