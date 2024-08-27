@@ -8,20 +8,7 @@ const config: Config = {
     ],
     darkMode: 'class',
     theme: {
-        extend: {
-            backgroundImage: {
-                "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
-                "gradient-conic":
-                    "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
-            },
-        },
-        colors: {
-            white: '#000000',
-            background: {
-                100: 'rgb(244 247 254)',
-                900: '#070f2e',
-            },
-        }
+        extend: {}
     },
     plugins: [],
 };
