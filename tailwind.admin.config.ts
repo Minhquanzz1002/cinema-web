@@ -39,12 +39,14 @@ const config: Config = {
         colors: {
             white: '#FFFFFF',
             'light-primary': '#F4F7FE',
+            'brand-linear': '#868CFF',
             gray: {
                 200: '#DADEEC',
                 300: '#C9D0E3',
                 400: '#B0BBD5',
                 600: '#A3AED0',
                 800: '#2D396B',
+                900: '#1B2559',
             },
             navy: {
                 700: '#1B254B',
@@ -54,10 +56,17 @@ const config: Config = {
             red: {
                 500: '#f53939',
             },
+            brand: {
+                500: '#422AFB',
+            },
             background: {
                 100: 'rgb(244 247 254)',
                 900: '#070f2e',
             },
+            shadow: {
+                100: 'var(--shadow-100)',
+                500: 'rgba(112, 144, 176, 0.08)',
+            }
         }
     },
     plugins: [],
