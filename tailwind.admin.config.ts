@@ -41,10 +41,13 @@ const config: Config = {
             'light-primary': '#F4F7FE',
             'brand-linear': '#868CFF',
             gray: {
+                50: '#F5F6FA',
+                100: '#EEF0F6',
                 200: '#DADEEC',
                 300: '#C9D0E3',
                 400: '#B0BBD5',
                 600: '#A3AED0',
+                700: '#707eae',
                 800: '#2D396B',
                 900: '#1B2559',
             },
@@ -55,6 +58,18 @@ const config: Config = {
             },
             red: {
                 500: '#f53939',
+            },
+            blue: {
+                50: '#eff6ff',
+                100: '#dbeafe',
+                200: '#bfdbfe',
+                300: '#93c5fd',
+                400: '#60a5fa',
+                500: '#3b82f6',
+                600: '#2152ff',
+                700: '#1d4ed8',
+                800: '#344e86',
+                900: '#00007d',
             },
             brand: {
                 500: '#422AFB',
