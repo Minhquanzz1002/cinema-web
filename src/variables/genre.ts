@@ -1,6 +1,6 @@
 import {faker} from "@faker-js/faker";
 
-export interface Genres {
+export interface Genre {
     id: number;
     code: string;
     name: string;
@@ -12,7 +12,7 @@ export interface Genres {
     deleted: boolean;
 }
 
-const createGenre = (id: number): Genres => {
+const createGenre = (id: number): Genre => {
     return {
         id: id,
         code: faker.string.uuid(),
@@ -26,7 +26,7 @@ const createGenre = (id: number): Genres => {
     };
 };
 
-const generateSampleGenres = (length: number): Genres[] => {
+const generateSampleGenres = (length: number): Genre[] => {
     return Array.from({length}, (_, index) => createGenre(index + 1));
 }
 

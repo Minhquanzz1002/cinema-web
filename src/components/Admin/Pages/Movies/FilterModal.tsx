@@ -3,7 +3,7 @@ import Modal from "@/components/Admin/Modal";
 import Button from "@/components/Admin/Modal/Button";
 import {FaBan} from "react-icons/fa6";
 import {FaCheckCircle} from "react-icons/fa";
-import generateSampleGenres, {Genres} from "@/variables/genres";
+import generateSampleGenres, {Genre} from "@/variables/genre";
 import {MdCheckBox, MdCheckBoxOutlineBlank, MdIndeterminateCheckBox} from "react-icons/md";
 
 type FilterModalProps = {
@@ -12,8 +12,8 @@ type FilterModalProps = {
 
 const FilterModal = React.memo((props: FilterModalProps) => {
     const {onClose} = props;
-    const [genres, setGenres] = useState<Genres[]>([]);
-    const [selectedGenres, setSelectedGenres] = useState<Genres[]>([]);
+    const [genres, setGenres] = useState<Genre[]>([]);
+    const [selectedGenres, setSelectedGenres] = useState<Genre[]>([]);
 
     useEffect(() => {
         setGenres(generateSampleGenres(10));
@@ -23,7 +23,7 @@ const FilterModal = React.memo((props: FilterModalProps) => {
         onClose();
     }
 
-    const toggleGenreSelection = (genre: Genres) => {
+    const toggleGenreSelection = (genre: Genre) => {
         setSelectedGenres((prevSelected) => {
             if (prevSelected.some(selected => selected.id === genre.id)) {
                 return prevSelected.filter(selected => selected.id !== genre.id);

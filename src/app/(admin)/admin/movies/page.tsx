@@ -15,6 +15,7 @@ import {BsGrid3X3Gap} from "react-icons/bs";
 import {PiListBold} from "react-icons/pi";
 import FilterModal from "@/components/Admin/Pages/Movies/FilterModal";
 import AddModal from "@/components/Admin/Pages/Movies/AddModal";
+import ImportModal from "@/components/Admin/Pages/Movies/ImportModal";
 
 const Movies = () => {
     const [currentPage, setCurrentPage] = useState<number>(1);
@@ -22,6 +23,7 @@ const Movies = () => {
     const [displayType, setDisplayType] = useState<"Grid" | "Table">("Table");
     const [showFilter, setShowFilter] = useState<boolean>(false);
     const [showAddModal, setShowAddModal] = useState<boolean>(false);
+    const [showImportModal, setShowImportModal] = useState<boolean>(false);
 
     const onChangePage = (page: number) => {
         setData(makeData(10));
@@ -132,12 +134,13 @@ const Movies = () => {
                                 <FaPlus className="h-4 w-4"/> Thêm
                             </button>
                             <button type="button"
+                                    onClick={() => setShowImportModal(true)}
                                     className="bg-brand-500 py-1.5 px-2 rounded flex items-center justify-center text-white gap-x-2 text-sm">
-                                <FaFileImport className="h-4 w-4"/> Nhập
+                                <FaFileImport className="h-4 w-4"/> Import
                             </button>
                             <button type="button"
                                     className="bg-brand-500 py-1.5 px-2 rounded flex items-center justify-center text-white gap-x-2 text-sm">
-                                <RiFileExcel2Line className="h-5 w-5"/> Xuất
+                                <RiFileExcel2Line className="h-5 w-5"/> Export
                             </button>
                         </div>
                     </div>
@@ -150,6 +153,9 @@ const Movies = () => {
             }
             {
                 showAddModal && <AddModal onClose={() => setShowAddModal(false)}/>
+            }
+            {
+                showImportModal && <ImportModal onClose={() => setShowImportModal(false)}/>
             }
         </>
     );
