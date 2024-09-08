@@ -2,16 +2,17 @@ import React, {useState} from 'react';
 import {TiArrowSortedDown} from "react-icons/ti";
 import {LuSearch} from "react-icons/lu";
 
-type SelectFieldProps = React.SelectHTMLAttributes<HTMLSelectElement> & {
+type SelectFieldProps<T> = React.SelectHTMLAttributes<HTMLSelectElement> & {
     label: string;
     extra?: string;
     extraLabel?: string;
     suffix?: React.ReactNode;
-    data: any[];
+    dataSource: T[];
+    renderItem: (item: T) => React.ReactNode;
 }
 
-const SelectField = (props: SelectFieldProps) => {
-    const {label, extra, extraLabel, id, suffix, data, ...rest} = props;
+const SelectField = <T,>(props: SelectFieldProps<T>) => {
+    const {label, extra, extraLabel, id, suffix, dataSource, renderItem, value,...rest} = props;
 
     const [showSelect, setShowSelect] = useState<boolean>(false);
 
@@ -20,7 +21,7 @@ const SelectField = (props: SelectFieldProps) => {
             <label className={`text-sm w-32 font-semibold flex-shrink-0 ${extraLabel}`} htmlFor={id}>{label}</label>
             <div className="flex items-center gap-x-2 border-b-2 focus-within:border-red-500 text-sm flex-1 h-7">
                 <div className="flex items-center justify-between relative flex-1 pe-2 cursor-pointer" onClick={() => setShowSelect(!showSelect)}>
-                    <span>--- Lựa chọn ---</span>
+                    <span>{value}</span>
                     <TiArrowSortedDown />
 
                     {
@@ -31,12 +32,14 @@ const SelectField = (props: SelectFieldProps) => {
                                     <LuSearch className="text-gray-600"/>
                                 </div>
 
-                                <div className="h-56 max-h-56 overflow-x-hidden overflow-y-auto flex flex-col mt-3">
+                                <div className="h-56 max-h-56 overflow-x-hidden overflow-y-auto flex flex-col mt-3 scrollbar-thin">
                                     <div className="cursor-pointer py-2 px-4">--- Lựa chọn ---</div>
                                     {
-                                        data.map((item, index) => (
-                                            <div key={"filter-" + index} className="cursor-pointer hover:bg-gray-50 py-2 px-4">
-                                                {item.name}
+                                        dataSource.map((item, index) => (
+                                            <div key={"filter-" + index}>
+                                                {
+                                                    renderItem(item)
+                                                }
                                             </div>
                                         ))
                                     }

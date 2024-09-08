@@ -1,6 +1,5 @@
 "use client";
 import React, {useEffect, useState} from 'react';
-import {makeData, Person} from "@/variables/tables/makeData";
 import {ColumnDef} from "@tanstack/table-core";
 import Table from "@/components/Admin/Tables";
 import {LuTrash} from "react-icons/lu";
@@ -16,6 +15,8 @@ import {PiListBold} from "react-icons/pi";
 import FilterModal from "@/components/Admin/Pages/Movies/FilterModal";
 import AddModal from "@/components/Admin/Pages/Movies/AddModal";
 import ImportModal from "@/components/Admin/Pages/Movies/ImportModal";
+import {exportToExcel} from "@/utils/exportToExcel";
+import generateSampleMovies, {Movie} from "@/variables/movies";
 
 const Movies = () => {
     const [currentPage, setCurrentPage] = useState<number>(1);
@@ -26,34 +27,34 @@ const Movies = () => {
     const [showImportModal, setShowImportModal] = useState<boolean>(false);
 
     const onChangePage = (page: number) => {
-        setData(makeData(10));
+        setData(generateSampleMovies(10));
         setCurrentPage(page);
     }
 
-    const columns = React.useMemo<ColumnDef<Person>[]>(
+    const columns = React.useMemo<ColumnDef<Movie>[]>(
         () => [
             {
-                accessorKey: 'firstName',
+                accessorKey: 'id',
                 header: () => (
-                    <p className="text-sm font-bold text-gray-600 dark:text-white uppercase">First name</p>
+                    <p className="text-sm font-bold text-gray-600 dark:text-white uppercase">ID</p>
                 ),
                 footer: props => props.column.id,
             },
             {
-                accessorFn: row => row.lastName,
-                id: 'lastName',
+                accessorFn: row => row.title,
+                id: 'title',
                 cell: info => info.getValue(),
-                header: () => <span>Last Name</span>,
+                header: () => <span>Tiêu đề</span>,
                 footer: props => props.column.id,
             },
             {
                 accessorKey: 'age',
-                header: () => 'Age',
+                header: () => 'Nhãn tuổi',
                 footer: props => props.column.id,
             },
             {
-                accessorKey: 'visits',
-                header: () => <span>Visits</span>,
+                accessorKey: 'duration',
+                header: () => <span>Thời lượng</span>,
                 footer: props => props.column.id,
             },
             {
@@ -71,8 +72,8 @@ const Movies = () => {
                 footer: props => props.column.id,
             },
             {
-                accessorKey: 'progress',
-                header: 'Profile Progress',
+                accessorKey: 'rating',
+                header: 'Đánh giá',
                 footer: props => props.column.id,
             },
             {
@@ -94,10 +95,14 @@ const Movies = () => {
         []
     )
 
-    const [data, setData] = React.useState<Person[]>([]);
+    const [data, setData] = React.useState<Movie[]>([]);
+
+    const handleExportExcel = () => {
+        exportToExcel<Movie>(data, [], "person.xlsx");
+    }
 
     useEffect(() => {
-        setData(makeData(10));
+        setData(generateSampleMovies(10));
     }, []);
 
     return (
@@ -139,13 +144,14 @@ const Movies = () => {
                                 <FaFileImport className="h-4 w-4"/> Import
                             </button>
                             <button type="button"
+                                    onClick={handleExportExcel}
                                     className="bg-brand-500 py-1.5 px-2 rounded flex items-center justify-center text-white gap-x-2 text-sm">
                                 <RiFileExcel2Line className="h-5 w-5"/> Export
                             </button>
                         </div>
                     </div>
                 </Card>
-                <Table<Person> data={data} columns={columns} currentPage={currentPage} totalPages={totalPages}
+                <Table<Movie> data={data} columns={columns} currentPage={currentPage} totalPages={totalPages}
                                onChangePage={onChangePage}/>
             </div>
             {
