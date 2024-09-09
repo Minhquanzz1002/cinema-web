@@ -17,7 +17,6 @@ const Page = () => {
             <Promotional />
             <IntroduceBackground />
             <Introduce />
-            <Footer />
         </>
     );
 };

@@ -81,7 +81,9 @@ function Movie() {
 
             <div>
                 <div className="grid grid-cols-4 gap-4 mb-10">
+               
                     {displayedMovies.map((movie) => (
+                         <Link key={movie.id} href="/booking"> {/* Use Link for navigation */}
                         <div
                             key={movie.id}
                             className="relative p-2 cursor-pointer"
@@ -114,6 +116,7 @@ function Movie() {
                                 </button>
                             </div>
                         </div>
+                        </Link>
                     ))}
                 </div>
             </div>
@@ -121,7 +124,7 @@ function Movie() {
             <div className="flex items-center justify-center mb-10">
                 <Link
                     className="flex items-center px-6 py-2 border border-orange-600 text-orange-600 font-semibold rounded-[5px] hover:text-white hover:bg-orange-500 transition duration-300"
-                    href={""}>
+                    href={"movie-detail"}>
                     Xem thêm
                     <RiArrowRightSLine className="ml-2"/>
                 </Link>
