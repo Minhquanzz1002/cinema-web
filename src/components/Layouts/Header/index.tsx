@@ -1,8 +1,12 @@
 "use client";
 import Image from "next/image";
-import React, {useState} from "react";
-import {FaChevronDown, FaEye, FaEyeSlash, FaSearch, FaTimes} from "react-icons/fa";
+import React, {useEffect, useState} from "react";
+import { FaChevronDown, FaEye, FaEyeSlash, FaSearch, FaTimes, FaUserCircle, FaSignOutAlt  } from "react-icons/fa";
 import Link from "next/link"; // Import useRouter
+import { useRouter } from 'next/navigation'
+import { ro } from "@faker-js/faker";
+
+
 
 
 export default function Header() {
@@ -10,8 +14,35 @@ export default function Header() {
     const [showSearch, setShowSearch] = useState(false);
     const [showLoginForm, setShowLoginForm] = useState(false);
     const [showRegisterForm, setShowRegisterForm] = useState(false);
+    const [user, setUser] = useState<{ name: string } | null>(null);
 
+    const router = useRouter();
 
+    useEffect(() => {
+        const storedUser = localStorage.getItem("user");
+        if (storedUser) {
+            const parsedUser = JSON.parse(storedUser);
+            console.log("Stored user:", parsedUser); // Kiểm tra giá trị
+            if (parsedUser.data && parsedUser.data.name) {
+                console.log("Stored user name:", parsedUser.data.name); // Kiểm tra giá trị name
+                setUser(parsedUser.data); // Cập nhật trạng thái người dùng
+            } else {
+                console.log("Stored user does not have a name");
+            }
+        } else {
+            console.log("No user found in localStorage");
+        }
+    }, []);
+    
+    const handleLoginSuccess = (userData: any) => {
+        const { data } = userData; // Giả sử `userData` có cấu trúc như trong localStorage
+        localStorage.setItem("user", JSON.stringify(userData)); // Lưu dữ liệu vào localStorage
+        setUser(data); // Cập nhật trạng thái người dùng
+        setShowLoginForm(false); // Đóng form đăng nhập
+    };
+    
+    
+    
     const handleSearchClick = () => {
         setShowSearch(!showSearch);
     };
@@ -32,6 +63,10 @@ export default function Header() {
 
     const handleCloseRegisterForm = () => {
         setShowRegisterForm(false);
+    };
+    const handleLogout = () => {
+        localStorage.removeItem("user"); // Xóa thông tin người dùng khỏi localStorage
+        setUser(null); // Cập nhật lại trạng thái để hiển thị nút đăng nhập/đăng ký
     };
 
     return (
@@ -56,8 +91,9 @@ export default function Header() {
                     Rạp/Giá vé <FaChevronDown className="ml-2 text-[10px]"/>
                 </button>
             </div>
-            <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-2">
+            {!user ? (
+                <div className="flex items-center space-x-4">
+                    <div className="flex items-center space-x-2">
                     <FaSearch
                         className="text-gray-500 cursor-pointer text-[14px]"
                         onClick={handleSearchClick}
@@ -70,91 +106,167 @@ export default function Header() {
                         />
                     )}
                 </div>
-                <button
-                    className="bg-white text-gray-500 p-2 px-3 rounded-full"
-                    onClick={handleLoginClick}
-                >
-                    Đăng nhập
-                </button>
-                <button
-                    className="bg-white text-gray-500 p-2 px-3 rounded-full"
-                    onClick={handleRegisterClick}
-                >
-                    Đăng ký
-                </button>
-            </div>
-            {showLoginForm && <LoginForm onClose={handleCloseLoginForm}/>}
+                    <button
+                        className="bg-white text-gray-500 p-2 px-3 rounded-full"
+                        onClick={handleLoginClick}
+                    >
+                        Đăng nhập
+                    </button>
+                    <button
+                        className="bg-white text-gray-500 p-2 px-3 rounded-full"
+                        onClick={handleRegisterClick}
+                    >
+                        Đăng ký
+                    </button>
+                </div>
+            ) : (
+                <div className="flex items-center space-x-4">
+                    <FaUserCircle className="text-gray-500 text-3xl" />
+                    <span className="text-gray-700">{user ? user.name : "Tên người dùng"}</span>
+                    <button
+                        className="bg-white text-gray-500 p-2 px-3 rounded-full flex items-center"
+                        onClick={handleLogout}
+                    >
+                        <FaSignOutAlt className="mr-2" /> Đăng xuất
+                    </button>
+                </div>
+            )}
+
+            {showLoginForm && <LoginForm onClose={handleCloseLoginForm} onSuccess={handleLoginSuccess} />}
             {showRegisterForm && <RegisterForm onSwitchToLogin={handleLoginClick} onClose={handleCloseRegisterForm}/>}
             {showLoginForm && <LoginForm onSwitchToRegister={handleRegisterClick} onClose={handleCloseLoginForm}/>}
         </div>
     );
 }
 
-function LoginForm({onClose, onSwitchToRegister}: { onClose: () => void; onSwitchToRegister?: () => void }) {
+
+function LoginForm({ onClose, onSwitchToRegister, onSuccess}: { onClose: () => void; onSwitchToRegister?: () => void; onSuccess?: (userData: { name: string }) => void }) {
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [errors, setErrors] = useState({ email: "", password: "" });
     const [passwordVisible, setPasswordVisible] = useState(false);
 
     const togglePasswordVisibility = () => {
         setPasswordVisible(!passwordVisible);
     };
 
+    const isValidEmail = (email: string) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    };
+
+    const validate = () => {
+        const newErrors: any = {};
+        if (!email.trim()) {
+            newErrors.email = "Email không được để trống";
+        } else if (!isValidEmail(email)) {
+            newErrors.email = "Email không đúng định dạng";
+        }
+
+        if (!password.trim()) {
+            newErrors.password = "Mật khẩu không được để trống";
+        } else if (password.length < 8) {
+            newErrors.password = "Mật khẩu phải ít nhất 8 ký tự";
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+    
+        if (!validate()) return;
+    
+        const loginData = {
+            email,
+            password,
+        };
+    
+        try {
+            const response = await fetch("http://localhost:8080/api/v1/auth/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(loginData),
+            });
+    
+            if (response.ok) {
+                const data = await response.json();
+                alert("Đăng nhập thành công!");
+                
+                // Lưu dữ liệu đăng nhập vào localStorage
+                localStorage.setItem("user", JSON.stringify(data));
+                console.log("User data:", data);
+    
+                // Đóng form đăng nhập
+                onClose();
+                window.location.reload();
+            } else {
+                const errorData = await response.json();
+                alert(errorData.message || "Đăng nhập thất bại!");
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            alert("Có lỗi xảy ra. Vui lòng thử lại sau.");
+        }
+    };
+    
+
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white p-7 rounded-lg shadow-lg w-[410px]">
                 <div className="flex justify-end items-center">
-                    <FaTimes
-                        className="text-gray-500 cursor-pointer text-lg"
-                        onClick={onClose}
-                    />
+                    <FaTimes className="text-gray-500 cursor-pointer text-lg" onClick={onClose} />
                 </div>
-                <Image
-                    src="/image/LoginLogo.png"
-                    alt="logoLogin"
-                    width={530}
-                    height={140}
-                />
-                <label className="block text-gray-500 text-[10px] font-bold mt-4">
-                    Email
-                </label>
+                <Image src="/image/LoginLogo.png" alt="logoLogin" width={530} height={140} />
+
+                {/* Email */}
+                <label className="block text-gray-500 text-[10px] font-bold mt-4">Email</label>
                 <input
                     type="email"
                     placeholder="Email"
-                    className="w-full p-1.5 mb-4 border border-gray-300 rounded focus:border-blue-500 focus:outline-none"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    onBlur={() => validate()}
+                    className="w-full p-1.5 mb-1 border border-gray-300 rounded focus:border-blue-500 focus:outline-none"
                 />
-                <label className="block text-gray-500 text-[10px] font-bold mt-0">
-                    Mật khẩu
-                </label>
-                <div className="relative w-full mb-4">
+                {errors.email && <p className="text-red-500 text-xs mb-4">{errors.email}</p>}
+
+                {/* Mật khẩu */}
+                <label className="block text-gray-500 text-[10px] font-bold mt-0">Mật khẩu</label>
+                <div className="relative w-full mb-1">
                     <input
                         type={passwordVisible ? "text" : "password"}
                         placeholder="Mật khẩu"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        onBlur={() => validate()}
                         className="w-full p-1.5 pr-10 border border-gray-300 rounded focus:border-blue-500 focus:outline-none"
                     />
-                    <div
-                        className="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer"
-                        onClick={togglePasswordVisibility}
-                    >
-                        {passwordVisible ? (
-                            <FaEye className="text-gray-500"/>
-                        ) : (
-                            <FaEyeSlash className="text-gray-500"/>
-                        )}
+                    <div className="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer" onClick={togglePasswordVisibility}>
+                        {passwordVisible ? <FaEye className="text-gray-500" /> : <FaEyeSlash className="text-gray-500" />}
                     </div>
                 </div>
-                <button className="w-full bg-[#F58020] text-white p-2 rounded mt-2">
+                {errors.password && <p className="text-red-500 text-xs mb-4">{errors.password}</p>}
+
+                <button className="w-full bg-[#F58020] text-white p-2 rounded mt-2" onClick={handleSubmit}>
                     ĐĂNG NHẬP
                 </button>
-                <div className="text-left mt-2.5"></div>
+
                 <div className="text-left mt-4">
                     <a href="#" className="text-[14px] text-gray-500">
                         Quên mật khẩu?
                     </a>
                 </div>
+
                 <div className="text-left mt-4 border-b-[1px] border-[#d1d5db]"></div>
+
                 <div className="text-center mt-4">
-                    <label className="text-left text-gray-500 text-[14px]">
-                        Bạn chưa có tài khoản?
-                    </label>
+                    <label className="text-left text-gray-500 text-[14px]">Bạn chưa có tài khoản?</label>
                 </div>
+
                 <button
                     className="w-full text-[#F58020] p-1.5 rounded mt-2 border border-[#F58020] hover:bg-[#F58020] hover:text-white focus:bg-[#F58020] focus:text-white"
                     onClick={onSwitchToRegister}
@@ -166,10 +278,31 @@ function LoginForm({onClose, onSwitchToRegister}: { onClose: () => void; onSwitc
     );
 }
 
-function RegisterForm({onSwitchToLogin, onClose}: { onSwitchToLogin: () => void, onClose: () => void }) {
+function RegisterForm({ onSwitchToLogin, onClose }: { onSwitchToLogin: () => void, onClose: () => void }) {
     const [passwordVisible, setPasswordVisible] = useState(false);
     const [passwordVisibleReTurn, setPasswordVisibleReTurn] = useState(false);
     const [termsAccepted, setTermsAccepted] = useState(false);
+
+    const router = useRouter()
+
+    // State cho các trường input
+    const [name, setName] = useState("");
+    const [email, setEmail] = useState("");
+    const [phone, setPhone] = useState("");
+    const [gender, setGender] = useState(true);
+    const [birthday, setBirthday] = useState("");
+    const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+
+    // State cho các lỗi
+    const [errors, setErrors] = useState({
+        name: "",
+        email: "",
+        phone: "",
+        birthday: "",
+        password: "",
+        confirmPassword: "",
+    });
 
     const togglePasswordVisibility = () => {
         setPasswordVisible(!passwordVisible);
@@ -181,6 +314,134 @@ function RegisterForm({onSwitchToLogin, onClose}: { onSwitchToLogin: () => void,
 
     const handleTermsChange = () => {
         setTermsAccepted(!termsAccepted);
+    };
+
+    const isValidEmail = (email: string) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    };
+
+    const isValidPhone = (phone: string) => {
+        return phone.length === 10 && /^\d+$/.test(phone);
+    };
+
+    const isOldEnough = (birthday: string) => {
+        const today = new Date();
+        const birthDate = new Date(birthday);
+        const age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+        const dayDiff = today.getDate() - birthDate.getDate();
+        return age > 18 || (age === 18 && (monthDiff > 0 || (monthDiff === 0 && dayDiff >= 0)));
+    };
+
+    // Kiểm tra lỗi khi rời khỏi ô input
+    const validateField = (name: string, value: string) => {
+        const newErrors: any = { ...errors };
+
+        switch (name) {
+            case "name":
+                newErrors.name = !value.trim() ? "Không được để trống" : "";
+                break;
+            case "email":
+                if (!value.trim()) {
+                    newErrors.email = "Không được để trống";
+                } else if (!isValidEmail(value)) {
+                    newErrors.email = "Email không đúng định dạng";
+                } else {
+                    newErrors.email = "";
+                }
+                break;
+            case "phone":
+                if (!value.trim()) {
+                    newErrors.phone = "Không được để trống";
+                } else if (!isValidPhone(value)) {
+                    newErrors.phone = "Số điện thoại phải có 10 số";
+                } else {
+                    newErrors.phone = "";
+                }
+                break;
+            case "birthday":
+                if (!value.trim()) {
+                    newErrors.birthday = "Không được để trống";
+                } else if (!isOldEnough(value)) {
+                    newErrors.birthday = "Bạn phải đủ 18 tuổi";
+                } else {
+                    newErrors.birthday = "";
+                }
+                break;
+            case "password":
+                if (!value.trim()) {
+                    newErrors.password = "Không được để trống";
+                } else if (value.length < 8) {
+                    newErrors.password = "Mật khẩu phải ít nhất 8 ký tự";
+                } else {
+                    newErrors.password = "";
+                }
+                break;
+            case "confirmPassword":
+                if (!value.trim()) {
+                    newErrors.confirmPassword = "Không được để trống";
+                } else if (value !== password) {
+                    newErrors.confirmPassword = "Mật khẩu không khớp";
+                } else {
+                    newErrors.confirmPassword = "";
+                }
+                break;
+        }
+
+        setErrors(newErrors);
+    };
+
+    const validate = () => {
+        const newErrors: any = {};
+        if (!name.trim()) newErrors.name = "Không được để trống";
+        if (!email.trim()) newErrors.email = "Không được để trống";
+        else if (!isValidEmail(email)) newErrors.email = "Email không đúng định dạng";
+        if (!phone.trim()) newErrors.phone = "Không được để trống";
+        else if (!isValidPhone(phone)) newErrors.phone = "Số điện thoại phải có 10 số";
+        if (!birthday) newErrors.birthday = "Không được để trống";
+        else if (!isOldEnough(birthday)) newErrors.birthday = "Bạn phải đủ 18 tuổi";
+        if (!password) newErrors.password = "Không được để trống";
+        else if (password.length < 8) newErrors.password = "Mật khẩu phải ít nhất 8 ký tự";
+        if (password !== confirmPassword) newErrors.confirmPassword = "Mật khẩu không khớp";
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!validate()) return;
+
+        const data = {
+            name,
+            email,
+            phone,
+            gender,
+            birthday,
+            password
+        };
+
+        try {
+            const response = await fetch("http://localhost:8080/api/v1/auth/register", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+            });
+
+            if (response.ok) {
+                alert("Đăng ký thành công!");
+                // đóng Hợp thoại đăng ký
+                onClose();
+            } else {
+                const errorData = await response.json();
+                alert(errorData.message || "Đăng ký thất bại!");
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            alert("Có lỗi xảy ra. Vui lòng thử lại sau.");
+        }
     };
 
     return (
@@ -201,54 +462,73 @@ function RegisterForm({onSwitchToLogin, onClose}: { onSwitchToLogin: () => void,
                     />
                 </div>
                 <h3 className="text-center text-xl font-bold text-gray-700">Đăng Ký Tài Khoản</h3>
+
+                {/* Họ và tên */}
                 <label className="block text-gray-500 text-[10px] font-bold mt-4">
                     Họ và tên
                 </label>
                 <input
                     type="text"
                     placeholder="Nhập Họ và tên"
-                    className="w-full p-1.5 mb-4 border border-gray-300 rounded focus:border-blue-500 focus:outline-none"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    onBlur={(e) => validateField("name", e.target.value)}
+                    className="w-full p-1.5 mb-1 border border-gray-300 rounded focus:border-blue-500 focus:outline-none"
                 />
+                {errors.name && <p className="text-red-500 text-xs mb-4">{errors.name}</p>}
+
+                {/* Email */}
                 <label className="block text-gray-500 text-[10px] font-bold">
                     Email
                 </label>
                 <input
                     type="email"
                     placeholder="Nhập Email"
-                    className="w-full p-1.5 mb-4 border border-gray-300 rounded focus:border-blue-500 focus:outline-none"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    onBlur={(e) => validateField("email", e.target.value)}
+                    className="w-full p-1.5 mb-1 border border-gray-300 rounded focus:border-blue-500 focus:outline-none"
                 />
+                {errors.email && <p className="text-red-500 text-xs mb-4">{errors.email}</p>}
+
+                {/* Số điện thoại */}
                 <label className="block text-gray-500 text-[10px] font-bold">
                     Số điện thoại
                 </label>
                 <input
                     type="tel"
                     placeholder="Nhập Số điện thoại"
-                    className="w-full p-1.5 mb-4 border border-gray-300 rounded focus:border-blue-500 focus:outline-none"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    onBlur={(e) => validateField("phone", e.target.value)}
+                    className="w-full p-1.5 mb-1 border border-gray-300 rounded focus:border-blue-500 focus:outline-none"
                 />
-                <div className="flex items-center mb-4">
-                    <label className="flex items-center mr-4">
-                        <input type="radio" name="gender" value="male" className="mr-2"/>
-                        Nam
-                    </label>
-                    <label className="flex items-center">
-                        <input type="radio" name="gender" value="female" className="mr-2"/>
-                        Nữ
-                    </label>
-                </div>
-                <label className="block text-gray-500 text-[10px] font-bold mt-0">
+                {errors.phone && <p className="text-red-500 text-xs mb-4">{errors.phone}</p>}
+
+                {/* Ngày sinh */}
+                <label className="block text-gray-500 text-[10px] font-bold">
                     Ngày sinh
                 </label>
                 <input
                     type="date"
-                    className="w-full p-1.5 mb-4 border border-gray-300 rounded focus:border-blue-500 focus:outline-none"
+                    value={birthday}
+                    onChange={(e) => setBirthday(e.target.value)}
+                    onBlur={(e) => validateField("birthday", e.target.value)}
+                    className="w-full p-1.5 mb-1 border border-gray-300 rounded focus:border-blue-500 focus:outline-none"
                 />
+                {errors.birthday && <p className="text-red-500 text-xs mb-4">{errors.birthday}</p>}
+
+                {/* Mật khẩu */}
                 <label className="block text-gray-500 text-[10px] font-bold mt-0">
                     Mật khẩu
                 </label>
-                <div className="relative w-full mb-4">
+                <div className="relative w-full mb-1">
                     <input
                         type={passwordVisible ? "text" : "password"}
-                        placeholder="Mật khẩu"
+                        placeholder="Nhập mật khẩu"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        onBlur={(e) => validateField("password", e.target.value)}
                         className="w-full p-1.5 pr-10 border border-gray-300 rounded focus:border-blue-500 focus:outline-none"
                     />
                     <div
@@ -256,19 +536,25 @@ function RegisterForm({onSwitchToLogin, onClose}: { onSwitchToLogin: () => void,
                         onClick={togglePasswordVisibility}
                     >
                         {passwordVisible ? (
-                            <FaEye className="text-gray-500"/>
+                            <FaEye className="text-gray-500" />
                         ) : (
-                            <FaEyeSlash className="text-gray-500"/>
+                            <FaEyeSlash className="text-gray-500" />
                         )}
                     </div>
                 </div>
+                {errors.password && <p className="text-red-500 text-xs mb-4">{errors.password}</p>}
+
+                {/* Nhập lại mật khẩu */}
                 <label className="block text-gray-500 text-[10px] font-bold mt-0">
                     Nhập lại mật khẩu
                 </label>
-                <div className="relative w-full mb-4">
+                <div className="relative w-full mb-1">
                     <input
                         type={passwordVisibleReTurn ? "text" : "password"}
                         placeholder="Nhập lại mật khẩu"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        onBlur={(e) => validateField("confirmPassword", e.target.value)}
                         className="w-full p-1.5 pr-10 border border-gray-300 rounded focus:border-blue-500 focus:outline-none"
                     />
                     <div
@@ -276,12 +562,15 @@ function RegisterForm({onSwitchToLogin, onClose}: { onSwitchToLogin: () => void,
                         onClick={togglePasswordVisibilityReTurn}
                     >
                         {passwordVisibleReTurn ? (
-                            <FaEye className="text-gray-500"/>
+                            <FaEye className="text-gray-500" />
                         ) : (
-                            <FaEyeSlash className="text-gray-500"/>
+                            <FaEyeSlash className="text-gray-500" />
                         )}
                     </div>
                 </div>
+                {errors.confirmPassword && <p className="text-red-500 text-xs mb-4">{errors.confirmPassword}</p>}
+
+                {/* Đồng ý điều khoản */}
                 <div className="flex items-center mb-4">
                     <input
                         type="checkbox"
@@ -290,22 +579,28 @@ function RegisterForm({onSwitchToLogin, onClose}: { onSwitchToLogin: () => void,
                         className="mr-2"
                     />
                     <label className="text-gray-500 text-[12px]">
-                        Bằng việc đăng ký tài khoản, tôi đồng ý với các <i className="text-[#2563eb]">Điều khoản dịch
-                        vụ</i> và <i className="text-[#2563eb]">Chính sách bảo mật</i> của Galaxy Cinema
+                        Bằng việc đăng ký tài khoản, tôi đồng ý với các{" "}
+                        <i className="text-[#2563eb]">Điều khoản dịch vụ</i> và{" "}
+                        <i className="text-[#2563eb]">Chính sách bảo mật</i> của Galaxy Cinema
                     </label>
                 </div>
+
                 <button
                     className={`w-full ${termsAccepted ? "bg-[#dc2626]" : "bg-gray-400"} text-white p-2 rounded mt-2`}
                     disabled={!termsAccepted}
+                    onClick={handleSubmit}
                 >
                     HOÀN THÀNH
                 </button>
+
                 <div className="text-left mt-8 border-b-[1px] border-[#d1d5db]"></div>
+
                 <div className="text-center mt-4">
                     <label className="text-left text-gray-500 text-[14px]">
                         Bạn đã có tài khoản?
                     </label>
                 </div>
+
                 <button
                     className="w-full text-[#F58020] p-1.5 rounded mt-2 border border-[#F58020] hover:bg-[#F58020] hover:text-white focus:bg-[#F58020] focus:text-white"
                     onClick={onSwitchToLogin}
@@ -316,3 +611,4 @@ function RegisterForm({onSwitchToLogin, onClose}: { onSwitchToLogin: () => void,
         </div>
     );
 }
+
