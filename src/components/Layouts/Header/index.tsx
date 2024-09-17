@@ -5,6 +5,7 @@ import { FaChevronDown, FaEye, FaEyeSlash, FaSearch, FaTimes, FaUserCircle, FaSi
 import Link from "next/link"; // Import useRouter
 import { useRouter } from 'next/navigation'
 import { ro } from "@faker-js/faker";
+import { on } from "events";
 
 
 
@@ -14,6 +15,7 @@ export default function Header() {
     const [showSearch, setShowSearch] = useState(false);
     const [showLoginForm, setShowLoginForm] = useState(false);
     const [showRegisterForm, setShowRegisterForm] = useState(false);
+    const [showForgotPassword, setShowForgotPassword] = useState(false);
     const [user, setUser] = useState<{ name: string } | null>(null);
 
     const router = useRouter();
@@ -68,6 +70,16 @@ export default function Header() {
         localStorage.removeItem("user"); // Xóa thông tin người dùng khỏi localStorage
         setUser(null); // Cập nhật lại trạng thái để hiển thị nút đăng nhập/đăng ký
     };
+
+    const handleForgotPasswordClick = () => {
+        setShowForgotPassword(true);
+        setShowLoginForm(false); // Đóng form đăng nhập khi mở form quên mật khẩu
+    };
+
+    const handleCloseForgotPasswordModal = () => {
+        setShowForgotPassword(false);
+    };
+
 
     return (
         <div className="flex justify-between items-center p-5 px-20">
@@ -135,12 +147,117 @@ export default function Header() {
             {showLoginForm && <LoginForm onClose={handleCloseLoginForm} onSuccess={handleLoginSuccess} />}
             {showRegisterForm && <RegisterForm onSwitchToLogin={handleLoginClick} onClose={handleCloseRegisterForm}/>}
             {showLoginForm && <LoginForm onSwitchToRegister={handleRegisterClick} onClose={handleCloseLoginForm}/>}
+            {showForgotPassword && <ForgotPasswordModal onClose={handleCloseForgotPasswordModal} />}
+
+          
+            {showLoginForm && <LoginForm onSwitchToRegister={handleRegisterClick} onClose={handleCloseLoginForm} onForgotPasswordClick={handleForgotPasswordClick} />}
+            {showForgotPassword && <ForgotPasswordModal onClose={handleCloseForgotPasswordModal} onSwitchToLogin={handleLoginClick} />}
+        </div>
+    );
+}
+
+// Component Modal Quên Mật Khẩu
+function ForgotPasswordModal({ onClose, onSwitchToLogin }: { onClose: () => void, onSwitchToLogin?: () => void }) {
+    const [email, setEmail] = useState("");
+    const [error, setError] = useState("");
+    const router = useRouter(); // Khai báo useRouter
+
+    const isValidEmail = (email: string) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setError("");
+
+        if (!email.trim()) {
+            setError("Email không được để trống");
+            return;
+        }
+
+        if (!isValidEmail(email)) {
+            setError("Email không đúng định dạng");
+            return;
+        }
+
+        try {
+            const response = await fetch("http://localhost:8080/api/v1/auth/forgot-password", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ email }),
+            });
+
+            if (response.ok) {
+                alert("Đã gửi email quên mật khẩu thành công!");
+                onClose();
+                onSwitchToLogin && onSwitchToLogin();
+                
+            } else {
+                const errorData = await response.json();
+                setError(errorData.message || "Có lỗi xảy ra!");
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            setError("Có lỗi xảy ra. Vui lòng thử lại sau.");
+        }
+    };
+
+    return (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white p-7 rounded-lg shadow-lg w-[410px]">
+                <div className="flex justify-end items-center">
+                    <FaTimes className="text-gray-500 cursor-pointer text-lg" onClick={onClose} />
+                </div>
+                <div className="flex justify-center items-center mb-4">
+                    <Image
+                        src="https://www.galaxycine.vn/_next/static/media/icon-login.fbbf1b2d.svg"
+                        alt="logoForgotPassword"
+                        width={190}
+                        height={120}
+                    />
+                </div>
+                <div className="text-center">
+                    <h2 className="text-[16px] font-bold mb-4">Quên Mật Khẩu?</h2>
+                </div>
+                <p className="text-gray-500 text-[13px] text-left mb-4">
+                    Vui lòng nhập email đăng nhập chúng tôi sẽ gửi link kích hoạt cho bạn
+                </p>
+                <form onSubmit={handleSubmit}>
+                    <label className="block text-gray-500 text-sm font-bold mb-1">Email</label>
+                    <input
+                        type="email"
+                        placeholder="Nhập Email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        onBlur={() => {
+                            if (!email.trim()) {
+                                setError("Email không được để trống");
+                            } else if (!isValidEmail(email)) {
+                                setError("Email không đúng định dạng");
+                            } else {
+                                setError("");
+                            }
+                        }}
+                        className="w-full p-2 border border-gray-300 rounded mb-3"
+                    />
+                    {error && <p className="text-red-500 text-xs mb-3">{error}</p>}
+                    <button className="w-full bg-[#F58020] text-white p-2 rounded font-bold"
+                    >
+                        CẤP LẠI MẬT KHẨU
+                    </button>
+                </form>
+            </div>
         </div>
     );
 }
 
 
-function LoginForm({ onClose, onSwitchToRegister, onSuccess}: { onClose: () => void; onSwitchToRegister?: () => void; onSuccess?: (userData: { name: string }) => void }) {
+
+
+function LoginForm({ onClose, onSwitchToRegister, onSuccess, onForgotPasswordClick}: { onClose: () => void; onSwitchToRegister?: () => void; onSuccess?: (userData: { name: string }) => void,  onForgotPasswordClick?: () => void }) {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [errors, setErrors] = useState({ email: "", password: "" });
@@ -256,9 +373,9 @@ function LoginForm({ onClose, onSwitchToRegister, onSuccess}: { onClose: () => v
                 </button>
 
                 <div className="text-left mt-4">
-                    <a href="#" className="text-[14px] text-gray-500">
+                <button className="text-[14px] text-gray-500" onClick={onForgotPasswordClick}>
                         Quên mật khẩu?
-                    </a>
+                    </button>
                 </div>
 
                 <div className="text-left mt-4 border-b-[1px] border-[#d1d5db]"></div>
