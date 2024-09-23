@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
-import foodData from "@/variables/client/food";
-
+import { useRouter } from "next/navigation";
 
 // Định nghĩa kiểu dữ liệu cho bookingDetails
 interface BookingDetails {
@@ -12,60 +11,61 @@ interface BookingDetails {
   date: string;
   selectedSeats: string[];
   totalPrice: number;
-  soT: string;
+  age?: string;
 }
 
 // Định nghĩa kiểu dữ liệu cho FoodItem
 interface FoodItem {
   id: number;
-  title: string;
-  content: string;
-  price: number | string;
+  name: string;
+  description: string;
+  price: number;
   image: string;
 }
 
-
 function ChooseFoodInformation() {
   const [bookingDetails, setBookingDetails] = useState<BookingDetails | null>(null);
+  const [foodData, setFoodData] = useState<FoodItem[]>([]);
   const [comboQuantities, setComboQuantities] = useState<{ [key: number]: number }>({});
   const [initialTotalPrice, setInitialTotalPrice] = useState<number>(0);
   const [showConfirmation, setShowConfirmation] = useState<boolean>(false);
-
+  const router = useRouter();
 
   useEffect(() => {
     const storedDetails = localStorage.getItem("bookingDetails");
     if (storedDetails) {
       const parsedDetails = JSON.parse(storedDetails) as BookingDetails;
       setBookingDetails(parsedDetails);
-      setInitialTotalPrice(
-        parseFloat(parsedDetails.totalPrice.toString().replace(/\D/g, "")) || 0
-      );
+      setInitialTotalPrice(parsedDetails.totalPrice || 0);
     }
+
+    // Fetch food data from API
+    const fetchFoodData = async () => {
+      try {
+        const response = await fetch("http://localhost:8080/api/v1/products");
+        const result = await response.json();
+        setFoodData(result.data);
+      } catch (error) {
+        console.error("Error fetching food data:", error);
+      }
+    };
+
+    fetchFoodData();
   }, []);
 
   const calculateTotalComboPrice = (quantities: { [key: number]: number }) => {
     return Object.keys(quantities).reduce((total, id) => {
       const numericId = parseInt(id, 10);
-      console.log(`id: ${id}, numericId: ${numericId}`); // Debugging
-  
       if (isNaN(numericId)) return total;
-  
-      const combo = foodData.find((item: FoodItem) => {
-        console.log(`Comparing item.id: ${item.id} with numericId: ${numericId}`); // Debugging
-        return item.id === numericId;
-      });
-  
+
+      const combo = foodData.find((item: FoodItem) => item.id === numericId);
       if (combo) {
         const quantity = quantities[numericId] || 0;
-        const price = parseFloat(combo.price.toString().replace(/\D/g, "")) || 0;
-        return total + price * quantity;
+        return total + combo.price * quantity;
       }
       return total;
     }, 0);
   };
-  
-  
-  
 
   const updateTotalPrice = (newComboQuantities: { [key: number]: number }) => {
     const totalComboPrice = calculateTotalComboPrice(newComboQuantities);
@@ -81,10 +81,7 @@ function ChooseFoodInformation() {
 
       if (bookingDetails) {
         const newTotalPrice = updateTotalPrice(newQuantities);
-        setBookingDetails((prevDetails) => ({
-          ...prevDetails!,
-          totalPrice: newTotalPrice,
-        }));
+        setBookingDetails((prevDetails) => ({ ...prevDetails!, totalPrice: newTotalPrice }));
       }
 
       return newQuantities;
@@ -92,17 +89,13 @@ function ChooseFoodInformation() {
   };
 
   const handleBackClick = () => {
-    // Quay lại trang chọn  chose-seat
-    window.history.back();
+    router.back();
   };
 
   const handleDecrease = (id: number) => {
     setComboQuantities((prevQuantities) => {
       const currentQuantity = prevQuantities[id] || 0;
-
-      if (currentQuantity === 0) {
-        return prevQuantities;
-      }
+      if (currentQuantity === 0) return prevQuantities;
 
       const newQuantities = {
         ...prevQuantities,
@@ -111,10 +104,7 @@ function ChooseFoodInformation() {
 
       if (bookingDetails) {
         const newTotalPrice = updateTotalPrice(newQuantities);
-        setBookingDetails((prevDetails) => ({
-          ...prevDetails!,
-          totalPrice: newTotalPrice,
-        }));
+        setBookingDetails((prevDetails) => ({ ...prevDetails!, totalPrice: newTotalPrice }));
       }
 
       return newQuantities;
@@ -124,7 +114,7 @@ function ChooseFoodInformation() {
   const handleContinueClick = () => {
     setShowConfirmation(true);
   };
-  
+
   const handleConfirmClick = () => {
     if (bookingDetails) {
       const paymentDetails = {
@@ -138,23 +128,21 @@ function ChooseFoodInformation() {
         initialTotalPrice,
         totalPrice: bookingDetails.totalPrice
       };
-  
+
       localStorage.setItem("paymentDetails", JSON.stringify(paymentDetails));
     }
-  
+
     setShowConfirmation(false);
-    // Chuyển hướng đến trang payment
-    window.location.href = "/choose-seat/combos/payment";
+    router.push("/choose-seat/combos/payment");
   };
-  
 
   if (!bookingDetails) {
     return <div>Loading...</div>;
   }
 
   return (
-    <div className="choose-food-container grid grid-cols-1 lg:grid-cols-2 gap-8 px-[9%] ">
-      <div className="food-selection mt-8 ">
+    <div className="choose-food-container grid grid-cols-1 lg:grid-cols-2 gap-8 px-[9%]">
+      <div className="food-selection mt-8">
         <h3 className="text-lg font-serif mb-4">Chọn Combo</h3>
         <div className="grid grid-cols-1 w-[115%]">
           {foodData.map((item: FoodItem) => (
@@ -165,17 +153,14 @@ function ChooseFoodInformation() {
               <div className="flex items-center">
                 <img
                   src={item.image}
-                  alt={item.title}
-                  className='inline-block rounded-md  w-[150px] h-[100px] mr-4 object-cover duration-500 ease-in-out group-hover:opacity-100"
-                  scale-100 blur-0 grayscale-0)'
-                  width={120}
-                  height={120}
+                  alt={item.name}
+                  className='inline-block rounded-md w-[150px] h-[100px] mr-4 object-cover'
                 />
                 <div>
-                  <h4 className="text-[14px] font-serif mb-2">{item.title}</h4>
-                  <p className="text-sm mb-2">{item.content}</p>
+                  <h4 className="text-[14px] font-serif mb-2">{item.name}</h4>
+                  <p className="text-sm mb-2">{item.description}</p>
                   <p className="text-orange-500 font-bold">
-                    {item.price.toLocaleString()} 
+                    {item.price.toLocaleString()} đ
                   </p>
                 </div>
               </div>
@@ -207,17 +192,17 @@ function ChooseFoodInformation() {
           <img
             src={bookingDetails.image}
             alt={bookingDetails.movieTitle}
-            className='w-[125px] h-[190px] rounded  object-cover duration-500 ease-in-out group-hover:opacity-100"
-      scale-100 blur-0 grayscale-0)'
+            className='w-[125px] h-[190px] rounded object-cover'
           />
           <div className="ml-5">
-            <h2 className="text-xl font-bold mb-6">
-              {bookingDetails.movieTitle}
-            </h2>
+            <h2 className="text-xl font-bold mb-6">{bookingDetails.movieTitle}</h2>
             <p className="text-sm">
+              <span className="font-semibold">
+                {bookingDetails.format === "2D Phụ Đề" ? "IMAX 2D Phụ Đề" : "3D Phụ Đề"}
+              </span>{" "}
               {bookingDetails.format} -{" "}
               <span className="bg-orange-500 text-white px-2 py-1 rounded font-bold">
-                {bookingDetails.soT}
+                T{bookingDetails.age}
               </span>
             </p>
           </div>
@@ -227,8 +212,10 @@ function ChooseFoodInformation() {
         </p>
         <p className="text-[16px] mb-4">
           <span className="font-sans">Suất:</span>{" "}
-          <span className="font-bold">{bookingDetails.time}</span> -{" "}
-          {bookingDetails.date}
+          <span className="font-bold"> {typeof bookingDetails.time === "string"
+                  ? bookingDetails.time.slice(0, 5)
+                  : ""}
+              </span>{" "} - {bookingDetails.date}
         </p>
         <p>----------------------------------------------------------------------</p>
         <div className="flex items-center justify-between mt-2 mb-2">
@@ -238,9 +225,7 @@ function ChooseFoodInformation() {
               {bookingDetails.selectedSeats.join(", ")}
             </span>
           </p>
-          <p className=" font-bold">
-            {initialTotalPrice.toLocaleString()} đ
-          </p>
+          <p className="font-bold">{initialTotalPrice.toLocaleString()} đ</p>
         </div>
 
         <p>----------------------------------------------------------------------</p>
@@ -252,7 +237,7 @@ function ChooseFoodInformation() {
         </div>
 
         <div className="actions mt-4 flex justify-between">
-          <button
+        <button
             className="btn-back text-orange-500 px-20"
             onClick={handleBackClick}
           >
@@ -260,43 +245,12 @@ function ChooseFoodInformation() {
           </button>
           <button
             className="btn-continue bg-orange-500 text-white px-20 py-2 rounded"
-            onClick={handleContinueClick}
+            onClick={handleConfirmClick}
           >
             Tiếp tục
           </button>
         </div>
       </div>
-
-      {showConfirmation && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white rounded-lg shadow-lg p-6 text-center max-w-sm">
-            <span className="bg-orange-500 text-white px-2 py-1 rounded font-bold mb-4 inline-block">
-              {bookingDetails.soT}
-            </span>
-            <p className="text-[19px] font-bold mb-4">
-              Xác nhận mua vé cho người có độ tuổi phù hợp
-            </p>
-            <p className="text-[15px] mt-2 mb-4">
-              Tôi xác nhận mua vé phim này cho người có độ tuổi từ 16 tuổi trở
-              lên
-            </p>
-            <div className="flex justify-center space-x-4">
-              <button
-                className="bg-gray-200 text-gray-700 px-10 py-2 rounded hover:bg-gray-300"
-                onClick={() => setShowConfirmation(false)}
-              >
-                Từ chối
-              </button>
-              <button
-                className="bg-orange-500 text-white px-10 py-2 rounded hover:bg-orange-600"
-                onClick={handleConfirmClick}
-              >
-                Xác nhận
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

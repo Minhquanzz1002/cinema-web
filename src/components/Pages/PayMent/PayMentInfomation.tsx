@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-
+import { useRouter } from "next/navigation";
 
 // Định nghĩa kiểu dữ liệu cho paymentDetails
 interface PaymentDetails {
@@ -17,6 +17,7 @@ interface PaymentDetails {
 function PayMentInformation() {
   const [paymentDetails, setPaymentDetails] = useState<PaymentDetails | null>(null);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>("HSBC/Payoo");
+  const router = useRouter();
 
 
 
@@ -32,7 +33,8 @@ function PayMentInformation() {
   }
 
   const handleBackClick = () => {
-    window.history.back();
+    // window.history.back();
+    router.back();
   };
 
   return (
@@ -118,6 +120,11 @@ function PayMentInformation() {
                 {paymentDetails.movieTitle}
               </h2>
               <p className="text-sm">
+              <span className="font-semibold">
+                    {paymentDetails.format === "2D Phụ Đề"
+                      ? "IMAX 2D Phụ Đề"
+                      : "3D Phụ Đề"}
+                  </span>{" "}
                 {paymentDetails.format} -{" "}
                 <span className="bg-orange-500 text-white px-2 py-1 rounded font-bold">
                   T16
@@ -134,7 +141,10 @@ function PayMentInformation() {
           </p>
           <p className="text-[16px] mb-4">
             <span className="font-sans">Suất:</span>{" "}
-            <span className="font-bold">{paymentDetails.time}</span> -{" "}
+            <span className="font-bold"> {typeof paymentDetails.time === "string"
+                  ? paymentDetails.time.slice(0, 5)
+                  : ""}
+              </span>{" "} -{" "}
             {paymentDetails.date}
           </p>
           <p>
