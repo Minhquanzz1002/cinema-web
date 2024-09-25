@@ -66,7 +66,7 @@ function Promotional() {
               alt={`Khuyến mãi ${index + 1}`}
               className="w-full h-auto mb-3"
             />
-            <p className="text-center font-sans font-bold">{promo.content}</p>
+            <p className="text-center font-sans font-bold hover:text-blue-800">{promo.content}</p>
           </div>
         ))}
       </div>

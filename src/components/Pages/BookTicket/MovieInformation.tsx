@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import moment, { Moment } from "moment";
 import "moment/locale/vi"; // Import ngôn ngữ tiếng Việt cho moment
@@ -6,6 +6,7 @@ import { log } from "console";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import ReactPlayer from "react-player";
+import { ro } from "@faker-js/faker";
 
 interface Movie {
   id: number;
@@ -70,6 +71,7 @@ const MovieInformation: React.FC = () => {
   );
 
   const [showtimes, setShowtimes] = useState<Showtime[]>([]);
+  const modalRef = useRef(null);
 
   const daysArray = Array.from({ length: 6 }, (_, i) => {
     const dayMoment = moment().add(i, "days");
@@ -186,26 +188,26 @@ const MovieInformation: React.FC = () => {
   // API showtime
   useEffect(() => {
     const fetchShowTimes = async () => {
-      if (movie?.id && selectedTheaterId && selectedDate) {
+      if (movie?.id) {
         const movieId = movie.id;
-        const date = selectedDate.format("YYYY-MM-DD");
+        const date = selectedDate ? selectedDate.format("YYYY-MM-DD") : null;
         const cinemaId = selectedTheaterId;
 
-        if (!movieId || !date || !cinemaId) {
-          console.error("Missing required parameters");
-          return;
-        }
-
-        console.log("ID phim:", movieId);
-        console.log("Ngày đã chọn:", date);
-        // console.log("ID rạp đã chọn:", cinemaId);
-
         try {
-          const response = await axios.get(
-            `http://localhost:8080/api/v1/show-times?movieId=${movieId}&date=${date}&cinemaId=${cinemaId}`
-          );
+          let response;
+          if (date && cinemaId) {
+            // Gọi API khi đã chọn date và cinemaId
+            response = await axios.get(
+              `http://localhost:8080/api/v1/show-times?movieId=${movieId}&date=${date}&cinemaId=${cinemaId}`
+            );
+          } else {
+            // Gọi API chỉ với movieId khi chưa chọn date và cinemaId
+            response = await axios.get(
+              `http://localhost:8080/api/v1/show-times?movieId=${movieId}`
+            );
+          }
 
-          setShowtimes(response.data.data); // Giả sử dữ liệu bạn cần nằm trong response.data.data
+          setShowtimes(response.data.data); // Giả sử dữ liệu cần nằm trong response.data.data
         } catch (error) {
           console.error("Error fetching showtimes:", error);
         }
@@ -214,7 +216,6 @@ const MovieInformation: React.FC = () => {
 
     fetchShowTimes();
   }, [movie, selectedDate, selectedTheaterId]);
-
 
   // Hiển thị showtimes dữ liệu từ API startTime, cinemaName, room
   console.log(
@@ -254,8 +255,16 @@ const MovieInformation: React.FC = () => {
       time: showtime,
       date: selectedDate.format("DD/MM/YYYY"),
       rommId: selectedTheaterId,
+      roomName: groupedShowtimes[theater.name].room,
 
+      // truyền thứ đã chọn
+      dayOfWeek: selectedDate.format("dddd").charAt(0).toUpperCase() + selectedDate.format("dddd").slice(1),
+    
+      
     };
+
+    console.log("Thông tin truyền qua trang choose-seat:", infomationtransfer);
+    
 
     // Lưu thông tin vào localStorage
     localStorage.setItem("showtime", JSON.stringify(infomationtransfer));
@@ -266,8 +275,8 @@ const MovieInformation: React.FC = () => {
   return (
     <div>
       {/* Hình ảnh chính */}
-      <div className="relative flex justify-center w-full h-[500px] bg-black">
-        <div className="absolute w-full h-full z-[300] bg-[#0003]"></div>
+      <div className="relative flex justify-center bg-black">
+        <div className="absolute w-full"></div>
         <div className="relative h-full">
           <div className="absolute top-0 -left-[0%] z-100">
             <img
@@ -288,8 +297,8 @@ const MovieInformation: React.FC = () => {
                   className="w-[860px] h-full md:h-full lg:h-[500px] object-cover duration-500 ease-in-out group-hover:opacity-100"
                 />
 
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 ">
                 <button
-                  className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[400]"
                   onClick={() => setIsTrailerModalVisible(true)}
                 >
                   <img
@@ -298,6 +307,9 @@ const MovieInformation: React.FC = () => {
                     className="w-[40px] h-[40px] lg:w-[64px] lg:h-[64px] object-cover"
                   />
                 </button>
+                </div>
+
+                
               </>
             ) : (
               <div className="w-full h-full flex items-center justify-center text-white">
@@ -320,8 +332,10 @@ const MovieInformation: React.FC = () => {
       {/* Modal hiển thị trailer */}
       {isTrailerModalVisible && movie && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 "
+          className="absolute inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"
           onClick={() => setIsTrailerModalVisible(false)} // Đóng modal khi click ra ngoài
+          tabIndex={-1} // Thêm tabIndex để có thể focus
+          ref={modalRef} // Gán ref cho modal
         >
           <div
             className="bg-black p-4 rounded-lg shadow-lg w-full max-w-7xl relative"
@@ -395,12 +409,7 @@ const MovieInformation: React.FC = () => {
               <div className="mb-3">
                 <span className="mr-3 font-sans">Nhà sản xuất:</span>{" "}
                 {movie.producers.map((producer, index) => (
-                  <button
-                    key={index}
-                    className="bg-gray-200 text-black px-3 py-1 rounded-md text-[14px] m-1 hover:outline hover:outline-orange-700 hover:outline-1 hover:outline-offset-1 transition-all duration-400"
-                  >
-                    {producer.name}
-                  </button>
+                  <span key={index}>{producer.name}</span>
                 ))}
               </div>
 
@@ -455,14 +464,14 @@ const MovieInformation: React.FC = () => {
           <p className="text-xl font-sans font-bold">Nội Dung Phim</p>
         </div>
         {movie ? (
-          <p className="text-justify text-sm leading-6">{movie.content}</p>
+          <p className="text-justify text-sm leading-6">{movie.summary}</p>
         ) : (
           <div>Loading movie content...</div>
         )}
       </div>
 
       {/* Lịch chiếu */}
-      <div className="px-[13%] py-1">
+      <div className="px-[13%] py-0">
         <div className="flex items-center mb-5">
           <span className="block w-1 h-8 bg-blue-700 mr-2"></span>
           <p className="text-xl font-sans font-bold">Lịch chiếu</p>
@@ -515,35 +524,6 @@ const MovieInformation: React.FC = () => {
               ))}
             </select>
           </div>
-          {/* Danh sách rạp và suất chiếu
-        <div className="space-y-4">
-          {theaters
-            .filter(
-              (theater) =>
-                !selectedTheater ||
-                theater.name === selectedTheater ||
-                selectedTheater === ""
-            )
-            .map((theater, index) => (
-              <div key={index} className="p-4 border rounded-md">
-                <h3 className="font-bold mb-2">{theater.name}</h3>
-                <div className="flex items-center justify-start mb-2">
-                  <p className="text-sm mr-20">{theater.format}</p>
-                  <div className="grid grid-cols-6 gap-2">
-                    {theater.time.map((showtime, idx) => (
-                      <button
-                        key={idx}
-                        className="px-6 py-1.5 rounded-md border bg-gray-100 hover:bg-blue-700 hover:text-white hover:border-blue-700 transition-all duration-400"
-                        style={{ width: "100px" }}
-                        onClick={() => handleTimeClick(theater, showtime)} // Thêm sự kiện onClick
-                      >
-                        {showtime}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            ))} */}
           {/* Danh sách rạp và suất chiếu */}
         </div>
         <div className="space-y-4">
@@ -551,14 +531,21 @@ const MovieInformation: React.FC = () => {
             ([cinemaName, { room, times }]) => (
               <div key={cinemaName} className="p-4 border rounded-md">
                 <h3 className="font-bold mb-2">{cinemaName}</h3>
-                <p className="text-sm mb-4">{room}</p>
-                <div className="grid grid-cols-6 gap-y-2 gap-x-[-20]">
-                  {times.map((time, idx) => (
+                <p className="text-sm mb-4 mr-4">{room}</p>
+                <div className="flex flex-wrap items-center justify-start space-x-4">
+                {times.slice(0, 8).map((time, idx) => ( // Hiển thị 6 button
                     <button
                       key={idx}
-                      className="mx-20 px-1 py-1 rounded-md border bg-gray-100 hover:bg-blue-700 hover:text-white hover:border-blue-700 transition-all duration-40 " 
-                      style={{ width: "100px" , justifyContent: "center" }}
-                      onClick={() => handleTimeClick(theaters.find(theater => theater.name === cinemaName)!, time)} // Thêm sự kiện onClick
+                      className="mx-1 mb-1 px-1 py-1 rounded-md border bg-gray-100 hover:bg-blue-700 hover:text-white hover:border-blue-700 transition-all duration-40"
+                      style={{ width: "100px", justifyContent: "center" }}
+                      onClick={() =>
+                        handleTimeClick(
+                          theaters.find(
+                            (theater) => theater.name === cinemaName
+                          )!,
+                          time
+                        )
+                      }
                     >
                       {time.slice(0, 5)}
                     </button>

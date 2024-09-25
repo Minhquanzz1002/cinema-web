@@ -12,6 +12,10 @@ interface BookingDetails {
   selectedSeats: string[];
   totalPrice: number;
   age?: string;
+  seatFullName?: string;
+  roomName?: string;
+  dayOfWeek?: string;
+  cinemaName?: string;
 }
 
 // Định nghĩa kiểu dữ liệu cho FoodItem
@@ -24,9 +28,13 @@ interface FoodItem {
 }
 
 function ChooseFoodInformation() {
-  const [bookingDetails, setBookingDetails] = useState<BookingDetails | null>(null);
+  const [bookingDetails, setBookingDetails] = useState<BookingDetails | null>(
+    null
+  );
   const [foodData, setFoodData] = useState<FoodItem[]>([]);
-  const [comboQuantities, setComboQuantities] = useState<{ [key: number]: number }>({});
+  const [comboQuantities, setComboQuantities] = useState<{
+    [key: number]: number;
+  }>({});
   const [initialTotalPrice, setInitialTotalPrice] = useState<number>(0);
   const [showConfirmation, setShowConfirmation] = useState<boolean>(false);
   const router = useRouter();
@@ -81,7 +89,10 @@ function ChooseFoodInformation() {
 
       if (bookingDetails) {
         const newTotalPrice = updateTotalPrice(newQuantities);
-        setBookingDetails((prevDetails) => ({ ...prevDetails!, totalPrice: newTotalPrice }));
+        setBookingDetails((prevDetails) => ({
+          ...prevDetails!,
+          totalPrice: newTotalPrice,
+        }));
       }
 
       return newQuantities;
@@ -104,7 +115,10 @@ function ChooseFoodInformation() {
 
       if (bookingDetails) {
         const newTotalPrice = updateTotalPrice(newQuantities);
-        setBookingDetails((prevDetails) => ({ ...prevDetails!, totalPrice: newTotalPrice }));
+        setBookingDetails((prevDetails) => ({
+          ...prevDetails!,
+          totalPrice: newTotalPrice,
+        }));
       }
 
       return newQuantities;
@@ -126,7 +140,13 @@ function ChooseFoodInformation() {
         date: bookingDetails.date,
         selectedSeats: bookingDetails.selectedSeats,
         initialTotalPrice,
-        totalPrice: bookingDetails.totalPrice
+        totalPrice: bookingDetails.totalPrice,
+        age: bookingDetails.age,
+        seatFullName: bookingDetails.seatFullName,  
+        roomName: bookingDetails.roomName,
+        dayOfWeek: bookingDetails.dayOfWeek,
+        cinemaName: bookingDetails.cinemaName,
+
       };
 
       localStorage.setItem("paymentDetails", JSON.stringify(paymentDetails));
@@ -154,7 +174,7 @@ function ChooseFoodInformation() {
                 <img
                   src={item.image}
                   alt={item.name}
-                  className='inline-block rounded-md w-[150px] h-[100px] mr-4 object-cover'
+                  className="inline-block rounded-md w-[150px] h-[100px] mr-4 object-cover"
                 />
                 <div>
                   <h4 className="text-[14px] font-serif mb-2">{item.name}</h4>
@@ -192,13 +212,17 @@ function ChooseFoodInformation() {
           <img
             src={bookingDetails.image}
             alt={bookingDetails.movieTitle}
-            className='w-[125px] h-[190px] rounded object-cover'
+            className="w-[125px] h-[190px] rounded object-cover"
           />
           <div className="ml-5">
-            <h2 className="text-xl font-bold mb-6">{bookingDetails.movieTitle}</h2>
+            <h2 className="text-xl font-bold mb-6">
+              {bookingDetails.movieTitle}
+            </h2>
             <p className="text-sm">
               <span className="font-semibold">
-                {bookingDetails.format === "2D Phụ Đề" ? "IMAX 2D Phụ Đề" : "3D Phụ Đề"}
+                {bookingDetails.format === "2D Phụ Đề"
+                  ? "IMAX 2D Phụ Đề"
+                  : "3D Phụ Đề"}
               </span>{" "}
               {bookingDetails.format} -{" "}
               <span className="bg-orange-500 text-white px-2 py-1 rounded font-bold">
@@ -208,27 +232,38 @@ function ChooseFoodInformation() {
           </div>
         </div>
         <p className="text-[18px] mb-2">
-          <span className="font-semibold">{bookingDetails.theaterName}</span>
+          <span className="font-semibold">{bookingDetails.cinemaName}</span>
+          {" - " + bookingDetails.roomName}
         </p>
         <p className="text-[16px] mb-4">
           <span className="font-sans">Suất:</span>{" "}
-          <span className="font-bold"> {typeof bookingDetails.time === "string"
-                  ? bookingDetails.time.slice(0, 5)
-                  : ""}
-              </span>{" "} - {bookingDetails.date}
+          <span className="font-bold">
+            {" "}
+            {typeof bookingDetails.time === "string"
+              ? bookingDetails.time.slice(0, 5)
+              : ""}
+          </span>{" "}
+          - {bookingDetails.dayOfWeek} {" , "} 
+            {bookingDetails.date}
         </p>
-        <p>----------------------------------------------------------------------</p>
+        <p>
+          ----------------------------------------------------------------------
+        </p>
         <div className="flex items-center justify-between mt-2 mb-2">
           <p className="text-[16px]">
             Ghế:{" "}
             <span className="font-bold">
-              {bookingDetails.selectedSeats.join(", ")}
+              {Array.isArray(bookingDetails.seatFullName)
+                ? bookingDetails.seatFullName.join(", ")
+                : bookingDetails.seatFullName}
             </span>
           </p>
           <p className="font-bold">{initialTotalPrice.toLocaleString()} đ</p>
         </div>
 
-        <p>----------------------------------------------------------------------</p>
+        <p>
+          ----------------------------------------------------------------------
+        </p>
         <div className="total mt-4 flex items-center justify-between">
           <p className="text-lg font-bold">Tổng cộng:</p>
           <p className="text-orange-500 font-bold">
@@ -237,7 +272,7 @@ function ChooseFoodInformation() {
         </div>
 
         <div className="actions mt-4 flex justify-between">
-        <button
+          <button
             className="btn-back text-orange-500 px-20"
             onClick={handleBackClick}
           >

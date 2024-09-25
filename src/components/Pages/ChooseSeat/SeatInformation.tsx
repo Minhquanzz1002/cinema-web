@@ -14,6 +14,8 @@ interface Showtime {
   image?: string;
   room?: Room;
   roomId?: number;
+  roomName?: string;
+  dayOfWeek?: string;
 }
 
 interface Room {
@@ -66,6 +68,9 @@ const SeatInformation: React.FC<LayoutSeatProps> = ({
   const router = useRouter();
   const [roomLayout, setRoomLayout] = useState<Room | null>(null);
 
+  const rows = Array(layout.maxRow).fill(null);
+  layout.rows.forEach((row) => (rows[row.index] = row));
+
   useEffect(() => {
     // Lấy thông tin lịch chiếu từ localStorage
     const storedShowtime = localStorage.getItem("showtime");
@@ -97,31 +102,45 @@ const SeatInformation: React.FC<LayoutSeatProps> = ({
 
   console.log("roomLayout", roomLayout);
 
-  const renderSeat = (seat: Seat | null, index: number) => {
+  const renderSeat = (
+    seat: Seat | null,
+    index: number,
+    array: (Seat | null)[]
+  ) => {
     if (!seat) {
       return <div key={`empty-${index}`} className="h-full aspect-square" />;
     }
 
-    const isVIP = seat.type === "VIP";
-    const isSelected = selectedSeats.includes(
-      `${seat.rowIndex}${seat.columnIndex + 1}`
-    );
+    const seatId = `${seat.rowIndex}-${seat.columnIndex}`; // Cập nhật seatId
+    const isSelected = selectedSeats.includes(seatId);
+
+
+    const seatClass = isSelected
+      ? "bg-orange-500 text-white" // Màu cam khi được chọn
+      : "bg-white"; // Màu trắng khi chưa được chọn
+
+    if (seat.area === 2) {
+      const nextSeat = array[index + 1];
+      array.splice(index + 1, 1);
+        
+
+      return (
+        <button
+          key={seat.id}
+          className={`h-full w-11 border text-center text-xs rounded flex justify-around items-center hover:bg-orange-400 ${seatClass}`}
+          onClick={() => handleSeatClick(seat.rowIndex, seat.columnIndex)}
+        >
+          <div>{seat.name}</div>
+          <div>{nextSeat?.name}</div>
+        </button>
+      );
+    }
 
     return (
       <button
         key={seat.id}
-        className={`h-9 ${
-          isVIP ? "w-10" : "w-10"
-        } border text-center  rounded-lg flex justify-center items-center  ${
-          isSelected ? "bg-orange-500 text-white" : "hover:bg-orange-400"
-        } hover:bg-orange-400 transition duration-100`}
-        aria-label={`Seat ${seat.name} - ${
-          seat.status === "ACTIVE" ? "Available" : "Not Available"
-        }`}
-        onClick={() =>
-          handleSeatClick(seat.rowIndex.toString(), seat.columnIndex)
-        }
-        disabled={seat.status !== "ACTIVE"}
+        className={`h-full aspect-square border flex justify-center items-center hover:bg-orange-400 text-xs rounded ${seatClass}`}
+        onClick={() => handleSeatClick(seat.rowIndex, seat.columnIndex)}
       >
         {seat.name}
       </button>
@@ -129,25 +148,31 @@ const SeatInformation: React.FC<LayoutSeatProps> = ({
   };
 
   const renderRow = (row: Row) => {
-    return (
-      <div className="flex justify-center gap-x-2 my-1">
-        {row.seats.map((seat, index) => {
-          // Cập nhật tên ghế theo thứ tự từ 1 đến n
-          seat.name = `${index + 1}`;
-          return renderSeat(seat, index);
-        })}
-      </div>
-    );
+    // Render theo thứ tự ghế hàng dọc bằng số tương ứng
+    const seats = Array(layout.maxColumn).fill(null);
+    row.seats.forEach((seat) => (seats[seat.columnIndex] = seat));
+    return seats.map(renderSeat);
   };
 
-  const handleSeatClick = (row: string, col: number) => {
-    const seatId = `${row}${col + 1}`; // Ví dụ: A1, B2...
+  
+
+  const handleSeatClick = (rowIndex: number, colIndex: number) => {
+    const seatId = `${rowIndex}-${colIndex}`; // Cập nhật seatId
+    
     setSelectedSeats((prevSelectedSeats) =>
       prevSelectedSeats.includes(seatId)
         ? prevSelectedSeats.filter((seat) => seat !== seatId)
         : [...prevSelectedSeats, seatId]
     );
+  
+    // Group name và seat.name
+    const rowName = roomLayout?.rows[rowIndex].name; // Lấy row.name
+    const seatName = roomLayout?.rows[rowIndex].seats[colIndex].name; // Lấy seat.name
+    const seatFullName = `${rowName}${seatName}`; // Kết hợp row.name và seat.name
+  
+    console.log("Selected Seat Full Name:", seatFullName); // Hiển thị tên ghế
   };
+  
 
   const totalPrice = selectedSeats.length * seatPrice;
   const handleBackClick = () => {
@@ -167,6 +192,17 @@ const SeatInformation: React.FC<LayoutSeatProps> = ({
         age: showtime?.age,
         selectedSeats,
         totalPrice,
+        // truyền seatFullName vào bookingDetails nếu 2 giá trị phần cách bằng dấu phẩy
+        seatFullName: selectedSeats.map((seatId) => {
+          const [rowIndex, colIndex] = seatId.split("-").map(Number);
+          const rowName = roomLayout?.rows[rowIndex].name;
+          const seatName = roomLayout?.rows[rowIndex].seats[colIndex].name;
+          return `${rowName}${seatName}`;  
+        }),
+        roomName: showtime?.roomName,
+        dayOfWeek: showtime?.dayOfWeek, 
+        cinemaName: showtime?.cinemaName,
+        
       };
 
       localStorage.setItem("bookingDetails", JSON.stringify(bookingDetails));
@@ -187,17 +223,26 @@ const SeatInformation: React.FC<LayoutSeatProps> = ({
       <div className="seat-selection w-3/5 ">
         <div className="seat-grid px-[13%]">
           <div className="w-full rounded p-2 border  shadow-md">
-            {roomLayout.rows.map((row, rowIndex) => (
-              <div className="flex items-center my-2" key={rowIndex}>
-                <div className="w-[20px] text-center text-sm font-semibold">
-                  {row.name}
-                </div>
-                <div className="flex-grow flex justify-center gap-x-2">
-                  {renderRow(row)}
-                </div>
-                <div className="w-[20px] text-center text-sm font-semibold">
-                  {row.name}
-                </div>
+            {roomLayout.rows.map((row, rowIndex: number) => (
+              <div
+                className="flex justify-between my-2 h-[30px]"
+                key={rowIndex}
+              >
+                {row ? (
+                  <>
+                    <div className="w-[15px] text-center text-sm text-gray-600 font-semibold">
+                      {row.name}
+                    </div>
+                    <div className="flex justify-center gap-x-1">
+                      {renderRow(row)}
+                    </div>
+                    <div className="w-[15px] text-center text-sm text-gray-600 font-semibold">
+                      {row.name}
+                    </div>
+                  </>
+                ) : (
+                  <div />
+                )}
               </div>
             ))}
           </div>
@@ -220,10 +265,6 @@ const SeatInformation: React.FC<LayoutSeatProps> = ({
           <div className="flex items-center">
             <div className="w-4 h-4 bg-orange-500 mr-2"></div>
             <span>Ghế đang chọn</span>
-          </div>
-          <div className="flex items-center">
-            <div className="w-4 h-4 border border-yellow-500 mr-2"></div>
-            <span>Ghế VIP</span>
           </div>
           <div className="flex items-center">
             <div className="w-4 h-4 border border-blue-500 mr-2"></div>
@@ -260,7 +301,7 @@ const SeatInformation: React.FC<LayoutSeatProps> = ({
             </div>
 
             <p className="text-[18px] mb-2">
-              <span className="font-semibold">{showtime.cinemaName}</span>
+              <span className="font-semibold">{showtime.cinemaName}</span> {" - "} <span className="font-semibold">{showtime.roomName}</span>
             </p>
             <p className="text-[16px] mb-4">
               <span className="font-sans">Suất:</span>{" "}
@@ -269,10 +310,32 @@ const SeatInformation: React.FC<LayoutSeatProps> = ({
                   ? showtime.time.slice(0, 5)
                   : ""}
               </span>{" "}
-              - {showtime.date}
+              {" - "} <span className="font-bold">{showtime.dayOfWeek}</span>
+              , {showtime.date}
             </p>
+
             <p>
-              -------------------------------------------------------------------
+          ----------------------------------------------------------------------
+        </p>
+        <div className="flex items-center justify-between mt-2 mb-2">
+          <p className="text-[16px]">
+            Ghế:{" "}
+            <span className="font-bold">
+              {selectedSeats.map((seatId) => {
+                const [rowIndex, colIndex] = seatId.split("-").map(Number);
+                const rowName = roomLayout?.rows[rowIndex].name;
+                const seatName = roomLayout?.rows[rowIndex].seats[colIndex].name;
+                return `${rowName}${seatName}`;
+              }).join(", ")}
+            </span>
+          </p>
+          {/* Hiển thị tiền ghê */}
+          <p className="font-bold">
+           {totalPrice.toLocaleString()} đ
+          </p>
+        </div>
+            <p>
+            ----------------------------------------------------------------------
             </p>
             <div className="total mt-4 flex items-center justify-between">
               <p className="text-lg font-bold">Tổng cộng:</p>
