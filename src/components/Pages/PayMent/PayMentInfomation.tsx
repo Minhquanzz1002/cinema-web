@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-
+import { useRouter } from "next/navigation";
 
 // Định nghĩa kiểu dữ liệu cho paymentDetails
 interface PaymentDetails {
@@ -12,11 +12,17 @@ interface PaymentDetails {
   selectedSeats: string[];
   initialTotalPrice: number;
   totalPrice: number;
+  age?: string;
+  seatFullName?: string;
+  roomName?: string;
+  dayOfWeek?: string; 
+  cinemaName?: string;
 }
 
 function PayMentInformation() {
   const [paymentDetails, setPaymentDetails] = useState<PaymentDetails | null>(null);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>("HSBC/Payoo");
+  const router = useRouter();
 
 
 
@@ -32,7 +38,8 @@ function PayMentInformation() {
   }
 
   const handleBackClick = () => {
-    window.history.back();
+    // window.history.back();
+    router.back();
   };
 
   return (
@@ -118,9 +125,14 @@ function PayMentInformation() {
                 {paymentDetails.movieTitle}
               </h2>
               <p className="text-sm">
+              <span className="font-semibold">
+                    {paymentDetails.format === "2D Phụ Đề"
+                      ? "IMAX 2D Phụ Đề"
+                      : "3D Phụ Đề"}
+                  </span>{" "}
                 {paymentDetails.format} -{" "}
                 <span className="bg-orange-500 text-white px-2 py-1 rounded font-bold">
-                  T16
+                  T{paymentDetails.age}
                 </span>
               </p>
             </div>
@@ -130,11 +142,15 @@ function PayMentInformation() {
         {/* Chi tiết thông tin phim */}
         <div>
           <p className="text-[18px] mb-2 font-semibold">
-            {paymentDetails.theaterName}
+           {paymentDetails.cinemaName} - {paymentDetails.roomName}
           </p>
           <p className="text-[16px] mb-4">
             <span className="font-sans">Suất:</span>{" "}
-            <span className="font-bold">{paymentDetails.time}</span> -{" "}
+            <span className="font-bold"> {typeof paymentDetails.time === "string"
+                  ? paymentDetails.time.slice(0, 5)
+                  : ""}
+              </span>{" "} - {" "}
+              {paymentDetails.dayOfWeek} {" , "}
             {paymentDetails.date}
           </p>
           <p>
@@ -144,7 +160,10 @@ function PayMentInformation() {
             <p className="text-[16px]">
               Ghế:{" "}
               <span className="font-bold">
-                {paymentDetails.selectedSeats.join(", ")}
+                {/* Hiển thị seatFullName */}
+                {Array.isArray(paymentDetails.seatFullName)
+                ? paymentDetails.seatFullName.join(", ")
+                : paymentDetails.seatFullName}
               </span>
             </p>
             <p className="font-bold">

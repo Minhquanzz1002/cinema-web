@@ -1,51 +1,77 @@
-import React, { useState } from "react";
-import movies from "@/variables/client/movie";  // Import movie list from file
-import { RiArrowRightSLine } from "react-icons/ri";  // Import icon from react-icons
-import Link from "next/link";  // Import Link from Next.js for client-side navigation
+import React, { useEffect, useState } from "react";
+import { RiArrowRightSLine } from "react-icons/ri";
+import Link from "next/link";
 
 function MovieDetail() {
-  const [activeTab, setActiveTab] = useState("nowShowing");  // State for the current tab
+  const [activeTab, setActiveTab] = useState<string>("nowShowing"); // Trạng thái của tab hiện tại
+  const [movies, setMovies] = useState<any[]>([]); // Khởi tạo movies là một mảng rỗng
+  const [loading, setLoading] = useState<boolean>(true); // Trạng thái loading
 
-  const handleTabChange = (tab: string) => {
-    setActiveTab(tab);  // Update state when tab changes
-  };
+  useEffect(() => {
+    const fetchMovies = async () => {
+      try {
+        const response = await fetch("http://localhost:8080/api/v1/movies");
+        const result = await response.json();
 
-  // Filter movies based on status (Now Showing or Coming Soon)
-  const filteredMovies = movies.filter((movie) =>
-    activeTab === "nowShowing"
-      ? movie.status.includes("Đang chiếu")
-      : movie.status.includes("Sắp chiếu")
-  );
+        console.log("Full API response:", result); // In toàn bộ dữ liệu phản hồi
 
-  // Function to handle clicking on a movie
-  const handleMovieClick = (movie: any) => {
-    // Save movie data to localStorage
-    const movieData = {
-      image: movie.image,
-      title: movie.title,
-      soT: movie.soT,
-      time: movie.time,
-      date: movie.date,
-      numberStar: movie.numberStar,
-      nation: movie.nation,
-      manufacturer: movie.manufacturer,
-      genre: movie.genre,
-      director: movie.director,
-      performer: movie.performer,
-      status: movie.status,
-      content: movie.content,
-      showtimes: movie.showtimes,
-      theater: movie.theater,
+        if (result && result.data && result.data.content) {
+          setMovies(result.data.content); // Lưu trữ danh sách phim từ API
+        } else {
+          console.error("Data structure not as expected:", result);
+          setMovies([]); // Nếu không có dữ liệu, để rỗng
+        }
+
+        setLoading(false); // Tắt trạng thái loading
+      } catch (error) {
+        console.error("Error fetching movies:", error);
+        setLoading(false);
+      }
     };
 
-    console.log("Movie data to save:", movieData); // Log data before saving
+    fetchMovies();
+  }, []);
 
-    // Use JSON.stringify to convert the object to a JSON string
-    localStorage.setItem("selectedMovie", JSON.stringify(movieData));
+  // Hàm thay đổi tab
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab); // Cập nhật trạng thái khi tab thay đổi
   };
 
+  // Lọc phim theo trạng thái (Đang chiếu hoặc Sắp chiếu)
+  const filteredMovies =
+    movies?.filter(
+      (movie) =>
+        activeTab === "nowShowing"
+          ? movie.status?.toUpperCase() === "ACTIVE" // Sử dụng toUpperCase() để so sánh không phân biệt chữ hoa/thường
+          : movie.status?.toUpperCase() === "COMING_SOON" // Sửa lỗi trong điều kiện lọc
+    ) || []; // Đảm bảo filteredMovies luôn là một mảng
+
+  // không giới hạn số lượng phim hiển thị
+  const displayedMovies = filteredMovies;
+
+  // Hàm xử lý khi nhấn vào một phim
+  const handleMovieClick = (movie: any) => {
+    const movieData = {
+      image: movie.imagePortrait,
+      title: movie.title,
+      status: movie.status,
+      slug: movie.slug,
+      rating: movie.rating,
+      age: movie.age,
+    };
+
+    console.log("Movie data to save:", movieData);
+    localStorage.setItem("selectedMovie", JSON.stringify(movieData));
+
+    localStorage.setItem("slug", movie.slug);
+  };
+
+  if (loading) {
+    return <div>Loading...</div>; // Hiển thị khi đang tải dữ liệu
+  }
+
   return (
-    <div className="px-[10%] mb-20 ">
+    <div className="px-[10%] mb-10 border-b-[4px]">
       <div className="relative flex items-center mb-10">
         <span className="block w-1 h-8 bg-blue-700 mr-2"></span>
         <p className="text-xl font-sans font-bold mr-10">GÓC ĐIỆN ẢNH</p>
@@ -74,22 +100,22 @@ function MovieDetail() {
           </button>
         </div>
       </div>
-      <div>
-        <div className="grid grid-cols-4 gap-4 mb-10">
-          {filteredMovies.map((movie) => (
-            <Link key={movie.id} href="/booking"> {/* Use Link for navigation */}
+
+      <div className="grid grid-cols-4 gap-4 mb-10">
+        {displayedMovies.length > 0 ? (
+          displayedMovies.map((movie) => (
+            <Link key={movie.id} href="/booking">
               <div
-                className="relative p-2 cursor-pointer"
+                className="relative p-2 cursor-pointer transition-transform duration-300 ease-in-out hover:scale-105"
                 onClick={() => handleMovieClick(movie)}
               >
                 <img
-                  src={movie.image}
+                  src={movie.imagePortrait}
                   alt={movie.title}
-                  className="w-full h-auto mb-2 rounded-md"
+                  className="w-[276px] h-[394px] object-cover mb-2 rounded-md" // Đặt kích thước và kiểu hiển thị
                 />
                 <h2 className="text-lg font-bold">{movie.title}</h2>
-
-                {/* Information container at the bottom right corner */}
+                {/* Container thông tin ở góc dưới bên phải */}
                 <div className="absolute bottom-20 right-0 text-white p-2">
                   <div className="flex items-center justify-center bg-black bg-opacity-60 gap-1">
                     <img
@@ -98,19 +124,21 @@ function MovieDetail() {
                       className="w-4 h-4 mr-2 ml-3"
                     />
                     <p className="text-[17px] font-bold mr-2">
-                      {movie.numberStar.split(" ")[0]} {/* Display rating */}
+                      {movie.rating} {/* Hiển thị chỉ số đánh giá */}
                     </p>
                   </div>
                 </div>
                 <div className="absolute bottom-11 right-2 text-white font-bold text-[14px] p-2">
                   <button className="py-1 px-2 text-white bg-orange-500 rounded-md h-8 justify-center items-center">
-                    {movie.soT} {/* Display movie code */}
+                    T{movie.age} {/* Hiển thị mã số của phim */}
                   </button>
                 </div>
               </div>
             </Link>
-          ))}
-        </div>
+          ))
+        ) : (
+          <p>Không có phim nào để hiển thị.</p>
+        )}
       </div>
     </div>
   );
