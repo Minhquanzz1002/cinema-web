@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { RiArrowRightSLine } from "react-icons/ri";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 function Movie() {
   const [activeTab, setActiveTab] = useState<string>("nowShowing"); // Trạng thái của tab hiện tại
   const [movies, setMovies] = useState<any[]>([]); // Khởi tạo movies là một mảng rỗng
   const [loading, setLoading] = useState<boolean>(true); // Trạng thái loading
+  const router = useRouter();
 
   useEffect(() => {
     const fetchMovies = async () => {
@@ -56,8 +58,8 @@ function Movie() {
       title: movie.title,
       status: movie.status,
       slug: movie.slug,
-      rating: movie.rating, 
-      age: movie.age, 
+      rating: movie.rating,
+      age: movie.age,
     };
 
     console.log("Movie data to save:", movieData);
@@ -101,18 +103,24 @@ function Movie() {
         </div>
       </div>
 
-      <div className="grid grid-cols-4 gap-4 mb-10">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-10">
         {displayedMovies.length > 0 ? (
           displayedMovies.map((movie) => (
-            <Link key={movie.id} href="/booking">
+            <Link
+              key={movie.id}
+              href={{
+                pathname: "/booking",
+                query: { slug: movie.slug }, // Thêm dữ liệu muốn truyền
+              }}
+            >
               <div
-                className="relative p-2 cursor-pointer"
+                className="relative p-2 cursor-pointer transition-transform duration-300 ease-in-out hover:scale-105"
                 onClick={() => handleMovieClick(movie)}
               >
                 <img
                   src={movie.imagePortrait}
                   alt={movie.title}
-                  className="w-full h-auto mb-2 rounded-md"
+                  className="w-full h-[394px] object-cover mb-2 rounded-md" // Sử dụng w-full để hình ảnh chiếm toàn bộ chiều rộng của cột
                 />
                 <h2 className="text-lg font-bold">{movie.title}</h2>
                 {/* Container thông tin ở góc dưới bên phải */}
@@ -128,11 +136,12 @@ function Movie() {
                     </p>
                   </div>
                 </div>
-                <div className="absolute bottom-11 right-2 text-white font-bold text-[14px] p-2">
-                  <button className="py-1 px-2 text-white bg-orange-500 rounded-md h-8 justify-center items-center">
-                    T{movie.age} {/* Hiển thị mã số của phim */}
-                  </button>
-                </div>
+               <div className="absolute bottom-11 right-2 text-white font-bold p-2 flex items-center">
+  <button className="py-1 px-3 text-white bg-orange-500 rounded-md h-8 text-xs sm:text-sm md:text-base lg:text-lg">
+    T{movie.age} {/* Hiển thị mã số của phim */}
+  </button>
+</div>
+
               </div>
             </Link>
           ))

@@ -85,9 +85,9 @@ export default function Header() {
   };
 
   return (
-    <div className="flex justify-between items-center p-5 px-20">
+    <div className="flex justify-between items-center p-5 px-4 md:px-20">
       <Link href="/">
-        <Image src="/image/logo.png" alt="logo" width={120} height={65} />
+        <Image src="/image/logo2.png" alt="logo" width={120} height={65} />
       </Link>
       <div className="flex items-center space-x-4 mr-5">
         <button className="bg-white text-gray-500 p-2 px-3 rounded-full flex items-center">

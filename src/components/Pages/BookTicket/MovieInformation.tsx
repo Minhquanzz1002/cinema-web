@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import moment, { Moment } from "moment";
 import "moment/locale/vi"; // Import ngôn ngữ tiếng Việt cho moment
@@ -6,8 +6,10 @@ import { log } from "console";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import ReactPlayer from "react-player";
+import { ro } from "@faker-js/faker";
 
 interface Movie {
+  id: number;
   imagePortrait: string;
   title: string;
   code: string;
@@ -26,64 +28,50 @@ interface Movie {
   trailer: string;
 }
 
-interface Theater {
+interface Cinema {
+  id: number;
   name: string;
   format: string;
   time: string[];
+  city: {
+    name: string;
+  };
+}
+
+interface Room {
+  name: string;
+  rommId: number;
 }
 
 interface Showtime {
-  movieTitle?: string;
-  theaterName: string;
-  format: string;
-  date: string;
-  dayOfWeek: string;
-  time: string;
-  soT?: string;
-  image?: string;
-  showtimeDetails: string;
+  id: string;
+  startTime: string;
+  endTime: string;
+  cinemaName: string;
+  startDate: string;
+  room: Room;
+  bookedSeat: number;
+  totalSeat: number;
 }
-
-const theaterData: Record<string, Theater[]> = {
-  "Toàn quốc": [
-    {
-      name: "Galaxy Nguyễn Du",
-      format: "2D Phụ Đề",
-      time: [
-        "14:45",
-        "15:30",
-        "16:30",
-        "17:15",
-        "18:15",
-        "19:15",
-        "20:15",
-        "21:15",
-        "22:15",
-      ],
-    },
-    {
-      name: "Galaxy Hồ Chí Minh",
-      format: "3D Phụ Đề",
-      time: ["10:00", "12:00", "14:00", "16:00", "18:00", "20:00"],
-    },
-  ],
-};
 
 const MovieInformation: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<Moment>(moment());
-  const [selectedRegion, setSelectedRegion] = useState<string>("Toàn quốc");
-  const [selectedTheater, setSelectedTheater] = useState<string>("");
-  const [theaters, setTheaters] = useState<Theater[]>(theaterData["Toàn quốc"]);
   const [movie, setMovie] = useState<Movie | null>(null);
   const [isTrailerModalVisible, setIsTrailerModalVisible] =
     useState<boolean>(false); // State để điều khiển modal trailer
   const router = useRouter();
+  const [cinemas, setCinemas] = useState<Cinema[]>([]);
+  const [regions, setRegions] = useState<string[]>([]);
+  const [theaters, setTheaters] = useState<Cinema[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [selectedRegion, setSelectedRegion] = useState("");
+  const [selectedTheater, setSelectedTheater] = useState("");
+  const [selectedTheaterId, setSelectedTheaterId] = useState<number | null>(
+    null
+  );
 
-  const handleRegionChange = (region: string) => {
-    setSelectedRegion(region);
-    setTheaters(theaterData[region] || []);
-    setSelectedTheater("");
-  };
+  const [showtimes, setShowtimes] = useState<Showtime[]>([]);
+  const modalRef = useRef(null);
 
   const daysArray = Array.from({ length: 6 }, (_, i) => {
     const dayMoment = moment().add(i, "days");
@@ -120,22 +108,166 @@ const MovieInformation: React.FC = () => {
     fetchMovieDetails();
   }, []);
 
-  console.log("Thông tin chi tiết:", movie);
+  console.log("Movie data:", movie); // Kiểm tra dữ liệu phim
 
-  const handleTimeClick = (theater: Theater, showtime: string) => {
-    const selectedShowtime: Showtime = {
-      movieTitle: movie?.title,
-      theaterName: theater.name,
-      format: theater.format,
-      date: selectedDate.format("DD/MM/YYYY"),
-      dayOfWeek: selectedDate.format("dddd"),
-      time: showtime,
-      // soT: movie?.soT,
-      // image: movie?.image,
-      showtimeDetails: `${selectedDate.format("DD/MM/YYYY")} - ${showtime}`,
+  // Get cinemas
+  useEffect(() => {
+    const fetchCinemas = async () => {
+      setLoading(true); // Bật trạng thái loading
+      try {
+        const response = await axios.get(
+          "http://localhost:8080/api/v1/cinemas"
+        );
+        const cinemasData = response.data;
+
+        console.log("Full API response:", cinemasData); // In toàn bộ dữ liệu phản hồi
+
+        if (cinemasData && cinemasData.data) {
+          setCinemas(cinemasData.data); // Lưu trữ danh sách rạp chiếu phim từ API
+          localStorage.setItem("cinemas", JSON.stringify(cinemasData.data));
+        } else {
+          console.error("Data structure not as expected:", cinemasData);
+          setCinemas([]); // Nếu không có dữ liệu, để rỗng
+        }
+      } catch (error) {
+        console.error("Error fetching cinemas:", error);
+      } finally {
+        setLoading(false); // Tắt trạng thái loading
+      }
     };
-    localStorage.setItem("selectedShowtime", JSON.stringify(selectedShowtime));
 
+    fetchCinemas();
+  }, []);
+
+  useEffect(() => {
+    // Lấy danh sách khu vực từ dữ liệu cinemas
+    const uniqueRegions = Array.from(
+      new Set(cinemas.map((cinema) => cinema.city.name))
+    );
+    setRegions(uniqueRegions);
+  }, [cinemas]);
+
+  useEffect(() => {
+    // Cập nhật danh sách rạp khi khu vực thay đổi
+    if (selectedRegion) {
+      const filteredTheaters = cinemas.filter(
+        (cinema) => cinema.city.name === selectedRegion
+      );
+      setTheaters(filteredTheaters);
+      setSelectedTheater(""); // Đặt lại giá trị rạp đã chọn
+      setSelectedTheaterId(null); // Đặt lại ID của rạp đã chọn
+    } else {
+      setTheaters(cinemas); // Hiển thị tất cả rạp nếu không chọn khu vực
+    }
+  }, [selectedRegion, cinemas]);
+
+  // Hiển thị rạp đã chọn
+  useEffect(() => {
+    if (selectedTheater) {
+      const selectedTheaterData = theaters.find(
+        (theater) => theater.name === selectedTheater
+      );
+      // luu id rạp đã chọn vào state
+      setSelectedTheaterId(selectedTheaterData?.id || null);
+    }
+  }, [selectedTheater, theaters]);
+
+  // Hiển thị id rạp đã chọn
+  console.log("Rạp đã chọn:", selectedTheater);
+  console.log("ID rạp đã chọn:", selectedTheaterId);
+  // Hiển thị ngày đã chọn
+  console.log("Ngày đã chọn:", selectedDate.format("DD/MM/YYYY"));
+  // Hiển thị movie id
+  console.log("ID phim:", movie?.id);
+
+  //handleRegionChange
+  const handleRegionChange = (region: string) => {
+    setSelectedRegion(region);
+  };
+
+  // API showtime
+  useEffect(() => {
+    const fetchShowTimes = async () => {
+      if (movie?.id) {
+        const movieId = movie.id;
+        const date = selectedDate ? selectedDate.format("YYYY-MM-DD") : null;
+        const cinemaId = selectedTheaterId;
+
+        try {
+          let response;
+          if (date && cinemaId) {
+            // Gọi API khi đã chọn date và cinemaId
+            response = await axios.get(
+              `http://localhost:8080/api/v1/show-times?movieId=${movieId}&date=${date}&cinemaId=${cinemaId}`
+            );
+          } else {
+            // Gọi API chỉ với movieId khi chưa chọn date và cinemaId
+            response = await axios.get(
+              `http://localhost:8080/api/v1/show-times?movieId=${movieId}`
+            );
+          }
+
+          setShowtimes(response.data.data); // Giả sử dữ liệu cần nằm trong response.data.data
+        } catch (error) {
+          console.error("Error fetching showtimes:", error);
+        }
+      }
+    };
+
+    fetchShowTimes();
+  }, [movie, selectedDate, selectedTheaterId]);
+
+  // Hiển thị showtimes dữ liệu từ API startTime, cinemaName, room
+  console.log(
+    "Danh sách suất chiếu:",
+    showtimes.map(
+      (showtime) =>
+        showtime.startTime +
+        " - " +
+        showtime.cinemaName +
+        " - " +
+        showtime.room.name
+    )
+  );
+
+  const groupedShowtimes = showtimes.reduce((acc, showtime) => {
+    if (!acc[showtime.cinemaName]) {
+      acc[showtime.cinemaName] = {
+        cinemaName: showtime.cinemaName,
+        room: showtime.room.name,
+        times: [],
+      };
+    }
+    acc[showtime.cinemaName].times.push(showtime.startTime);
+    return acc;
+  }, {} as Record<string, { cinemaName: string; room: string; times: string[] }>);
+
+  const handleTimeClick = (theater: Cinema, showtime: string) => {
+    // chuyển các thông tin cần thiết qua trang choose-seat
+    const infomationtransfer = {
+      // truyền thông tin hình ảnh phim, tên phim, age, cinemaName, room, và id room, date, id cinemaId
+      image: movie?.imagePortrait,
+      movieTitle: movie?.title,
+      age: movie?.age,
+      cinemaName: theater.name,
+      room: theater.format,
+      roomId: theater.id,
+      time: showtime,
+      date: selectedDate.format("DD/MM/YYYY"),
+      rommId: selectedTheaterId,
+      roomName: groupedShowtimes[theater.name].room,
+
+      // truyền thứ đã chọn
+      dayOfWeek: selectedDate.format("dddd").charAt(0).toUpperCase() + selectedDate.format("dddd").slice(1),
+    
+      
+    };
+
+    console.log("Thông tin truyền qua trang choose-seat:", infomationtransfer);
+    
+
+    // Lưu thông tin vào localStorage
+    localStorage.setItem("showtime", JSON.stringify(infomationtransfer));
     // Điều hướng sang trang  choose-seat
     router.push("/choose-seat");
   };
@@ -143,8 +275,8 @@ const MovieInformation: React.FC = () => {
   return (
     <div>
       {/* Hình ảnh chính */}
-      <div className="relative flex justify-center w-full h-[500px] bg-black">
-        <div className="absolute w-full h-full z-[300] bg-[#0003]"></div>
+      <div className="relative flex justify-center bg-black">
+        <div className="absolute w-full"></div>
         <div className="relative h-full">
           <div className="absolute top-0 -left-[0%] z-100">
             <img
@@ -165,8 +297,8 @@ const MovieInformation: React.FC = () => {
                   className="w-[860px] h-full md:h-full lg:h-[500px] object-cover duration-500 ease-in-out group-hover:opacity-100"
                 />
 
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 ">
                 <button
-                  className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[400]"
                   onClick={() => setIsTrailerModalVisible(true)}
                 >
                   <img
@@ -175,6 +307,9 @@ const MovieInformation: React.FC = () => {
                     className="w-[40px] h-[40px] lg:w-[64px] lg:h-[64px] object-cover"
                   />
                 </button>
+                </div>
+
+                
               </>
             ) : (
               <div className="w-full h-full flex items-center justify-center text-white">
@@ -197,11 +332,13 @@ const MovieInformation: React.FC = () => {
       {/* Modal hiển thị trailer */}
       {isTrailerModalVisible && movie && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 "
+          className="absolute inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"
           onClick={() => setIsTrailerModalVisible(false)} // Đóng modal khi click ra ngoài
+          tabIndex={-1} // Thêm tabIndex để có thể focus
+          ref={modalRef} // Gán ref cho modal
         >
           <div
-              className="bg-black p-4 rounded-lg shadow-lg w-full max-w-7xl relative"
+            className="bg-black p-4 rounded-lg shadow-lg w-full max-w-7xl relative"
             onClick={(e) => e.stopPropagation()} // Ngăn chặn việc đóng modal khi click vào bên trong modal
           >
             <ReactPlayer
@@ -272,12 +409,7 @@ const MovieInformation: React.FC = () => {
               <div className="mb-3">
                 <span className="mr-3 font-sans">Nhà sản xuất:</span>{" "}
                 {movie.producers.map((producer, index) => (
-                  <button
-                    key={index}
-                    className="bg-gray-200 text-black px-3 py-1 rounded-md text-[14px] m-1 hover:outline hover:outline-orange-700 hover:outline-1 hover:outline-offset-1 transition-all duration-400"
-                  >
-                    {producer.name}
-                  </button>
+                  <span key={index}>{producer.name}</span>
                 ))}
               </div>
 
@@ -332,14 +464,14 @@ const MovieInformation: React.FC = () => {
           <p className="text-xl font-sans font-bold">Nội Dung Phim</p>
         </div>
         {movie ? (
-          <p className="text-justify text-sm leading-6">{movie.content}</p>
+          <p className="text-justify text-sm leading-6">{movie.summary}</p>
         ) : (
           <div>Loading movie content...</div>
         )}
       </div>
 
       {/* Lịch chiếu */}
-      <div className="px-[13%] py-1">
+      <div className="px-[13%] py-0">
         <div className="flex items-center mb-5">
           <span className="block w-1 h-8 bg-blue-700 mr-2"></span>
           <p className="text-xl font-sans font-bold">Lịch chiếu</p>
@@ -364,14 +496,15 @@ const MovieInformation: React.FC = () => {
             ))}
           </div>
 
-          {/* Bộ lọc khu vực và rạp */}
+          {/* Hiển thị khu vực và rạp */}
           <div className="flex items-center mb-4 space-x-6">
             <select
               className="border border-gray-300 rounded-md p-2 w-48 transition-all duration-300 hover:border-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-700"
               value={selectedRegion}
               onChange={(e) => handleRegionChange(e.target.value)}
             >
-              {Object.keys(theaterData).map((region, index) => (
+              <option value="">Chọn khu vực</option>
+              {regions.map((region, index) => (
                 <option key={index} value={region}>
                   {region}
                 </option>
@@ -391,37 +524,36 @@ const MovieInformation: React.FC = () => {
               ))}
             </select>
           </div>
+          {/* Danh sách rạp và suất chiếu */}
         </div>
-
-        {/* Danh sách rạp và suất chiếu */}
         <div className="space-y-4">
-          {theaters
-            .filter(
-              (theater) =>
-                !selectedTheater ||
-                theater.name === selectedTheater ||
-                selectedTheater === ""
-            )
-            .map((theater, index) => (
-              <div key={index} className="p-4 border rounded-md">
-                <h3 className="font-bold mb-2">{theater.name}</h3>
-                <div className="flex items-center justify-start mb-2">
-                  <p className="text-sm mr-20">{theater.format}</p>
-                  <div className="grid grid-cols-6 gap-2">
-                    {theater.time.map((showtime, idx) => (
-                      <button
-                        key={idx}
-                        className="px-6 py-1.5 rounded-md border bg-gray-100 hover:bg-blue-700 hover:text-white hover:border-blue-700 transition-all duration-400"
-                        style={{ width: "100px" }}
-                        onClick={() => handleTimeClick(theater, showtime)} // Thêm sự kiện onClick
-                      >
-                        {showtime}
-                      </button>
-                    ))}
-                  </div>
+          {Object.entries(groupedShowtimes).map(
+            ([cinemaName, { room, times }]) => (
+              <div key={cinemaName} className="p-4 border rounded-md">
+                <h3 className="font-bold mb-2">{cinemaName}</h3>
+                <p className="text-sm mb-4 mr-4">{room}</p>
+                <div className="flex flex-wrap items-center justify-start space-x-4">
+                {times.slice(0, 8).map((time, idx) => ( // Hiển thị 6 button
+                    <button
+                      key={idx}
+                      className="mx-1 mb-1 px-1 py-1 rounded-md border bg-gray-100 hover:bg-blue-700 hover:text-white hover:border-blue-700 transition-all duration-40"
+                      style={{ width: "100px", justifyContent: "center" }}
+                      onClick={() =>
+                        handleTimeClick(
+                          theaters.find(
+                            (theater) => theater.name === cinemaName
+                          )!,
+                          time
+                        )
+                      }
+                    >
+                      {time.slice(0, 5)}
+                    </button>
+                  ))}
                 </div>
               </div>
-            ))}
+            )
+          )}
         </div>
       </div>
     </div>
