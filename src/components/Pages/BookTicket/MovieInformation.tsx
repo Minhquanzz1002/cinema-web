@@ -2,23 +2,26 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import moment, { Moment } from "moment";
 import "moment/locale/vi"; // Import ngôn ngữ tiếng Việt cho moment
+import { log } from "console";
+import axios from "axios";
+import { useRouter } from 'next/navigation'
 
 interface Movie {
-  image: string;
+  imagePortrait: string;
   title: string;
-  soT: string;
-  time: string;
-  date: string;
-  numberStar: string;
-  nation: string;
-  manufacturer: string;
-  genre: string[];
-  director: string[] | string;
-  performer: string[] | string;
+  code: string;
+  duration: number;
+  releaseDate: string;
+  rating: number;
+  country: string;
+  age: number;
+  summary: string;
   status: string;
+  producers: Array<{ name: string }>;
+  genres: Array<{ name: string }>;
+  directors: Array<{ name: string }>;
+  actors: Array<{ name: string }>;
   content: string;
-  showtimes: string[];
-  theater: string;
 }
 
 interface Theater {
@@ -60,13 +63,8 @@ const MovieInformation: React.FC = () => {
   const [selectedTheater, setSelectedTheater] = useState<string>("");
   const [theaters, setTheaters] = useState<Theater[]>(theaterData["Toàn quốc"]);
   const [movie, setMovie] = useState<Movie | null>(null);
+  const router = useRouter();
 
-  useEffect(() => {
-    const storedMovie = localStorage.getItem("selectedMovie");
-    if (storedMovie) {
-      setMovie(JSON.parse(storedMovie));
-    }
-  }, []);
 
   const handleRegionChange = (region: string) => {
     setSelectedRegion(region);
@@ -85,6 +83,33 @@ const MovieInformation: React.FC = () => {
     };
   });
 
+
+  useEffect(() => {
+    const fetchMovieDetails = async () => {
+      const slug = localStorage.getItem("slug");
+      console.log("Slug từ localStorage:", slug); // Kiểm tra giá trị của slug
+  
+      if (slug) {
+        try {
+          const response = await axios.get(`http://localhost:8080/api/v1/movies/${slug}`);
+          console.log("Dữ liệu phim nhận được từ API:", response.data.data); // Kiểm tra dữ liệu nhận được từ API
+          setMovie(response.data.data); // Cập nhật state với dữ liệu từ API
+        } catch (error) {
+          console.error("Error fetching movie details:", error);
+        }
+      } else {
+        console.error("Slug không có trong localStorage");
+      }
+    };
+  
+    fetchMovieDetails();
+  }, []);
+  
+  
+console.log("Thông tin chi tiết:", movie);
+
+  
+
   const handleTimeClick = (theater: Theater, showtime: string) => {
     const selectedShowtime: Showtime = {
       movieTitle: movie?.title,
@@ -93,14 +118,14 @@ const MovieInformation: React.FC = () => {
       date: selectedDate.format("DD/MM/YYYY"),
       dayOfWeek: selectedDate.format("dddd"),
       time: showtime,
-      soT: movie?.soT,
-      image: movie?.image,
+      // soT: movie?.soT,
+      // image: movie?.image,
       showtimeDetails: `${selectedDate.format("DD/MM/YYYY")} - ${showtime}`,
     };
     localStorage.setItem("selectedShowtime", JSON.stringify(selectedShowtime));
 
     // Điều hướng sang trang  choose-seat
-    window.location.href = "/choose-seat";
+    router.push("/choose-seat");
   };
 
   return (
@@ -108,7 +133,7 @@ const MovieInformation: React.FC = () => {
       {/* Hình ảnh chính */}
       <div className="relative flex justify-center w-full h-[500px] bg-black">
         <div className="absolute w-full h-full z-[300] bg-[#0003]"></div>
-        <div className="relative h-full ">
+        <div className="relative h-full">
           <div className="absolute top-0 -left-[0%] z-100">
             <img
               alt="Blur Left"
@@ -123,10 +148,9 @@ const MovieInformation: React.FC = () => {
             {movie ? (
               <>
                 <img
-                  src={movie.image}
+                  src={movie.imagePortrait}
                   alt={movie.title}
-                  className='w-[860px] h-full md:h-full lg:h-[500px] object-cover duration-500 ease-in-out group-hover:opacity-100"
-                          scale-100 blur-0 grayscale-10)'
+                  className='w-[860px] h-full md:h-full lg:h-[500px] object-cover duration-500 ease-in-out group-hover:opacity-100'
                 />
                 <button className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-30">
                   <img
@@ -160,7 +184,7 @@ const MovieInformation: React.FC = () => {
         <div className="relative w-[280px] h-[420px] bg-black border-2 border-white mx-auto mb-5 z-30">
           {movie ? (
             <img
-              src={movie.image}
+              src={movie.imagePortrait}
               alt={movie.title}
               className="w-full h-full object-cover rounded-md"
             />
@@ -177,7 +201,7 @@ const MovieInformation: React.FC = () => {
               <div className="flex items-center justify-start mb-2">
                 <h1 className="text-3xl font-bold">{movie.title}</h1>
                 <button className="bg-orange-500 text-white px-2 py-1 rounded-md text-[14px] font-bold ml-5">
-                  {movie.soT}
+                  T{movie.age}
                 </button>
               </div>
               <div className="flex items-center justify-start text-[14px] font-sans mb-3">
@@ -187,7 +211,7 @@ const MovieInformation: React.FC = () => {
                     alt="time"
                     className="w-[16px] h-[16px] object-cover mt-0.5 mr-1"
                   />
-                  {movie.time}
+                  {movie.duration} phút
                 </div>
                 <div className="flex">
                   <img
@@ -195,7 +219,7 @@ const MovieInformation: React.FC = () => {
                     alt="calendar"
                     className="w-[16px] h-[16px] object-cover mt-0.5 mr-1"
                   />
-                  {movie.date}
+                  {moment(movie.releaseDate).format("DD/MM/YYYY")}
                 </div>
               </div>
               <div className="flex items-center justify-start text-[18px] font-sans mb-3">
@@ -204,53 +228,54 @@ const MovieInformation: React.FC = () => {
                   alt="star"
                   className="w-[25px] h-[25px] object-cover -mt-0.5 mr-1"
                 />
-                {movie.numberStar}
+                {movie.rating}
               </div>
               <div className="mb-3">
-                <span className="mr-3 font-sans">Quốc gia:</span> {movie.nation}
+                <span className="mr-3 font-sans">Quốc gia:</span> {movie.country}
               </div>
               <div className="mb-3">
                 <span className="mr-3 font-sans">Nhà sản xuất:</span>{" "}
-                {movie.manufacturer}
-              </div>
-
-              <div className="mb-2">
-                <span className="mr-3 font-sans">Thể loại:</span>
-                {movie.genre.map((item, index) => (
+                {movie.producers.map((producer, index) => (
                   <button
                     key={index}
                     className="bg-gray-200 text-black px-3 py-1 rounded-md text-[14px] m-1 hover:outline hover:outline-orange-700 hover:outline-1 hover:outline-offset-1 transition-all duration-400"
                   >
-                    {item}
+                    {producer.name}
+                  </button>
+                ))}
+              </div>
+
+              <div className="mb-2">
+                <span className="mr-3 font-sans">Thể loại:</span>
+                {movie.genres.map((genre, index) => (
+                  <button
+                    key={index}
+                    className="bg-gray-200 text-black px-3 py-1 rounded-md text-[14px] m-1 hover:outline hover:outline-orange-700 hover:outline-1 hover:outline-offset-1 transition-all duration-400"
+                  >
+                    {genre.name}
                   </button>
                 ))}
               </div>
               <div className="mb-2">
                 <span className="mr-3 font-sans">Đạo diễn:</span>
-                {Array.isArray(movie.director) ? (
-                  movie.director.map((item, index) => (
-                    <button
-                      key={index}
-                      className="bg-gray-200 text-black px-3 py-1 rounded-md text-[14px] m-1 hover:outline hover:outline-orange-700 hover:outline-1 hover:outline-offset-1 transition-all duration-400 "
-                    >
-                      {item}
-                    </button>
-                  ))
-                ) : (
-                  <button className="bg-gray-200 text-black px-3 py-1 rounded-md text-[14px] m-1 hover:outline hover:outline-orange-700 hover:outline-1 hover:outline-offset-1 transition-all duration-400">
-                    {movie.director}
+                {movie.directors.map((director, index) => (
+                  <button
+                    key={index}
+                    className="bg-gray-200 text-black px-3 py-1 rounded-md text-[14px] m-1 hover:outline hover:outline-orange-700 hover:outline-1 hover:outline-offset-1 transition-all duration-400"
+                  >
+                    {director.name}
                   </button>
-                )}
+                ))}
               </div>
               <div className="mb-3">
                 <span className="mr-3 font-sans">Diễn viên:</span>
-                {Array.isArray(movie.performer) ? (
-                  movie.performer.map((item, index) => (
+                {movie.actors.length > 0 ? (
+                  movie.actors.map((actor, index) => (
                     <button
                       key={index}
                       className="bg-gray-200 text-black px-3 py-1 rounded-md text-[14px] m-1 hover:outline hover:outline-orange-700 hover:outline-1 hover:outline-offset-1 transition-all duration-400"
                     >
-                      {item}
+                      {actor.name}
                     </button>
                   ))
                 ) : (
@@ -263,6 +288,7 @@ const MovieInformation: React.FC = () => {
           )}
         </div>
       </div>
+
 
       {/* Nội dung phim */}
       <div className="px-[13%] py-1 mb-10">
