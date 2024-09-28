@@ -4,7 +4,8 @@ import moment, { Moment } from "moment";
 import "moment/locale/vi"; // Import ngôn ngữ tiếng Việt cho moment
 import { log } from "console";
 import axios from "axios";
-import { useRouter } from 'next/navigation'
+import { useRouter } from "next/navigation";
+import ReactPlayer from "react-player";
 
 interface Movie {
   imagePortrait: string;
@@ -22,6 +23,7 @@ interface Movie {
   directors: Array<{ name: string }>;
   actors: Array<{ name: string }>;
   content: string;
+  trailer: string;
 }
 
 interface Theater {
@@ -47,7 +49,17 @@ const theaterData: Record<string, Theater[]> = {
     {
       name: "Galaxy Nguyễn Du",
       format: "2D Phụ Đề",
-      time: ["14:45", "15:30", "16:30", "17:15", "18:15", "19:15", "20:15", "21:15", "22:15"],
+      time: [
+        "14:45",
+        "15:30",
+        "16:30",
+        "17:15",
+        "18:15",
+        "19:15",
+        "20:15",
+        "21:15",
+        "22:15",
+      ],
     },
     {
       name: "Galaxy Hồ Chí Minh",
@@ -63,8 +75,9 @@ const MovieInformation: React.FC = () => {
   const [selectedTheater, setSelectedTheater] = useState<string>("");
   const [theaters, setTheaters] = useState<Theater[]>(theaterData["Toàn quốc"]);
   const [movie, setMovie] = useState<Movie | null>(null);
+  const [isTrailerModalVisible, setIsTrailerModalVisible] =
+    useState<boolean>(false); // State để điều khiển modal trailer
   const router = useRouter();
-
 
   const handleRegionChange = (region: string) => {
     setSelectedRegion(region);
@@ -77,21 +90,23 @@ const MovieInformation: React.FC = () => {
     return {
       dayOfWeek: dayMoment.isSame(moment(), "day")
         ? "Hôm nay"
-        : dayMoment.format("dddd").charAt(0).toUpperCase() + dayMoment.format("dddd").slice(1),
+        : dayMoment.format("dddd").charAt(0).toUpperCase() +
+          dayMoment.format("dddd").slice(1),
       date: dayMoment.format("DD/MM"),
       dayMoment,
     };
   });
 
-
   useEffect(() => {
     const fetchMovieDetails = async () => {
       const slug = localStorage.getItem("slug");
       console.log("Slug từ localStorage:", slug); // Kiểm tra giá trị của slug
-  
+
       if (slug) {
         try {
-          const response = await axios.get(`http://localhost:8080/api/v1/movies/${slug}`);
+          const response = await axios.get(
+            `http://localhost:8080/api/v1/movies/${slug}`
+          );
           console.log("Dữ liệu phim nhận được từ API:", response.data.data); // Kiểm tra dữ liệu nhận được từ API
           setMovie(response.data.data); // Cập nhật state với dữ liệu từ API
         } catch (error) {
@@ -101,14 +116,11 @@ const MovieInformation: React.FC = () => {
         console.error("Slug không có trong localStorage");
       }
     };
-  
+
     fetchMovieDetails();
   }, []);
-  
-  
-console.log("Thông tin chi tiết:", movie);
 
-  
+  console.log("Thông tin chi tiết:", movie);
 
   const handleTimeClick = (theater: Theater, showtime: string) => {
     const selectedShowtime: Showtime = {
@@ -149,10 +161,14 @@ console.log("Thông tin chi tiết:", movie);
               <>
                 <img
                   src={movie.imagePortrait}
-                  alt={movie.title}
-                  className='w-[860px] h-full md:h-full lg:h-[500px] object-cover duration-500 ease-in-out group-hover:opacity-100'
+                  alt="movie"
+                  className="w-[860px] h-full md:h-full lg:h-[500px] object-cover duration-500 ease-in-out group-hover:opacity-100"
                 />
-                <button className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-30">
+
+                <button
+                  className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[400]"
+                  onClick={() => setIsTrailerModalVisible(true)}
+                >
                   <img
                     src="https://www.galaxycine.vn/_next/static/media/button-play.2f9c0030.png"
                     alt="button-play"
@@ -178,6 +194,25 @@ console.log("Thông tin chi tiết:", movie);
           </div>
         </div>
       </div>
+      {/* Modal hiển thị trailer */}
+      {isTrailerModalVisible && movie && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 "
+          onClick={() => setIsTrailerModalVisible(false)} // Đóng modal khi click ra ngoài
+        >
+          <div
+              className="bg-black p-4 rounded-lg shadow-lg w-full max-w-7xl relative"
+            onClick={(e) => e.stopPropagation()} // Ngăn chặn việc đóng modal khi click vào bên trong modal
+          >
+            <ReactPlayer
+              url={movie.trailer} // Đường dẫn trailer từ movie data
+              controls
+              width="100%"
+              height="520px"
+            />
+          </div>
+        </div>
+      )}
 
       {/* Chia layout cho hình bên trái và thông tin bên phải */}
       <div className="relative flex w-full mt-[-50px] ml-[200px]">
@@ -231,7 +266,8 @@ console.log("Thông tin chi tiết:", movie);
                 {movie.rating}
               </div>
               <div className="mb-3">
-                <span className="mr-3 font-sans">Quốc gia:</span> {movie.country}
+                <span className="mr-3 font-sans">Quốc gia:</span>{" "}
+                {movie.country}
               </div>
               <div className="mb-3">
                 <span className="mr-3 font-sans">Nhà sản xuất:</span>{" "}
@@ -288,7 +324,6 @@ console.log("Thông tin chi tiết:", movie);
           )}
         </div>
       </div>
-
 
       {/* Nội dung phim */}
       <div className="px-[13%] py-1 mb-10">
