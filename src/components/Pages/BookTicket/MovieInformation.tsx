@@ -1,12 +1,10 @@
-import React, { useState, useEffect, useRef } from "react";
-import Link from "next/link";
-import moment, { Moment } from "moment";
+import React, {useEffect, useRef, useState} from "react";
+import moment, {Moment} from "moment";
 import "moment/locale/vi"; // Import ngôn ngữ tiếng Việt cho moment
-import { log } from "console";
 import axios from "axios";
-import { useRouter } from "next/navigation";
+import {useRouter} from "next/navigation";
 import ReactPlayer from "react-player";
-import { ro } from "@faker-js/faker";
+import Image from "next/image";
 
 interface Movie {
   id: number;
@@ -279,7 +277,7 @@ const MovieInformation: React.FC = () => {
         <div className="absolute w-full"></div>
         <div className="relative h-full">
           <div className="absolute top-0 -left-[0%] z-100">
-            <img
+            <Image
               alt="Blur Left"
               src="https://www.galaxycine.vn/_next/static/media/blur-left.7a4f1851.png"
               className="w-full lg:h-[500px] object-cover lg:block hidden"
@@ -291,20 +289,22 @@ const MovieInformation: React.FC = () => {
           <div className="relative">
             {movie ? (
               <>
-                <img
+                <Image
                   src={movie.imagePortrait}
                   alt="movie"
                   className="w-[860px] h-full md:h-full lg:h-[500px] object-cover duration-500 ease-in-out group-hover:opacity-100"
+                  height={860} width={500}
                 />
 
                 <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 ">
                 <button
                   onClick={() => setIsTrailerModalVisible(true)}
                 >
-                  <img
+                  <Image
                     src="https://www.galaxycine.vn/_next/static/media/button-play.2f9c0030.png"
                     alt="button-play"
                     className="w-[40px] h-[40px] lg:w-[64px] lg:h-[64px] object-cover"
+                    width={65} height={65}
                   />
                 </button>
                 </div>
@@ -318,7 +318,7 @@ const MovieInformation: React.FC = () => {
             )}
           </div>
           <div className="absolute top-0 -right-[0%] z-100 lg:block hidden">
-            <img
+            <Image
               alt="Blur Right"
               src="https://www.galaxycine.vn/_next/static/media/blur-right.52fdcf99.png"
               className="w-full lg:h-[500px] object-cover"
@@ -355,10 +355,11 @@ const MovieInformation: React.FC = () => {
       <div className="relative flex w-full mt-[-50px] ml-[200px]">
         <div className="relative w-[280px] h-[420px] bg-black border-2 border-white mx-auto mb-5 z-30">
           {movie ? (
-            <img
+            <Image
               src={movie.imagePortrait}
               alt={movie.title}
               className="w-full h-full object-cover rounded-md"
+              height={420} width={280}
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-white">
@@ -377,28 +378,31 @@ const MovieInformation: React.FC = () => {
                 </button>
               </div>
               <div className="flex items-center justify-start text-[14px] font-sans mb-3">
-                <div className="flex justify-start mr-8">
-                  <img
-                    src="../image/time.png"
+                <div className="flex justify-start items-center mr-8">
+                  <Image
+                    src="/image/time.png"
                     alt="time"
                     className="w-[16px] h-[16px] object-cover mt-0.5 mr-1"
+                    height={16} width={16}
                   />
                   {movie.duration} phút
                 </div>
                 <div className="flex">
-                  <img
-                    src="../image/date.png"
+                  <Image
+                    src="/image/date.png"
                     alt="calendar"
                     className="w-[16px] h-[16px] object-cover mt-0.5 mr-1"
+                    height={16} width={16}
                   />
                   {moment(movie.releaseDate).format("DD/MM/YYYY")}
                 </div>
               </div>
               <div className="flex items-center justify-start text-[18px] font-sans mb-3">
-                <img
-                  src="../image/star.png"
+                <Image
+                  src="/image/star.png"
                   alt="star"
                   className="w-[25px] h-[25px] object-cover -mt-0.5 mr-1"
+                  height={25} width={25}
                 />
                 {movie.rating}
               </div>

@@ -54,26 +54,29 @@ function Animation() {
             <div className="relative flex items-center justify-center w-full h-full">
                 {/* Hình ảnh bên trái */}
                 <div className="absolute left-[-45px] w-1/6 h-full flex justify-center items-center">
-                    <img
+                    <Image
                         src={images[getPreviousImageIndex()]}
                         alt="Previous Slide"
                         className="w-full h-full object-cover"
+                        height={360} width={1010}
                     />
                 </div>
                 {/* Hình ảnh giữa */}
                 <div className="w-4/6 h-full flex justify-center items-center">
-                    <img
+                    <Image
                         src={images[currentImageIndex]}
                         alt="Slideshow"
                         className="w-full h-full object-cover"
+                        height={360} width={1010}
                     />
                 </div>
                 {/* Hình ảnh bên phải */}
                 <div className="absolute right-[-45px] w-1/6 h-full flex justify-center items-center">
-                    <img
+                    <Image
                         src={images[getNextImageIndex()]}
                         alt="Next Slide"
                         className="w-full h-full object-cover"
+                        height={360} width={1010}
                     />
                 </div>
             </div>
