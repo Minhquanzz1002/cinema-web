@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { RiArrowRightSLine } from "react-icons/ri";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 function Movie() {
   const [activeTab, setActiveTab] = useState<string>("nowShowing"); // Trạng thái của tab hiện tại
@@ -117,19 +118,21 @@ function Movie() {
                 className="relative p-2 cursor-pointer transition-transform duration-300 ease-in-out hover:scale-105"
                 onClick={() => handleMovieClick(movie)}
               >
-                <img
+                <Image
                   src={movie.imagePortrait}
                   alt={movie.title}
                   className="w-full h-[394px] object-cover mb-2 rounded-md" // Sử dụng w-full để hình ảnh chiếm toàn bộ chiều rộng của cột
+                  height={400} width={274}
                 />
                 <h2 className="text-lg font-bold">{movie.title}</h2>
                 {/* Container thông tin ở góc dưới bên phải */}
                 <div className="absolute bottom-20 right-0 text-white p-2">
                   <div className="flex items-center justify-center bg-black bg-opacity-60 gap-1">
-                    <img
+                    <Image
                       src="/image/star.png"
                       alt="star"
                       className="w-4 h-4 mr-2 ml-3"
+                      height={25} width={25}
                     />
                     <p className="text-[17px] font-bold mr-2">
                       {movie.rating} {/* Hiển thị chỉ số đánh giá */}

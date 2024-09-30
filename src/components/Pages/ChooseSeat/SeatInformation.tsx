@@ -5,6 +5,7 @@ import Image from "next/image";
 
 // Định nghĩa kiểu dữ liệu cho thông tin suất chiếu
 interface Showtime {
+  id: string;
   movieTitle?: string;
   cinemaName?: string; // Thay theaterName thành cinemaName
   format?: string;
@@ -88,7 +89,7 @@ const SeatInformation: React.FC<LayoutSeatProps> = ({
       const fetchRoomLayout = async () => {
         try {
           const response = await axios.get(
-            `http://localhost:8080/api/v1/rooms/${showtime.roomId}/layout`
+            `http://localhost:8080/api/v1/show-times/${showtime.id}/seat-layout`
           );
           setRoomLayout(response.data.data);
         } catch (error) {
