@@ -1,13 +1,15 @@
 import React from "react";
+import Image from "next/image";
 
 function IntroduceBackground() {
   return (
     <div className="relative mb-10">
       {/* Background Image */}
-      <img
+      <Image
         src="https://www.galaxycine.vn/_next/static/media/bg-icon-iphone-x.3b4bcdb7.svg"
         alt="Background Icon"
         className="w-full h-auto"
+        height={500} width={1500}
       />
 
       {/* Container for logo and text */}
@@ -17,10 +19,11 @@ function IntroduceBackground() {
           {/* Logo Image with Video */}
           <div className="relative ml-20">
             {/* Background Khung Iphone */}
-            <img
+            <Image
               src="https://www.galaxycine.vn/_next/static/media/Frame-iphone-x.78ef1223.svg"
               alt="Background Khung Iphone"
               className="relative z-10 w-full h-[100%]"
+              height={400} width={200}
             />
 
             {/* Video Inside Khung Iphone */}
@@ -46,23 +49,26 @@ function IntroduceBackground() {
               tốn thời gian hay xếp hàng lấy vé online phiền toái.
             </p>
             <div className="mt-4 flex items-end">
-              <img
+              <Image
                 src="https://www.galaxycine.vn/_next/static/media/glx-qr-code-1.218ae7da.svg"
                 alt="QR Code"
                 className="w-30 h-40"
+                height={160} width={160}
               />
 
               <span className="text-white ml-4 italic">OR</span>
 
-              <img
+              <Image
                 src="https://www.galaxycine.vn/_next/static/media/icon-ios-app-store.65ed00df.svg"
                 alt="iOS App Store"
                 className="ml-4"
+                height={16} width={16}
               />
-              <img
+              <Image
                 src="https://www.galaxycine.vn/_next/static/media/icon-google-app-store.f4c38402.svg"
                 alt="Google Play Store"
                 className="ml-2"
+                height={16} width={16}
               />
             </div>
           </div>

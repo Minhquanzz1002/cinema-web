@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useSwipeable } from "react-swipeable";
 import promotionalData from "@/variables/client/promotional";
+import Image from "next/image";
 
 function Promotional() {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -61,10 +62,11 @@ function Promotional() {
       <div className="flex overflow-hidden">
         {imagesToShow.map((promo, index) => (
           <div key={index} className="w-1/4 p-2 mx-[7.5px]">
-            <img
+            <Image
               src={promo.img}
               alt={`Khuyến mãi ${index + 1}`}
               className="w-full h-auto mb-3"
+              height={180} width={270}
             />
             <p className="text-center font-sans font-bold hover:text-blue-800">{promo.content}</p>
           </div>

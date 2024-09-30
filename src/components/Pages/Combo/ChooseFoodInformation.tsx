@@ -239,9 +239,7 @@ function ChooseFoodInformation() {
           <span className="font-sans">Suất:</span>{" "}
           <span className="font-bold">
             {" "}
-            {typeof bookingDetails.time === "string"
-              ? bookingDetails.time.slice(0, 5)
-              : ""}
+            {bookingDetails.time.slice(0, 5)}
           </span>{" "}
           - {bookingDetails.dayOfWeek} {" , "} 
             {bookingDetails.date}
