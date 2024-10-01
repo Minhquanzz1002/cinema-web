@@ -1,8 +1,8 @@
-import React, {useId, useState} from 'react';
-import {IAdminRoute} from "@/routes/adminRoutes";
-import {usePathname} from "next/navigation";
-import Link from "next/link";
-import {IoIosArrowDown} from "react-icons/io";
+import React, { useCallback } from 'react';
+import { IAdminRoute } from '@/routes/adminRoutes';
+import { usePathname } from 'next/navigation';
+import Link from 'next/link';
+import { IoIosArrowDown } from 'react-icons/io';
 
 type SidebarLinkDropdownProps = {
     route: IAdminRoute;
@@ -12,21 +12,29 @@ type SidebarLinkDropdownProps = {
 
 const SidebarLinkDropdown = (props: SidebarLinkDropdownProps) => {
     const pathname = usePathname();
-    const id = useId();
-    const {name, icon, path, children} = props.route;
+    const { name, icon, path, children } = props.route;
+
+    const isParentActive = useCallback(() => {
+        if (pathname === path) return true;
+        return children?.some(child => pathname === child.path);
+    }, [pathname, path, children]);
+
+    const isChildActive = useCallback((childPath: string) => {
+        return pathname === childPath;
+    }, [pathname]);
 
     return (
         <li className="relative transition">
             <div
                 onClick={props.onToggle}
-                className={`relative flex cursor-pointer items-center gap-2.5 hover:bg-gray-100 rounded-sm font-medium text-gray-700 px-4 py-2 dark:text-white`}
+                className={`relative flex cursor-pointer items-center gap-2.5 hover:bg-gray-100 rounded-sm font-medium text-gray-700 px-4 py-2 dark:text-white ${isParentActive() ? 'font-bold text-navy-700' : 'font-medium text-gray-700'}`}
             >
                 <span className="font-bold">
                     {icon}
                 </span>
                 {name}
                 <IoIosArrowDown
-                    className={`absolute top-1/2 right-4 -translate-y-1/2 transition-transform duration-300 peer-checked:rotate-180`}/>
+                    className={`absolute top-1/2 right-4 -translate-y-1/2 transition-transform duration-300 peer-checked:rotate-180`} />
             </div>
 
             <ul
@@ -34,7 +42,8 @@ const SidebarLinkDropdown = (props: SidebarLinkDropdownProps) => {
                 {
                     children?.map((r) => (
                         <li key={r.path} className="first-of-type:mt-1">
-                            <Link href={r.path} className="py-2 pl-4 hover:bg-gray-100 rounded-sm block">
+                            <Link href={r.path}
+                                  className={`py-2 pl-4 hover:bg-gray-100 rounded-sm block ${isChildActive(r.path) ? 'font-bold text-navy-700' : 'font-medium text-gray-700'}`}>
                                 {r.name}
                             </Link>
                         </li>
