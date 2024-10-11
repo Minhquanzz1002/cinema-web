@@ -1,5 +1,5 @@
 "use client";
-import React, {useState} from "react";
+import React from "react";
 import "@/styles/global.admin.css";
 import Sidebar from "@/components/Admin/Layouts/Sidebar";
 import Navbar from "@/components/Admin/Layouts/Navbar";
@@ -9,7 +9,6 @@ export default function AdminLayout({
                                     }: Readonly<{
     children: React.ReactNode;
 }>) {
-    const [open, setOpen] = useState<boolean>(false);
     return (
         <html lang="en">
         <body>

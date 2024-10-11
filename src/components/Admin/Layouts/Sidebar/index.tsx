@@ -36,12 +36,12 @@ const Sidebar = () => {
                                         <SidebarLinkDropdown route={route} key={route.path}
                                                              open={openDropdown === route.path}
                                                              onToggle={() => handleToggle(route.path)}/>
-                                    )
+                                    );
                                 } else {
                                     return (
                                         <SidebarLink key={route.path} name={route.name} path={route.path}
                                                      icon={route.icon}/>
-                                    )
+                                    );
                                 }
                             })
                         }
