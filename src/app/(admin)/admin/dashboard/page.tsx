@@ -1,11 +1,16 @@
-import React from 'react';
-import Widget from "@/components/Admin/Widget";
-import {MdBarChart} from "react-icons/md";
-import MiniCalendar from "@/components/Admin/Calendar/MiniCalendar";
-import WeeklyRevenue from "@/components/Admin/DashBoard/WeeklyRevenue";
-import PieChartCard from "@/components/Admin/DashBoard/PieChartCard";
+"use client";
+import React, { useEffect } from 'react';
+import Widget from '@/components/Admin/Widget';
+import { MdBarChart } from 'react-icons/md';
+import MiniCalendar from '@/components/Admin/Calendar/MiniCalendar';
+import WeeklyRevenue from '@/components/Admin/DashBoard/WeeklyRevenue';
+import PieChartCard from '@/components/Admin/DashBoard/PieChartCard';
 
 const Dashboard = () => {
+    useEffect(() => {
+        document.title = 'B&Q Cinema - Dashboard';
+    }, []);
+
     return (
         <div>
             <div className="mt-3 grid grid-cols-1  gap-5 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-3 3xl:grid-cols-6">
