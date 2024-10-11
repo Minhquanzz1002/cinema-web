@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { FaThumbsUp, FaEye } from "react-icons/fa"; // Import các icon từ react-icons
 import { RiArrowRightSLine } from "react-icons/ri";
-import Image from "next/image";
 
 function CinemaCorner() {
   const [activeTab, setActiveTab] = useState<string>("comments"); // 'comments' là tab mặc định
@@ -46,11 +45,10 @@ function CinemaCorner() {
             {/* Phần bên trái chiếm 40% */}
             <div className="w-2.5/5 pr-4">
               <div className="flex flex-col items-start space-y-4">
-                <Image
+                <img
                   src="https://www.galaxycine.vn/media/2024/8/17/750_1723912371275.jpg"
                   alt="Review Image"
                   className="w-full h-[55%] rounded-lg shadow-md transition-transform duration-300 ease-in-out transform hover:scale-110" // Phóng to khi hover
-                  height={600} width={800}
                 />
                 <div className="flex-1 text-start">
                   <h3 className="text-lg font-semibold mb-2 hover:text-blue-800">
@@ -76,11 +74,10 @@ function CinemaCorner() {
             {/* Phần bên phải chiếm 60% */}
             <div className="w-3/5 pl-4 space-y-4">
               <div className="flex flex-row items-start space-y-1">
-                <Image
+                <img
                   src="https://www.galaxycine.vn/media/2024/8/15/review-ma-da-750_1723714814349.jpg"
                   alt="Review Image"
                   className="w-[35%] h-[25%] rounded-lg shadow-md transition-transform duration-300 ease-in-out transform hover:scale-110"
-                  width={205} height={135}
                 />
                 <div className="flex-1 ml-5 text-start">
                   <h3 className="text-lg font-semibold mb-2 hover:text-blue-800">
@@ -103,11 +100,10 @@ function CinemaCorner() {
               </div>
 
               <div className="flex flex-row items-start space-y-1">
-                <Image
+                <img
                   src="https://www.galaxycine.vn/media/2024/8/2/tham-tu-lung-danh-conan-ngoi-sao-5-canh-1-trieu-do-bi-an-lon-ve-kaito-kid-5_1722611870756.jpg"
                   alt="Review Image"
                   className="w-[35%] h-[25%] rounded-lg shadow-md transition-transform duration-300 ease-in-out transform hover:scale-110"
-                  width={205} height={135}
                 />
                 <div className="flex-1 ml-5 text-start">
                   <h3 className="text-lg font-semibold mb-2 hover:text-blue-800">
@@ -130,11 +126,10 @@ function CinemaCorner() {
               </div>
 
               <div className="flex flex-row items-start space-y-1">
-                <Image
+                <img
                   src="https://www.galaxycine.vn/media/2024/7/25/deadpool--wolverine-rv-750_1721899268523.jpg"
                   alt="Review Image"
                   className="w-[35%] h-[25%] rounded-lg shadow-md transition-transform duration-300 ease-in-out transform hover:scale-110"
-                  width={205} height={135}
                 />
                 <div className="flex-1 ml-5 text-start">
                   <h3 className="text-lg font-semibold mb-2 hover:text-blue-800">
@@ -164,11 +159,10 @@ function CinemaCorner() {
             {/* Phần bên trái chiếm 40% */}
             <div className="w-2.5/5 pr-4">
               <div className="flex flex-col items-start space-y-4">
-                <Image
+                <img
                   src="https://www.galaxycine.vn/media/2024/8/13/mufasa-750_1723533692413.jpg"
                   alt="Review Image"
                   className="w-[100%] h-[55%] rounded-lg shadow-md transition-transform duration-300 ease-in-out transform hover:scale-110"
-                  height={600} width={800}
                 />
                 <div className="flex-1 text-start">
                   <h3 className="text-lg font-semibold mb-2 hover:text-blue-800">
@@ -194,11 +188,10 @@ function CinemaCorner() {
             {/* Phần bên phải chiếm 60% */}
             <div className="w-3/5 pl-4 space-y-4">
               <div className="flex flex-row items-start space-y-1">
-                <Image
+                <img
                   src="https://www.galaxycine.vn/media/2024/8/3/boc-trung-phuc-sinh-cua-deadpool--wolverine-1_1722692769418.jpg"
                   alt="Review Image"
                   className="w-[35%] h-[25%] rounded-lg shadow-md transition-transform duration-300 ease-in-out transform hover:scale-110"
-                  width={205} height={135}
                 />
                 <div className="flex-1 ml-5 text-start">
                   <h3 className="text-lg font-semibold mb-2 hover:text-blue-800">
@@ -220,11 +213,10 @@ function CinemaCorner() {
               </div>
 
               <div className="flex flex-row items-start space-y-1">
-                <Image
+                <img
                   src="https://www.galaxycine.vn/media/2024/6/24/despicable-me-4-chung-ta-biet-duoc-bao-nhieu-ve-minions-3_1719218662477.jpg"
                   alt="Review Image"
                   className="w-[35%] h-[25%] rounded-lg shadow-md transition-transform duration-300 ease-in-out transform hover:scale-110"
-                  width={205} height={135}
                 />
                 <div className="flex-1 ml-5 text-start">
                   <h3 className="text-lg font-semibold mb-2 hover:text-blue-800">
@@ -246,11 +238,10 @@ function CinemaCorner() {
               </div>
 
               <div className="flex flex-row items-start space-y-1">
-                <Image
+                <img
                   src="https://www.galaxycine.vn/media/2024/6/6/venom-3-venom-se-chet-7_1717645169505.jpg"
                   alt="Review Image"
                   className="w-[35%] h-[25%] rounded-lg shadow-md transition-transform duration-300 ease-in-out transform hover:scale-110"
-                  width={205} height={135}
                 />
                 <div className="flex-1 ml-5 text-start">
                   <h3 className="text-lg font-semibold mb-2 hover:text-blue-800">
