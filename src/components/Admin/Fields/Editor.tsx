@@ -9,7 +9,7 @@ const Editor = () => {
         placeholder: "",
         removeButtons: ["print", "spellcheck", "symbols", "ai-commands", "paragraph", "preview", "speechRecognize", "eraser"],
         height: "300px",
-    }
+    };
 
     return (
         <div>

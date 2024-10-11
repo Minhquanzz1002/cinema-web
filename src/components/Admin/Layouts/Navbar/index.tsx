@@ -7,11 +7,7 @@ import Image from "next/image";
 import avatar from "/public/img/avatar/avt.png";
 import {IoMdNotificationsOutline} from "react-icons/io";
 import {BsArrowBarUp} from "react-icons/bs";
-
-interface INavBarProps {
-    open: boolean,
-    setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-}
+import Breadcrumb from '@/components/Admin/Breadcrumb';
 
 function Navbar() {
     const [darkMode, setDarkMode] = useState<boolean>(false);
@@ -23,25 +19,7 @@ function Navbar() {
     return (
         <nav
             className="sticky top-4 z-40 flex flex-row flex-wrap items-center justify-between rounded-xl bg-white/10 p-2 backdrop-blur-xl dark:bg-[#0b14374d]">
-            {/* Start: Breadcrumb */}
-            <div className="ml-[6px]">
-                <div className="h-6 w-[224px] pt-1">
-                    <a className="text-sm font-normal text-navy-700 dark:text-white hover:underline" href={"#"}>
-                        Pages
-                        <span className="mx-1">{' '}/{' '}</span>
-                    </a>
-                    <Link href={"#"}
-                          className="text-sm font-normal capitalize text-navy-700 hover:underline dark:text-white">
-                        Trang chủ
-                    </Link>
-                </div>
-                <p className="shrink text-[33px] capitalize font-bold text-navy-700 dark:text-white">
-                    <Link href={"#"}>
-                        Trang chủ
-                    </Link>
-                </p>
-            </div>
-            {/* End: Breadcrumb */}
+            <Breadcrumb/>
 
             <div
                 className="relative mt-[3px] flex h-[61px] w-[355px] md:w-[365px] xl:w-[365px] flex-grow md:flex-grow-0 items-center justify-around gap-2 md:gap-1 xl:gap-2 rounded-full bg-white dark:!bg-navy-800 p-2 shadow-xl shadow-[rgba(112, 144, 176, 0.08)] dark:shadow-none">
