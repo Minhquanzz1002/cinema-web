@@ -6,7 +6,7 @@ import { log } from "console";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import ReactPlayer from "react-player";
-import { da, ro } from "@faker-js/faker";
+
 
 interface Movie {
   id: number;
