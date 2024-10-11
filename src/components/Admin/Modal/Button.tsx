@@ -19,7 +19,7 @@ const Button = (props: ButtonProps) => {
                 className={`text-blue-500 rounded text-sm h-8 flex items-center gap-x-2 justify-center`} {...rest}>
                 {children}
             </button>
-        )
+        );
     }
     return (
         <button

@@ -1,37 +1,44 @@
-"use client";
-import React, {useEffect, useState} from 'react';
-import {ColumnDef} from "@tanstack/table-core";
-import Table from "@/components/Admin/Tables";
-import {LuTrash} from "react-icons/lu";
-import {FaEdit} from "react-icons/fa";
-import Link from "next/link";
-import Card from "@/components/Admin/Card";
-import {RiFileExcel2Line} from "react-icons/ri";
-import {FaFileImport, FaPlus} from "react-icons/fa6";
-import {MdCancel, MdCheckCircle, MdOutlineFormatListBulleted} from "react-icons/md";
-import {GoSearch} from "react-icons/go";
-import {BsGrid3X3Gap} from "react-icons/bs";
-import {PiListBold} from "react-icons/pi";
-import FilterModal from "@/components/Admin/Pages/Movies/FilterModal";
-import AddModal from "@/components/Admin/Pages/Movies/AddModal";
-import ImportModal from "@/components/Admin/Pages/Movies/ImportModal";
-import {exportToExcel} from "@/utils/exportToExcel";
-import generateSampleMovies, {Movie} from "@/variables/movies";
+'use client';
+import React, { useEffect, useState } from 'react';
+import { ColumnDef } from '@tanstack/table-core';
+import Table from '@/components/Admin/Tables';
+import { LuTrash } from 'react-icons/lu';
+import { FaEdit } from 'react-icons/fa';
+import Link from 'next/link';
+import Card from '@/components/Admin/Card';
+import { RiFileExcel2Line } from 'react-icons/ri';
+import { FaFileImport, FaPlus } from 'react-icons/fa6';
+import { MdOutlineFormatListBulleted } from 'react-icons/md';
+import { GoSearch } from 'react-icons/go';
+import { BsGrid3X3Gap } from 'react-icons/bs';
+import { PiListBold } from 'react-icons/pi';
+import FilterModal from '@/components/Admin/Pages/Movies/FilterModal';
+import ImportModal from '@/components/Admin/Pages/Movies/ImportModal';
+import { exportToExcel } from '@/utils/exportToExcel';
+import { AdminMovie, AgeRating } from '@/modules/movies/interface';
+import { useAllMovies } from '@/modules/movies/repository';
+import Image from 'next/image';
+import { ButtonSquare } from '@/components/Admin/Button';
+import MovieStatusBadge from '@/components/Admin/Badge/MovieStatusBadge';
 
-const Movies = () => {
+const MoviePage = () => {
     const [currentPage, setCurrentPage] = useState<number>(1);
-    const [totalPages, setTotalPages] = useState<number>(10);
-    const [displayType, setDisplayType] = useState<"Grid" | "Table">("Table");
+    const [totalPages, setTotalPages] = useState<number>(0);
+    const [displayType, setDisplayType] = useState<'Grid' | 'Table'>('Table');
     const [showFilter, setShowFilter] = useState<boolean>(false);
-    const [showAddModal, setShowAddModal] = useState<boolean>(false);
     const [showImportModal, setShowImportModal] = useState<boolean>(false);
+    const { data: responseData } = useAllMovies();
+    const [movies, setMovies] = React.useState<AdminMovie[]>([]);
 
     const onChangePage = (page: number) => {
-        setData(generateSampleMovies(10));
         setCurrentPage(page);
-    }
+    };
 
-    const columns = React.useMemo<ColumnDef<Movie>[]>(
+    useEffect(() => {
+        document.title = 'B&Q Cinema - Quản lý phim';
+    }, []);
+
+    const columns = React.useMemo<ColumnDef<AdminMovie>[]>(
         () => [
             {
                 accessorKey: 'id',
@@ -41,34 +48,50 @@ const Movies = () => {
                 footer: props => props.column.id,
             },
             {
-                accessorFn: row => row.title,
-                id: 'title',
-                cell: info => info.getValue(),
+                accessorKey: 'imagePortrait',
+                cell: ({ row }) => {
+                    return (
+                        <div className="w-28 h-40 relative">
+                            <Image src={row.original.imagePortrait} alt={row.original.title} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="rounded-md object-cover" priority />
+                        </div>
+                    );
+                },
+                header: () => <span>Ảnh</span>,
+                footer: props => props.column.id,
+            },
+            {
+                accessorFn: row => ({ title: row.title, ageRating: row.ageRating }),
+                id: 'titleAndAge',
+                cell: ({ getValue }) => {
+                    const { title, ageRating } = getValue() as { title: string; ageRating: AgeRating };
+                    return (
+                        <div className="flex flex-col gap-2">
+                            <div>{title}</div>
+                            <div>
+                                <span className="px-2 py-1 bg-brand-300 rounded text-white">{ageRating}</span>
+                            </div>
+                        </div>
+                    );
+                },
                 header: () => <span>Tiêu đề</span>,
                 footer: props => props.column.id,
             },
             {
-                accessorKey: 'age',
-                header: () => 'Nhãn tuổi',
+                accessorKey: 'duration',
+                header: () => <span>Thời lượng (phút)</span>,
                 footer: props => props.column.id,
             },
             {
-                accessorKey: 'duration',
-                header: () => <span>Thời lượng</span>,
+                accessorKey: 'country',
+                header: () => <span>Quốc gia</span>,
                 footer: props => props.column.id,
             },
             {
                 accessorKey: 'status',
                 header: 'Status',
-                cell: ({cell}) => {
-                    if (cell.getValue() === 'ACTIVE') {
-                        return <div className="flex items-center gap-x-2"><MdCheckCircle
-                            className="text-green-500 dark:text-green-300"/>Bình thường</div>
-                    } else {
-                        return <div className="flex items-center gap-x-2"><MdCancel
-                            className="text-red-500 dark:text-red-300"/>Hết hàng</div>
-                    }
-                },
+                cell: ({ row }) => (
+                    <MovieStatusBadge status={row.original.status}/>
+                ),
                 footer: props => props.column.id,
             },
             {
@@ -82,28 +105,32 @@ const Movies = () => {
                 cell: () => (
                     <div className="inline-flex gap-2 items-center">
                         <Link href="#" type="button" className="text-blue-500">
-                            <FaEdit size={18}/>
+                            <FaEdit size={18} />
                         </Link>
                         <button type="button" className="text-red-500">
-                            <LuTrash size={18}/>
+                            <LuTrash size={18} />
                         </button>
                     </div>
                 ),
                 enableSorting: false,
-            }
+            },
         ],
-        []
-    )
+        [],
+    );
 
-    const [data, setData] = React.useState<Movie[]>([]);
 
     const handleExportExcel = () => {
-        exportToExcel<Movie>(data, [], "person.xlsx");
-    }
+        exportToExcel<AdminMovie>(movies, [], 'person.xlsx');
+    };
 
     useEffect(() => {
-        setData(generateSampleMovies(10));
-    }, []);
+        if (responseData?.data) {
+            const { content, page } = responseData.data;
+            setMovies(content);
+            setTotalPages(page.totalPages);
+            setCurrentPage(page.number + 1);
+        }
+    }, [responseData]);
 
     return (
         <>
@@ -113,58 +140,52 @@ const Movies = () => {
                         <div className="flex gap-x-2">
                             <div
                                 className="flex flex-nowrap items-center border h-9 px-3 rounded gap-x-1 focus-within:shadow-xl focus-within:border-brand-500 dark:text-white text-gray-500">
-                                <GoSearch/>
+                                <GoSearch />
                                 <input type="search" className="outline-none w-[300px] text-sm bg-white/0"
-                                       placeholder="Tìm theo mã hoặc theo tên (/)"/>
+                                       placeholder="Tìm theo mã hoặc theo tên (/)" />
                                 <button type="button" title="Lọc theo danh mục" onClick={() => setShowFilter(true)}>
-                                    <MdOutlineFormatListBulleted/>
+                                    <MdOutlineFormatListBulleted />
                                 </button>
                             </div>
 
-                            <button type="button"
-                                    onClick={() => setDisplayType(displayType === 'Grid' ? 'Table' : 'Grid')}
-                                    title={displayType !== 'Grid' ? 'Hiển thị dạng thẻ' : 'Hiển thị dạng bảng'}
-                                    className="bg-brand-500 h-9 aspect-square rounded flex items-center justify-center text-white gap-x-2 text-sm">
+                            <ButtonSquare title={displayType !== 'Grid' ? 'Hiển thị dạng thẻ' : 'Hiển thị dạng bảng'}
+                                          onClick={() => setDisplayType(displayType === 'Grid' ? 'Table' : 'Grid')}>
                                 {
-                                    displayType !== "Grid" ? <BsGrid3X3Gap/> : <PiListBold/>
+                                    displayType !== 'Grid' ? <BsGrid3X3Gap /> : <PiListBold />
                                 }
-                            </button>
+                            </ButtonSquare>
 
                         </div>
 
                         <div className="flex gap-2 h-9">
-                            <button type="button"
-                                    onClick={() => setShowAddModal(true)}
-                                    className="bg-brand-500 py-1.5 px-2 rounded flex items-center justify-center text-white gap-x-2 text-sm">
-                                <FaPlus className="h-4 w-4"/> Thêm
-                            </button>
+                            <Link href={'/admin/movies/new'}
+                                  className="bg-brand-500 py-1.5 px-2 rounded flex items-center justify-center text-white gap-x-2 text-sm">
+                                <FaPlus className="h-4 w-4" /> Thêm
+                            </Link>
                             <button type="button"
                                     onClick={() => setShowImportModal(true)}
                                     className="bg-brand-500 py-1.5 px-2 rounded flex items-center justify-center text-white gap-x-2 text-sm">
-                                <FaFileImport className="h-4 w-4"/> Import
+                                <FaFileImport className="h-4 w-4" /> Import
                             </button>
                             <button type="button"
                                     onClick={handleExportExcel}
                                     className="bg-brand-500 py-1.5 px-2 rounded flex items-center justify-center text-white gap-x-2 text-sm">
-                                <RiFileExcel2Line className="h-5 w-5"/> Export
+                                <RiFileExcel2Line className="h-5 w-5" /> Export
                             </button>
                         </div>
                     </div>
                 </Card>
-                <Table<Movie> data={data} columns={columns} currentPage={currentPage} totalPages={totalPages}
-                               onChangePage={onChangePage}/>
+                <Table<AdminMovie> data={movies} columns={columns} currentPage={currentPage} totalPages={totalPages}
+                                   onChangePage={onChangePage} />
             </div>
             {
-                showFilter && (<FilterModal onClose={() => setShowFilter(false)}/>)
+                showFilter && (<FilterModal onClose={() => setShowFilter(false)} />)
             }
             {
-                showAddModal && <AddModal onClose={() => setShowAddModal(false)}/>
-            }
-            {
-                showImportModal && <ImportModal onClose={() => setShowImportModal(false)}/>
+                showImportModal && <ImportModal onClose={() => setShowImportModal(false)} />
             }
         </>
     );
 };
 
-export default Movies;
+export default MoviePage;

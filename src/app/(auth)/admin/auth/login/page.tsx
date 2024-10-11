@@ -125,8 +125,8 @@ const Background = () => {
                 fill="#1C2434"
             />
         </svg>
-    )
-}
+    );
+};
 
 const Login = () => {
     const [email, setEmail] = useState<string>('');

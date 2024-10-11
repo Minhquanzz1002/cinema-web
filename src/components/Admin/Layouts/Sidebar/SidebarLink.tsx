@@ -11,9 +11,9 @@ type SidebarLinkProps = {
 const SidebarLink = ({name, path, icon}: SidebarLinkProps) => {
     const pathname = usePathname();
 
-    const activeRoute = useCallback((routeName: string) => {
-        return pathname?.includes(routeName);
-    }, [pathname])
+    const activeRoute = useCallback((routePath: string) => {
+        return pathname === routePath;
+    }, [pathname]);
 
     return (
         <li>

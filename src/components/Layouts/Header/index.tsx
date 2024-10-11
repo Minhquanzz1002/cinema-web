@@ -9,6 +9,8 @@ import {
   FaTimes,
   FaUserCircle,
   FaSignOutAlt,
+  FaUser,
+  FaHistory
 } from "react-icons/fa";
 import Link from "next/link"; // Import useRouter
 import { useRouter } from "next/navigation";
@@ -23,6 +25,7 @@ export default function Header() {
   const [showRegisterForm, setShowRegisterForm] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [user, setUser] = useState<{ name: string } | null>(null);
+  const [showDropdown, setShowDropdown] = useState(false);
 
   const router = useRouter();
 
@@ -41,6 +44,9 @@ export default function Header() {
       console.log("No user found in localStorage");
     }
   }, []);
+  const toggleDropdown = () => {
+    setShowDropdown((prev) => !prev);
+  };
 
   const handleLoginSuccess = (userData: any) => {
     const { data } = userData; // Giả sử `userData` có cấu trúc như trong localStorage
@@ -84,6 +90,18 @@ export default function Header() {
     setShowForgotPassword(false);
   };
 
+  const handleHistoryClick = () => {
+    router.push("/history");
+    // Đóng dropdown khi chuyển trang
+    setShowDropdown(false);
+  };
+
+  const handAccountClick = () => {
+    router.push("/account");
+    // Đóng dropdown khi chuyển trang
+    setShowDropdown(false);
+  }
+
   return (
     <div className="flex justify-between items-center p-5 px-4 md:px-20">
       <Link href="/">
@@ -110,6 +128,7 @@ export default function Header() {
         <button className="bg-white text-gray-500 p-1 px-3 rounded-full flex items-center">
           Rạp/Giá vé <FaChevronDown className="ml-2 text-[10px]" />
         </button>
+        <div className=""></div>
       </div>
       {!user ? (
         <div className="flex items-center space-x-4">
@@ -140,17 +159,43 @@ export default function Header() {
           </button>
         </div>
       ) : (
-        <div className="flex items-center space-x-4">
-          <FaUserCircle className="text-gray-500 text-3xl" />
-          <span className="text-gray-700">
-            {user ? user.name : "Tên người dùng"}
-          </span>
-          <button
-            className="bg-white text-gray-500 p-2 px-3 rounded-full flex items-center"
-            onClick={handleLogout}
+        <div className="relative flex items-center space-x-2">
+          {/* User icon and name */}
+          <FaUserCircle
+            className="text-gray-500 text-3xl cursor-pointer"
+            onClick={toggleDropdown}
+          />
+          <span
+            className="text-gray-700 cursor-pointer"
+            onClick={toggleDropdown}
           >
-            <FaSignOutAlt className="mr-2" /> Đăng xuất
-          </button>
+            {user.name}
+          </span>
+
+          {/* Dropdown menu */}
+          {showDropdown && (
+            <div
+              className="absolute right-0 z-50 mt-2 w-48 bg-white rounded-lg shadow-lg p-4 left-0"
+              style={{ top: "100%", marginTop: "0.5rem" }} // ensures it is below the username
+            >
+              <button className="block w-full text-left text-gray-700 p-2 hover:bg-gray-100"
+                onClick={handAccountClick}
+              >
+                <FaUser className="inline mr-2" /> Tài khoản
+              </button>
+              <button className="block w-full text-left text-gray-700 p-2 hover:bg-gray-100"
+                onClick={handleHistoryClick}
+              >
+                <FaHistory className="inline mr-2" /> Lịch Sử
+              </button>
+              <button
+                className="block w-full text-left text-gray-700 p-2 hover:bg-gray-100"
+                onClick={handleLogout}
+              >
+                <FaSignOutAlt className="inline mr-2" /> Đăng xuất
+              </button>
+            </div>
+          )}
         </div>
       )}
 
@@ -372,6 +417,7 @@ function LoginForm({
         // Lưu dữ liệu đăng nhập vào localStorage
         localStorage.setItem("user", JSON.stringify(data));
         console.log("User data:", data);
+        localStorage.setItem("accessToken", data.data.accessToken);
 
         // Đóng form đăng nhập
         onClose();
@@ -528,10 +574,10 @@ function RegisterForm({
   };
 
   // mở modal OTP sẽ đóng modal đăng ký
-    const handleOtpModalClose = () => {
-        setOtpModalVisible(false);
-        onClose();
-    };
+  const handleOtpModalClose = () => {
+    setOtpModalVisible(false);
+    onClose();
+  };
 
   const isValidEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -658,7 +704,7 @@ function RegisterForm({
       );
 
       if (response.ok) {
-       // lưu gmail vào localStorage để xác thực OTP
+        // lưu gmail vào localStorage để xác thực OTP
         localStorage.setItem("userData", JSON.stringify({ email }));
         console.log("userData:", { email });
         setOtpModalVisible(true); // Mở modal OTP
@@ -675,7 +721,7 @@ function RegisterForm({
   const handleOtpSubmit = async () => {
     const userData = JSON.parse(localStorage.getItem("userData") || "{}");
     console.log("userData:", userData);
-    
+
     const data = {
       otp,
       email: userData.email,

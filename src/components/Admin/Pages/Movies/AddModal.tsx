@@ -8,11 +8,12 @@ import {Editor, InputInline, SelectField} from "@/components/Admin/Fields";
 import generateSampleGenres, {Genre} from "@/variables/genre";
 
 type AddModalProps = {
+    open: boolean;
     onClose: () => void;
 }
 
 const AddModal = (props: AddModalProps) => {
-    const {onClose} = props;
+    const {onClose, open} = props;
     const [genres, setGenres] = useState<Genre[]>([]);
     const [code, setCode] = useState<string>('');
     const [name, setName] = useState<string>('');
@@ -24,10 +25,12 @@ const AddModal = (props: AddModalProps) => {
 
     const onClickSave = () => {
         onClose();
-    }
+    };
+
+    if (!open) return null;
 
     return (
-        <Modal title="Thêm phim" onClose={onClose}>
+        <Modal open={open} title="Thêm phim" onClose={onClose}>
             <Tabs defaultActiveKey="info" className="mt-3">
                 <Tab title="Thông tin" activeKey="info">
                     <div className="mt-5 grid grid-cols-12 gap-x-7">

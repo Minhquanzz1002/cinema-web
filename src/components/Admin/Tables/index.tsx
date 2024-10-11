@@ -24,7 +24,7 @@ const Table = <T,>({data, columns, currentPage, totalPages, onChangePage}: Table
     const [pagination, setPagination] = React.useState<PaginationState>({
         pageIndex: 0,
         pageSize: 10,
-    })
+    });
 
     const table = useReactTable({
         columns,
@@ -38,7 +38,7 @@ const Table = <T,>({data, columns, currentPage, totalPages, onChangePage}: Table
         state: {
             pagination,
         },
-    })
+    });
 
     return (
         <Card extra="h-full w-full sm:overflow-auto px-6 py-4">
@@ -54,7 +54,7 @@ const Table = <T,>({data, columns, currentPage, totalPages, onChangePage}: Table
                                         <div
                                             {...{
                                                 className: header.column.getCanSort()
-                                                    ? 'cursor-pointer select-none flex items-center justify-center gap-x-3'
+                                                    ? 'cursor-pointer select-none flex items-center justify-between gap-x-3'
                                                     : '',
                                                 onClick: header.column.getToggleSortingHandler(),
                                             }}
@@ -75,7 +75,7 @@ const Table = <T,>({data, columns, currentPage, totalPages, onChangePage}: Table
                                             }
                                         </div>
                                     </th>
-                                )
+                                );
                             })}
                         </tr>
                     ))}
@@ -84,7 +84,7 @@ const Table = <T,>({data, columns, currentPage, totalPages, onChangePage}: Table
                     <tbody>
                     {table.getRowModel().rows.map(row => {
                         return (
-                            <tr key={row.id}>
+                            <tr key={row.id} className={`border-b`}>
                                 {row.getVisibleCells().map(cell => {
                                     return (
                                         <td key={cell.id}
@@ -94,10 +94,10 @@ const Table = <T,>({data, columns, currentPage, totalPages, onChangePage}: Table
                                                 cell.getContext()
                                             )}
                                         </td>
-                                    )
+                                    );
                                 })}
                             </tr>
-                        )
+                        );
                     })}
                     </tbody>
                 </table>

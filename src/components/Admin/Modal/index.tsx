@@ -5,10 +5,14 @@ type ModalProps = {
     title: string;
     onClose: () => void;
     children: React.ReactNode;
+    open: boolean;
 }
 
 function Modal(props: ModalProps) {
-    const {children, title, onClose} = props;
+    const {children, title, onClose, open} = props;
+
+    if (!open) return null;
+
     return (
         <div className="z-50 fixed inset-0 ">
             <div className="shadow-xl bg-white border border-black/20 rounded-lg w-full xl:w-1/2 mx-auto mt-10 p-4">
