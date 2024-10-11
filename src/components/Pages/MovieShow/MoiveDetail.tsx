@@ -1,6 +1,6 @@
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
+import { RiArrowRightSLine } from "react-icons/ri";
 import Link from "next/link";
-import Image from "next/image";
 
 function MovieDetail() {
   const [activeTab, setActiveTab] = useState<string>("nowShowing"); // Trạng thái của tab hiện tại
@@ -38,12 +38,16 @@ function MovieDetail() {
   };
 
   // Lọc phim theo trạng thái (Đang chiếu hoặc Sắp chiếu)
-  const displayedMovies = movies?.filter(
+  const filteredMovies =
+    movies?.filter(
       (movie) =>
-          activeTab === "nowShowing"
-              ? movie.status?.toUpperCase() === "ACTIVE" // Sử dụng toUpperCase() để so sánh không phân biệt chữ hoa/thường
-              : movie.status?.toUpperCase() === "COMING_SOON" // Sửa lỗi trong điều kiện lọc
-  ) || [];
+        activeTab === "nowShowing"
+          ? movie.status?.toUpperCase() === "ACTIVE" // Sử dụng toUpperCase() để so sánh không phân biệt chữ hoa/thường
+          : movie.status?.toUpperCase() === "COMING_SOON" // Sửa lỗi trong điều kiện lọc
+    ) || []; // Đảm bảo filteredMovies luôn là một mảng
+
+  // không giới hạn số lượng phim hiển thị
+  const displayedMovies = filteredMovies;
 
   // Hàm xử lý khi nhấn vào một phim
   const handleMovieClick = (movie: any) => {
@@ -100,26 +104,24 @@ function MovieDetail() {
       <div className="grid grid-cols-4 gap-4 mb-10">
         {displayedMovies.length > 0 ? (
           displayedMovies.map((movie) => (
-            <Link key={movie.id} href={"/booking"}>
+            <Link key={movie.id} href="/booking">
               <div
                 className="relative p-2 cursor-pointer transition-transform duration-300 ease-in-out hover:scale-105"
                 onClick={() => handleMovieClick(movie)}
               >
-                <Image
+                <img
                   src={movie.imagePortrait}
                   alt={movie.title}
                   className="w-[276px] h-[394px] object-cover mb-2 rounded-md" // Đặt kích thước và kiểu hiển thị
-                  width={280} height={420}
                 />
                 <h2 className="text-lg font-bold">{movie.title}</h2>
                 {/* Container thông tin ở góc dưới bên phải */}
                 <div className="absolute bottom-20 right-0 text-white p-2">
                   <div className="flex items-center justify-center bg-black bg-opacity-60 gap-1">
-                    <Image
+                    <img
                       src="/image/star.png"
                       alt="star"
                       className="w-4 h-4 mr-2 ml-3"
-                      height={25} width={25}
                     />
                     <p className="text-[17px] font-bold mr-2">
                       {movie.rating} {/* Hiển thị chỉ số đánh giá */}

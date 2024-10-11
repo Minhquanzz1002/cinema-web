@@ -1,10 +1,12 @@
-import React, {useEffect, useRef, useState} from "react";
-import moment, {Moment} from "moment";
+import React, { useState, useEffect, useRef } from "react";
+import Link from "next/link";
+import moment, { Moment } from "moment";
 import "moment/locale/vi"; // Import ngôn ngữ tiếng Việt cho moment
+import { log } from "console";
 import axios from "axios";
-import {useRouter} from "next/navigation";
+import { useRouter } from "next/navigation";
 import ReactPlayer from "react-player";
-import Image from "next/image";
+import { da, ro } from "@faker-js/faker";
 
 interface Movie {
   id: number;
@@ -228,47 +230,141 @@ const MovieInformation: React.FC = () => {
     )
   );
 
+  // Hiển thị showtimes  "id": "e3b257d1-aa0e-4df2-8f18-69dae6620cd4", showtime.id đã chọn
+
   const groupedShowtimes = showtimes.reduce((acc, showtime) => {
-    if (!acc[showtime.cinemaName]) {
-      acc[showtime.cinemaName] = {
-        cinemaName: showtime.cinemaName,
-        room: showtime.room.name,
-        times: [],
-      };
+    const { cinemaName, room, id, startTime } = showtime;
+
+    // Nếu cinema chưa tồn tại trong acc, tạo mới
+    if (!acc[cinemaName]) {
+      acc[cinemaName] = {};
     }
-    acc[showtime.cinemaName].times.push(showtime.startTime);
+
+    // Nếu room chưa tồn tại trong cinema, tạo mới
+    if (!acc[cinemaName][room.name]) {
+      acc[cinemaName][room.name] = [];
+    }
+
+    // Thêm đối tượng chứa giờ chiếu và id vào room
+    acc[cinemaName][room.name].push({ id, startTime });
+
     return acc;
-  }, {} as Record<string, { cinemaName: string; room: string; times: string[] }>);
+  }, {} as Record<string, Record<string, { id: string; startTime: string }[]>>);
 
-  const handleTimeClick = (theater: Cinema, showtime: string) => {
-    // chuyển các thông tin cần thiết qua trang choose-seat
-    const infomationtransfer = {
-      // truyền thông tin hình ảnh phim, tên phim, age, cinemaName, room, và id room, date, id cinemaId
-      image: movie?.imagePortrait,
-      movieTitle: movie?.title,
-      age: movie?.age,
-      cinemaName: theater.name,
-      room: theater.format,
-      roomId: theater.id,
-      time: showtime,
-      date: selectedDate.format("DD/MM/YYYY"),
-      rommId: selectedTheaterId,
-      roomName: groupedShowtimes[theater.name].room,
+  // Lấy giá trị của accessToken từ localStorage
+  const [accessToken, setAccessToken] = useState('');
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken');
+    if (token) {
+      setAccessToken(token);
+    }
+  }, []);
+  console.log("accessToken:", accessToken);
+  
 
-      // truyền thứ đã chọn
-      dayOfWeek: selectedDate.format("dddd").charAt(0).toUpperCase() + selectedDate.format("dddd").slice(1),
-    
+  // Hàm xử lý khi người dùng nhấp vào giờ chiếu
+  const handleTimeClick = async (theater: Cinema, showtimeId: string) => {
+    // Hiển thị showtimeId
+    console.log("ID suất chiếu đã chọn:", showtimeId);
+  
+    // Tìm kiếm thông tin về suất chiếu dựa trên showtimeId
+    let selectedShowtime: { id: string; startTime: string } | undefined;
+    let roomName: string | undefined; // Biến để lưu tên phòng
+  
+    // Duyệt qua groupedShowtimes để tìm suất chiếu đã chọn
+    for (const cinemaName in groupedShowtimes) {
+      for (const room in groupedShowtimes[cinemaName]) {
+        const showtimes = groupedShowtimes[cinemaName][room];
+        selectedShowtime = showtimes.find(showtime => showtime.id === showtimeId);
+  
+        if (selectedShowtime) {
+          roomName = room; // Lưu tên phòng nếu tìm thấy
+          break; // Nếu đã tìm thấy, dừng vòng lặp
+        }
+      }
+      if (selectedShowtime) {
+        break; // Dừng vòng lặp bên ngoài nếu đã tìm thấy
+      }
+    }
+  
+    console.log(
+      "Cấu trúc groupedShowtimes:",
+      JSON.stringify(groupedShowtimes, null, 2)
+    ); // Kiểm tra cấu trúc
+  
+    if (selectedShowtime) {
+      // Tạo thông tin truyền qua trang choose-seat
+      const infomationtransfer = {
+        image: movie?.imagePortrait,
+        movieTitle: movie?.title,
+        age: movie?.age,
+        cinemaName: theater.name,
+        roomName: roomName || "Không tìm thấy rạp", // Lưu tên phòng đã chọn
+        time: selectedShowtime.startTime, // Lấy startTime từ suất chiếu đã chọn
+        date: selectedDate.format("DD/MM/YYYY"),
+        roomId: selectedTheaterId,
+        showtimeId: selectedShowtime.id, // Lấy id của suất chiếu đã chọn
+        // orderID của API tạo hóa đơn Response từ API tạo hóa đơn: id: "b72f4034-14d2-4c57-bfd8-547057b33a99" đã tạo
+        
+  
+        // Truyền thứ đã chọn
+        dayOfWeek: selectedDate.format("dddd").charAt(0).toUpperCase() + selectedDate.format("dddd").slice(1),
+      };
+  
+      console.log("Thông tin truyền qua trang choose-seat:", infomationtransfer);
+  
+      // Lưu thông tin vào localStorage
+      localStorage.setItem("showtime", JSON.stringify(infomationtransfer));
+  
+      // Gọi API tạo hóa đơn
+      // try {
+      //   const response = await axios.post(
+      //     'http://localhost:8080/api/v1/orders',
+      //     {
+      //       showTimeId: showtimeId, // ID suất chiếu đã chọn
+      //       seatIds: [0] // giá trị cố định cho ghế
+      //     },
+      //     {
+      //       headers: {
+      //         Authorization: `Bearer ${accessToken}` // Truyền token từ localStorage
+      //       }
+      //     }
+      //   );
       
-    };
-
-    console.log("Thông tin truyền qua trang choose-seat:", infomationtransfer);
-    
-
-    // Lưu thông tin vào localStorage
-    localStorage.setItem("showtime", JSON.stringify(infomationtransfer));
-    // Điều hướng sang trang  choose-seat
-    router.push("/choose-seat");
+      //   // Kiểm tra phản hồi API
+      //   if (response.status === 200 || response.status === 201) {
+      //     // Lấy dữ liệu trả về từ API
+      //     const orderData = response.data.data; // Truy cập vào 'data' trong phản hồi
+      //     console.log("Response từ API tạo hóa đơn:", orderData);
+      
+      //     // Lấy orderID từ orderData.id
+      //     const orderId = orderData.id;
+      
+      //     if (orderId) {
+      //       // Lưu orderID vào localStorage nếu tìm thấy
+      //       localStorage.setItem("orderID", orderId);
+      //       console.log("orderID lưu vào localStorage:", orderId);
+      //     } else {
+      //       console.error("Không tìm thấy orderID trong phản hồi API.");
+      //     }
+      
+      //     // Điều hướng sang trang choose-seat
+      //     router.push("/choose-seat");
+      //   } else {
+      //     console.error("Phản hồi không thành công:", response.status);
+      //   }
+      // } catch (error) {
+      //   console.error("Lỗi khi gọi API tạo hóa đơn:", error);
+      // }
+      
+      router.push("/choose-seat");
+      
+    } else {
+      console.error("Không tìm thấy suất chiếu với ID:", showtimeId);
+    }
   };
+  
+  
 
   return (
     <div>
@@ -277,7 +373,7 @@ const MovieInformation: React.FC = () => {
         <div className="absolute w-full"></div>
         <div className="relative h-full">
           <div className="absolute top-0 -left-[0%] z-100">
-            <Image
+            <img
               alt="Blur Left"
               src="https://www.galaxycine.vn/_next/static/media/blur-left.7a4f1851.png"
               className="w-full lg:h-[500px] object-cover lg:block hidden"
@@ -289,27 +385,21 @@ const MovieInformation: React.FC = () => {
           <div className="relative">
             {movie ? (
               <>
-                <Image
+                <img
                   src={movie.imagePortrait}
                   alt="movie"
                   className="w-[860px] h-full md:h-full lg:h-[500px] object-cover duration-500 ease-in-out group-hover:opacity-100"
-                  height={860} width={500}
                 />
 
                 <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 ">
-                <button
-                  onClick={() => setIsTrailerModalVisible(true)}
-                >
-                  <Image
-                    src="https://www.galaxycine.vn/_next/static/media/button-play.2f9c0030.png"
-                    alt="button-play"
-                    className="w-[40px] h-[40px] lg:w-[64px] lg:h-[64px] object-cover"
-                    width={65} height={65}
-                  />
-                </button>
+                  <button onClick={() => setIsTrailerModalVisible(true)}>
+                    <img
+                      src="https://www.galaxycine.vn/_next/static/media/button-play.2f9c0030.png"
+                      alt="button-play"
+                      className="w-[40px] h-[40px] lg:w-[64px] lg:h-[64px] object-cover"
+                    />
+                  </button>
                 </div>
-
-                
               </>
             ) : (
               <div className="w-full h-full flex items-center justify-center text-white">
@@ -318,7 +408,7 @@ const MovieInformation: React.FC = () => {
             )}
           </div>
           <div className="absolute top-0 -right-[0%] z-100 lg:block hidden">
-            <Image
+            <img
               alt="Blur Right"
               src="https://www.galaxycine.vn/_next/static/media/blur-right.52fdcf99.png"
               className="w-full lg:h-[500px] object-cover"
@@ -355,11 +445,10 @@ const MovieInformation: React.FC = () => {
       <div className="relative flex w-full mt-[-50px] ml-[200px]">
         <div className="relative w-[280px] h-[420px] bg-black border-2 border-white mx-auto mb-5 z-30">
           {movie ? (
-            <Image
+            <img
               src={movie.imagePortrait}
               alt={movie.title}
               className="w-full h-full object-cover rounded-md"
-              height={420} width={280}
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-white">
@@ -378,31 +467,28 @@ const MovieInformation: React.FC = () => {
                 </button>
               </div>
               <div className="flex items-center justify-start text-[14px] font-sans mb-3">
-                <div className="flex justify-start items-center mr-8">
-                  <Image
-                    src="/image/time.png"
+                <div className="flex justify-start mr-8">
+                  <img
+                    src="../image/time.png"
                     alt="time"
                     className="w-[16px] h-[16px] object-cover mt-0.5 mr-1"
-                    height={16} width={16}
                   />
                   {movie.duration} phút
                 </div>
                 <div className="flex">
-                  <Image
-                    src="/image/date.png"
+                  <img
+                    src="../image/date.png"
                     alt="calendar"
                     className="w-[16px] h-[16px] object-cover mt-0.5 mr-1"
-                    height={16} width={16}
                   />
                   {moment(movie.releaseDate).format("DD/MM/YYYY")}
                 </div>
               </div>
               <div className="flex items-center justify-start text-[18px] font-sans mb-3">
-                <Image
-                  src="/image/star.png"
+                <img
+                  src="../image/star.png"
                   alt="star"
                   className="w-[25px] h-[25px] object-cover -mt-0.5 mr-1"
-                  height={25} width={25}
                 />
                 {movie.rating}
               </div>
@@ -531,33 +617,49 @@ const MovieInformation: React.FC = () => {
           {/* Danh sách rạp và suất chiếu */}
         </div>
         <div className="space-y-4">
-          {Object.entries(groupedShowtimes).map(
-            ([cinemaName, { room, times }]) => (
-              <div key={cinemaName} className="p-4 border rounded-md">
-                <h3 className="font-bold mb-2">{cinemaName}</h3>
-                <p className="text-sm mb-4 mr-4">{room}</p>
-                <div className="flex flex-wrap items-center justify-start space-x-4">
-                {times.slice(0, 8).map((time, idx) => ( // Hiển thị 6 button
-                    <button
-                      key={idx}
-                      className="mx-1 mb-1 px-1 py-1 rounded-md border bg-gray-100 hover:bg-blue-700 hover:text-white hover:border-blue-700 transition-all duration-40"
-                      style={{ width: "100px", justifyContent: "center" }}
-                      onClick={() =>
-                        handleTimeClick(
-                          theaters.find(
-                            (theater) => theater.name === cinemaName
-                          )!,
-                          time
-                        )
-                      }
-                    >
-                      {time.slice(0, 5)}
-                    </button>
-                  ))}
+          {Object.entries(groupedShowtimes).map(([cinemaName, rooms]) => (
+            <div key={cinemaName} className="p-4 border rounded-md">
+              <h3 className="font-bold mb-2">{cinemaName}</h3>
+              {Object.entries(rooms).map(([roomName, times]) => (
+                <div
+                  key={roomName}
+                  className="flex items-center space-x-10 mb-4"
+                >
+                  {/* Tên rạp chiếu - chiếm 12.5% */}
+                  <div className="w-1/7 ml-6">
+                    {" "}
+                    {/* Sửa lại kích thước để phù hợp */}
+                    <p className="text-sm font-semibold">{roomName}</p>
+                  </div>
+
+                  {/* Danh sách giờ chiếu - chiếm 87.5% */}
+                  <div className="w-6/7 flex flex-wrap items-center justify-start space-x-2">
+                    {" "}
+                    {/* Sửa lại kích thước */}
+                    {times.slice(0, 8).map(({ id, startTime }) => (
+                      <button
+                        key={id}
+                        className="mx-1  px-1 py-1 rounded-md border bg-gray-100 hover:bg-blue-700 hover:text-white hover:border-blue-700 transition-all duration-200" // Tăng độ mượt cho hiệu ứng
+                        style={{ width: "90px", justifyContent: "center" }}
+                        onClick={() =>
+                          handleTimeClick(
+                            theaters.find(
+                              (theater) => theater.name === cinemaName
+                            )!,
+                            id
+                            // Thay đổi từ startTime thành id
+                            // Lấy name của rạp chiếu để truyền vào hàm handleTimeClick
+                          )
+                        }
+                      >
+                        {startTime.slice(0, 5)} {/* Hiển thị giờ */}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )
-          )}
+              ))}
+            </div>
+          ))}
         </div>
       </div>
     </div>

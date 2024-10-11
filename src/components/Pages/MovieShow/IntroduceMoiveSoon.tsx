@@ -21,7 +21,7 @@ function IntroduceMovieSoon() {
         A Quiet Place: Day One  – Dự kiến khởi chiếu 28.06.2024
         </p>
         <p className="mb-2">
-        Dựa trên bộ truyện đình đám cùng tên được xuất bản vào năm 1955, Harold Và Cây Bút Phép Thuật kể về Harold, một cậu bé 4 tuổi, với sứcLấy bối cảnh thành phố New York ngày đầu thảm họa, Sam (Lupita Nyong&apos;o) cùng chú mèo cưng đang dạo phố thì gặp cảnh bất ngờ. Quái vật đột ngột xuất hiện, cả người dân và chính phủ đều không biết đối phó thế nào. Trực thăng, xe tăng... nhanh chóng được điều tới chống chọi nhưng tất cả đều vô dụng trước quái vật ngoài hành tinh mạnh vượt trội. Sam và những người còn sống sót càng gặp khó khăn hơn. Giữa thành phố New York ồn ào, mỗi cử động đều có thể tạo ra tiếng ồn, hành trình tìm đường sống khó khăn hơn nhà Abbott gấp vạn lần.
+        Dựa trên bộ truyện đình đám cùng tên được xuất bản vào năm 1955, Harold Và Cây Bút Phép Thuật kể về Harold, một cậu bé 4 tuổi, với sứcLấy bối cảnh thành phố New York ngày đầu thảm họa, Sam (Lupita Nyong'o) cùng chú mèo cưng đang dạo phố thì gặp cảnh bất ngờ. Quái vật đột ngột xuất hiện, cả người dân và chính phủ đều không biết đối phó thế nào. Trực thăng, xe tăng... nhanh chóng được điều tới chống chọi nhưng tất cả đều vô dụng trước quái vật ngoài hành tinh mạnh vượt trội. Sam và những người còn sống sót càng gặp khó khăn hơn. Giữa thành phố New York ồn ào, mỗi cử động đều có thể tạo ra tiếng ồn, hành trình tìm đường sống khó khăn hơn nhà Abbott gấp vạn lần.
         </p>
         <p className="mb-2 text-blue-600 font-bold">
         Đặc biệt nhất, hình ảnh chú mèo giữa cơn loạn lạc khiến công chúng vô cùng quan tâm. Có lẽ, số phận “hoàng thượng” chính là một trong những lí do lớn thôi thúc khán giả ra rạp xem phần phim mới.
