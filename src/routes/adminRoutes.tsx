@@ -1,9 +1,10 @@
 import { LuLayoutGrid } from 'react-icons/lu';
 import React from 'react';
-import { RiMovie2Line, RiTicketLine } from 'react-icons/ri';
+import { RiMoneyDollarCircleLine, RiMovie2Line } from 'react-icons/ri';
 import { IoMdGift } from 'react-icons/io';
 import { FiCalendar } from 'react-icons/fi';
 import { GoPackage } from 'react-icons/go';
+import { IoTicketOutline } from 'react-icons/io5';
 
 export type IAdminRoute = {
     name: string;
@@ -29,6 +30,11 @@ const adminRoutes: IAdminRoute[] = [
         ],
     },
     {
+        name: 'Giá vé',
+        path: '/admin/ticket-prices',
+        icon: <IoTicketOutline />,
+    },
+    {
         name: 'Khuyến mãi',
         path: '/admin/promotions',
         icon: <IoMdGift />,
@@ -39,9 +45,9 @@ const adminRoutes: IAdminRoute[] = [
         icon: <FiCalendar />,
     },
     {
-        name: 'Đơn hàng',
-        path: '/admin/orders',
-        icon: <RiTicketLine />,
+        name: 'Hóa đơn',
+        path: '/admin/bills',
+        icon: <RiMoneyDollarCircleLine />,
     },
     {
         name: 'Sản phẩm',

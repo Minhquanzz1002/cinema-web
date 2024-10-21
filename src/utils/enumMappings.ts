@@ -1,6 +1,5 @@
 import { OrderStatus, SeatType } from '@/modules/orders/interface';
 import { BaseStatus } from '@/modules/base/interface';
-import { MovieStatus } from '@/modules/movies/interface';
 
 /**
  * Base
@@ -8,16 +7,6 @@ import { MovieStatus } from '@/modules/movies/interface';
 const baseStatusLabels: Record<BaseStatus, string> = {
     [BaseStatus.ACTIVE]: 'Hoạt động',
     [BaseStatus.INACTIVE]: 'Không hoạt động',
-};
-
-/**
- * Product
- */
-const movieStatusLabels: Record<MovieStatus, string> = {
-    [MovieStatus.ACTIVE]: 'Đang chiếu',
-    [MovieStatus.INACTIVE]: 'Ngưng chiếu',
-    [MovieStatus.COMING_SOON]: 'Sắp chiếu',
-    [MovieStatus.SUSPENDED]: 'Tạm ngưng',
 };
 
 /**
@@ -45,5 +34,4 @@ export {
     orderStatusLabels,
     seatTypeLabels,
     baseStatusLabels,
-    movieStatusLabels,
 };

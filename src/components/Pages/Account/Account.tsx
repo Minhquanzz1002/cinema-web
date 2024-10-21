@@ -1,13 +1,7 @@
-import React, { useEffect, useState } from "react";
-import {
-  FaUser,
-  FaEnvelope,
-  FaPhone,
-  FaLock,
-  FaCalendarAlt,
-} from "react-icons/fa";
-import axios from "axios";
-import { useRouter } from "next/navigation";
+import React, { useEffect, useState } from 'react';
+import { FaCalendarAlt, FaEnvelope, FaPhone, FaUser } from 'react-icons/fa';
+import axios from 'axios';
+import { useRouter } from 'next/navigation';
 
 interface UserData {
     name: string;

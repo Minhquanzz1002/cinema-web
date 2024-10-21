@@ -1,4 +1,7 @@
+'use client';
 import React from 'react';
+import dynamic from 'next/dynamic';
+import { ErrorMessage, Field } from 'formik';
 
 type InputFieldValidationProps = {
     id: string;
@@ -7,12 +10,11 @@ type InputFieldValidationProps = {
     placeholder: string;
     disabled?: boolean;
     type?: string;
-    value?: string;
-    onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    name: string;
 }
 
 const InputFieldValidation = (props: InputFieldValidationProps) => {
-    const {id, label, extra, placeholder, type, disabled, onChange, value} = props;
+    const { id, label, extra, placeholder, type, disabled, name } = props;
     return (
         <div className={`${extra}`}>
             <label
@@ -21,17 +23,17 @@ const InputFieldValidation = (props: InputFieldValidationProps) => {
             >
                 {label}
             </label>
-            <input
+            <Field
                 id={id}
+                name={name}
                 placeholder={placeholder}
                 type={type}
                 disabled={disabled}
-                onChange={onChange}
-                value={value}
                 className={`mt-2 block w-full p-3 text-sm outline-none bg-white/0 border rounded-xl dark:text-white`}
             />
+            <ErrorMessage name={name} component="div" className="text-red-500 text-xs mt-1" />
         </div>
     );
 };
 
-export default InputFieldValidation;
+export default dynamic(() => Promise.resolve(InputFieldValidation), { ssr: false });

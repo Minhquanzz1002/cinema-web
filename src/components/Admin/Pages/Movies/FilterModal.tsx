@@ -21,7 +21,7 @@ const FilterModal = React.memo((props: FilterModalProps) => {
 
     const onClickConfirm = () => {
         onClose();
-    }
+    };
 
     const toggleGenreSelection = (genre: Genre) => {
         setSelectedGenres((prevSelected) => {
@@ -42,7 +42,7 @@ const FilterModal = React.memo((props: FilterModalProps) => {
     };
 
     return (
-        <Modal title="Lọc theo danh mục" onClose={onClose}>
+        <Modal open={true} title="Lọc theo danh mục" onClose={onClose}>
             <div className="mt-2">
                 <div className="flex flex-col gap-y-2">
                     <div>

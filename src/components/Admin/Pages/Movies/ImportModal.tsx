@@ -28,7 +28,7 @@ const ImportModal = ({onClose} : ImportModalProps) => {
     };
 
     return (
-        <Modal title="" onClose={onClose}>
+        <Modal open={true} title="" onClose={onClose}>
             <div className="font-semibold tracking-wide">
                 Nhập từ file nhập liệu
                 <span className="font-normal text-xs tracking-wide"> (Tải về file mẫu: <button className="text-blue-500">Excel file</button>)</span>

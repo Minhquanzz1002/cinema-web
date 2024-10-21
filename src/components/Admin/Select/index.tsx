@@ -18,9 +18,10 @@ export type SelectProps = {
     placeholder?: string;
     multiple?: boolean;
     options: Option[];
+    readOnly?: boolean;
 }
 
-const Select = ({ name, label, tooltip, multiple, options, placeholder }: SelectProps) => {
+const Select = ({ name, label, tooltip, multiple, options, placeholder, readOnly = false }: SelectProps) => {
     const id = useId();
     const dropdownRef = React.useRef<HTMLDivElement>(null);
     const selectedOptionsRef = React.useRef<HTMLDivElement>(null);
@@ -33,6 +34,7 @@ const Select = ({ name, label, tooltip, multiple, options, placeholder }: Select
     const selectedOptions = options.filter(option => selectedValues.includes(option.value));
 
     const handleSelect = (value: string) => {
+        if (readOnly) return;
         if (multiple) {
             const newValues = selectedValues.includes(value) ? selectedValues.filter(v => v !== value) : [...selectedValues, value];
             helpers.setValue(newValues);
@@ -45,12 +47,14 @@ const Select = ({ name, label, tooltip, multiple, options, placeholder }: Select
     };
 
     const handleRemove = (value: string) => {
+        if (readOnly) return;
         if (multiple) {
             helpers.setValue(selectedValues.filter(v => v !== value));
         }
     };
 
     const handleClearAll = (e: React.MouseEvent) => {
+        if (readOnly) return;
         e.stopPropagation();
         helpers.setValue([]);
     };
@@ -67,11 +71,11 @@ const Select = ({ name, label, tooltip, multiple, options, placeholder }: Select
             </div>
             <div
                 ref={dropdownRef}
-                onClick={() => setIsOpen(!isOpen)}
+                onClick={() => !readOnly && setIsOpen(!isOpen)}
                 onMouseEnter={() => setIsHovering(true)}
                 onMouseLeave={() => setIsHovering(false)}
-                className={`border rounded-md min-h-10 py-1 px-3 dark:text-white dark:bg-navy-900 w-full text-[16px] focus-within:border-brand-500 flex items-center group relative`}>
-                <div ref={selectedOptionsRef} className="flex-1 flex items-center cursor-text gap-2 overflow-hidden flex-wrap">
+                className={`border rounded-md min-h-10 py-1 px-3 dark:text-white dark:bg-navy-900 w-full text-[16px] focus-within:border-brand-500 flex items-center group relative ${readOnly ? 'cursor-not-allowed' : ''}`}>
+                <div ref={selectedOptionsRef} className={`flex-1 flex items-center ${readOnly ? 'cursor-not-allowed' : 'cursor-text'} gap-2 overflow-hidden flex-wrap`}>
                     {
                         selectedOptions.length > 0 ? (
                                 selectedOptions.map(option => (
@@ -79,16 +83,20 @@ const Select = ({ name, label, tooltip, multiple, options, placeholder }: Select
                                         <div key={option.value}
                                              className="flex items-center gap-x-1 border rounded px-1 py-1 bg-brand-50">
                                             <span className="text-nowrap text-xs cursor-default">{option.label}</span>
-                                            <button
-                                                type="button"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    handleRemove(option.value);
-                                                }}
-                                                className="text-[10px] text-gray-400 hover:text-gray-900"
-                                            >
-                                                x
-                                            </button>
+                                            {
+                                                !readOnly && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleRemove(option.value);
+                                                        }}
+                                                        className="text-[10px] text-gray-400 hover:text-gray-900"
+                                                    >
+                                                        x
+                                                    </button>
+                                                )
+                                            }
                                         </div>
                                     ) : (
                                         <div key={option.value}>
@@ -102,7 +110,7 @@ const Select = ({ name, label, tooltip, multiple, options, placeholder }: Select
                     }
                 </div>
                 {
-                    multiple && selectedValues.length > 0 && isHovering ? (
+                    !readOnly && multiple && selectedValues.length > 0 && isHovering ? (
                         <button onClick={handleClearAll} type="button" className="text-gray-400 hover:text-gray-900"
                         >
                             <IoMdCloseCircle />
@@ -113,7 +121,7 @@ const Select = ({ name, label, tooltip, multiple, options, placeholder }: Select
                 }
 
                 {
-                    isOpen && (
+                    !readOnly && isOpen && (
                         <div
                             className="absolute mt-1 left-0 top-full z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
                             {

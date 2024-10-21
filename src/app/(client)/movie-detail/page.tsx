@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React from 'react';
 
 import MovieDetail from '@/components/Pages/MovieShow/MoiveDetail';

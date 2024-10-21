@@ -1,4 +1,4 @@
-import React, {ReactNode, useState} from 'react';
+import React, { useState } from 'react';
 
 type TabProps = {
     title: string;
@@ -11,8 +11,8 @@ export const Tab = ({children} : TabProps) => {
         <div>
             {children}
         </div>
-    )
-}
+    );
+};
 
 type TabsProps = {
     defaultActiveKey: string;
@@ -26,7 +26,7 @@ const Tabs = (props: TabsProps) => {
 
     const handleTabClick = (key: string) => {
         setCurrentActiveKey(key);
-    }
+    };
 
     return (
         <div className={`${className}`}>
@@ -43,7 +43,7 @@ const Tabs = (props: TabsProps) => {
                             >
                                 {title}
                             </button>
-                        )
+                        );
                     })
                 }
             </div>

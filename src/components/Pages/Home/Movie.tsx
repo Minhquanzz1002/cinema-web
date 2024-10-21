@@ -1,13 +1,11 @@
-import React, { useEffect, useState } from "react";
-import { RiArrowRightSLine } from "react-icons/ri";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import React, { useEffect, useState } from 'react';
+import { RiArrowRightSLine } from 'react-icons/ri';
+import Link from 'next/link';
 
 function Movie() {
   const [activeTab, setActiveTab] = useState<string>("nowShowing"); // Trạng thái của tab hiện tại
   const [movies, setMovies] = useState<any[]>([]); // Khởi tạo movies là một mảng rỗng
   const [loading, setLoading] = useState<boolean>(true); // Trạng thái loading
-  const router = useRouter();
 
   useEffect(() => {
     const fetchMovies = async () => {

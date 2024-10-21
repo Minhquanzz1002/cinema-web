@@ -3,7 +3,7 @@ import React, {useState} from 'react';
 import Card from "@/components/Admin/Card";
 import Calendar from "react-calendar";
 import {MdChevronLeft, MdChevronRight} from "react-icons/md";
-import "@/styles/MiniCalendar.admin.css"
+import "@/styles/MiniCalendar.admin.css";
 
 type ValuePiece = Date | null;
 

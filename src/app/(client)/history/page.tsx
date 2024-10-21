@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import History from '@/components/Pages/History/History';
 import React from 'react';
 

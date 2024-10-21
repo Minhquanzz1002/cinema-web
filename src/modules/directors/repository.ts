@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Director } from '@/modules/directors/interface';
 
 const fetchAllDirectors = (): Promise<SuccessResponse<PageObject<Director>>> => {
-    return httpRepository.execute({ path: '/admin/v1/directors' });
+    return httpRepository.get<PageObject<Director>>('/admin/v1/directors');
 };
 
 export const useAllDirectors = () => {

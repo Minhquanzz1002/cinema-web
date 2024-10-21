@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { RiArrowRightSLine } from "react-icons/ri";
-import Link from "next/link";
+import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
 
 function MovieDetail() {
   const [activeTab, setActiveTab] = useState<string>("nowShowing"); // Trạng thái của tab hiện tại

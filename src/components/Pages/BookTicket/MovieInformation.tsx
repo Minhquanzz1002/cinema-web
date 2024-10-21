@@ -1,11 +1,9 @@
-import React, { useState, useEffect, useRef } from "react";
-import Link from "next/link";
-import moment, { Moment } from "moment";
-import "moment/locale/vi"; // Import ngôn ngữ tiếng Việt cho moment
-import { log } from "console";
-import axios from "axios";
-import { useRouter } from "next/navigation";
-import ReactPlayer from "react-player";
+import React, { useEffect, useRef, useState } from 'react';
+import moment, { Moment } from 'moment';
+import 'moment/locale/vi'; // Import ngôn ngữ tiếng Việt cho moment
+import axios from 'axios';
+import { useRouter } from 'next/navigation';
+import ReactPlayer from 'react-player';
 
 
 interface Movie {
@@ -63,7 +61,7 @@ const MovieInformation: React.FC = () => {
   const [cinemas, setCinemas] = useState<Cinema[]>([]);
   const [regions, setRegions] = useState<string[]>([]);
   const [theaters, setTheaters] = useState<Cinema[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [, setLoading] = useState<boolean>(true);
   const [selectedRegion, setSelectedRegion] = useState("");
   const [selectedTheater, setSelectedTheater] = useState("");
   const [selectedTheaterId, setSelectedTheaterId] = useState<number | null>(
@@ -469,7 +467,7 @@ const MovieInformation: React.FC = () => {
               <div className="flex items-center justify-start text-[14px] font-sans mb-3">
                 <div className="flex justify-start mr-8">
                   <img
-                    src="../image/time.png"
+                    src={'../image/time.png'}
                     alt="time"
                     className="w-[16px] h-[16px] object-cover mt-0.5 mr-1"
                   />

@@ -17,7 +17,8 @@ function Promotional() {
   }, []);
 
   const startAutoSlide = () => {
-    // @ts-ignore
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
     intervalRef.current = setInterval(() => {
       setCurrentIndex((prevIndex) => (prevIndex + 4) % promotionalData.length);
     }, 10000); // Chuyển hình sau mỗi 10 giây
