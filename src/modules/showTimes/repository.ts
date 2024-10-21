@@ -9,10 +9,9 @@ interface Params {
 }
 
 const findAllShowTimes = (params: Params): Promise<SuccessResponse<PageObject<AdminShowTime>>> => {
-    const queryParams = new URLSearchParams({
+    return httpRepository.get<PageObject<AdminShowTime>>(`/admin/v1/show-times`, {
         page: params.page?.toString() || '0',
-    }).toString();
-    return httpRepository.execute({ path: `/admin/v1/show-times?${queryParams}` });
+    });
 };
 
 export const useAllShowTimes = (params: Params) => {

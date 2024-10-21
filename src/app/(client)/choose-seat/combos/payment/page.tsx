@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import PayMentInformation from '@/components/Pages/PayMent/PayMentInfomation';
 import React from 'react';
 

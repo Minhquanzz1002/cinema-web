@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
-import Image from 'next/image'; // Import Image từ Next.js
-import axios from "axios";
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+
 interface Seat {
   name: string;
   type: string;
@@ -14,26 +14,6 @@ interface OrderDetail {
   product: any | null;
 }
 
-interface Order {
-  id: string;
-  orderDate: string;
-  totalPrice: number;
-  orderDetails: OrderDetail[];
-  showTime: {
-    movie: {
-      title: string;
-      imagePortrait: string;
-      age: number;
-      rating: number;
-    };
-    cinemaName: string;
-    room: {
-      name: string;
-    };
-    startTime: string;
-    startDate: string;
-  };
-}
 interface UserData {
   name: string;
   email: string;

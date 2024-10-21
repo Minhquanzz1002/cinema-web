@@ -1,5 +1,8 @@
+"use client";
 import React, {useRef, useState} from 'react';
-import JoditEditor from "jodit-react";
+import dynamic from 'next/dynamic';
+// import JoditEditor from "jodit-react";
+const JoditEditor = dynamic(() => import("jodit-react"), {ssr: false});
 
 const Editor = () => {
     const editor = useRef(null);

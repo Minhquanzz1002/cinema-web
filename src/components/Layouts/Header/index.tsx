@@ -1,23 +1,20 @@
 "use client";
-import Image from "next/image";
-import React, { useEffect, useState } from "react";
+import Image from 'next/image';
+import React, { useEffect, useState } from 'react';
 import {
   FaChevronDown,
   FaEye,
   FaEyeSlash,
+  FaHistory,
   FaSearch,
-  FaTimes,
-  FaUserCircle,
   FaSignOutAlt,
+  FaTimes,
   FaUser,
-  FaHistory
-} from "react-icons/fa";
-import Link from "next/link"; // Import useRouter
-import { useRouter } from "next/navigation";
-import { ro } from "@faker-js/faker";
-import { on } from "events";
-import OtpInput from "react-otp-input"; // Import thư viện OTP
-import { log } from "console";
+  FaUserCircle,
+} from 'react-icons/fa';
+import Link from 'next/link'; // Import useRouter
+import { useRouter } from 'next/navigation';
+import OtpInput from 'react-otp-input'; // Import thư viện OTP
 
 export default function Header() {
   const [showSearch, setShowSearch] = useState(false);
@@ -46,13 +43,6 @@ export default function Header() {
   }, []);
   const toggleDropdown = () => {
     setShowDropdown((prev) => !prev);
-  };
-
-  const handleLoginSuccess = (userData: any) => {
-    const { data } = userData; // Giả sử `userData` có cấu trúc như trong localStorage
-    localStorage.setItem("user", JSON.stringify(userData)); // Lưu dữ liệu vào localStorage
-    setUser(data); // Cập nhật trạng thái người dùng
-    setShowLoginForm(false); // Đóng form đăng nhập
   };
 
   const handleSearchClick = () => {
@@ -100,7 +90,7 @@ export default function Header() {
     router.push("/account");
     // Đóng dropdown khi chuyển trang
     setShowDropdown(false);
-  }
+  };
 
   return (
     <div className="flex justify-between items-center p-5 px-4 md:px-20">
@@ -202,7 +192,6 @@ export default function Header() {
       {showLoginForm && (
         <LoginForm
           onClose={handleCloseLoginForm}
-          onSuccess={handleLoginSuccess}
         />
       )}
       {showRegisterForm && (
@@ -248,7 +237,6 @@ function ForgotPasswordModal({
 }) {
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
-  const router = useRouter(); // Khai báo useRouter
 
   const isValidEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -284,7 +272,7 @@ function ForgotPasswordModal({
       if (response.ok) {
         alert("Đã gửi email quên mật khẩu thành công!");
         onClose();
-        onSwitchToLogin && onSwitchToLogin();
+        if (onSwitchToLogin) onSwitchToLogin();
       } else {
         const errorData = await response.json();
         setError(errorData.message || "Có lỗi xảy ra!");
@@ -351,12 +339,10 @@ function ForgotPasswordModal({
 function LoginForm({
   onClose,
   onSwitchToRegister,
-  onSuccess,
   onForgotPasswordClick,
 }: {
   onClose: () => void;
   onSwitchToRegister?: () => void;
-  onSuccess?: (userData: { name: string }) => void;
   onForgotPasswordClick?: () => void;
 }) {
   const [email, setEmail] = useState("");
@@ -540,13 +526,11 @@ function RegisterForm({
   const [otp, setOtp] = useState(""); // State cho OTP
   const [isOtpModalVisible, setOtpModalVisible] = useState(false); // State để điều khiển hiển thị modal OTP
 
-  const router = useRouter();
-
   // State cho các trường input
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [gender, setGender] = useState(true);
+  const [gender] = useState(true);
   const [birthday, setBirthday] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -571,12 +555,6 @@ function RegisterForm({
 
   const handleTermsChange = () => {
     setTermsAccepted(!termsAccepted);
-  };
-
-  // mở modal OTP sẽ đóng modal đăng ký
-  const handleOtpModalClose = () => {
-    setOtpModalVisible(false);
-    onClose();
   };
 
   const isValidEmail = (email: string) => {

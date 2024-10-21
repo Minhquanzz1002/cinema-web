@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import MovieInformation from '@/components/Pages/BookTicket/MovieInformation';
 import React from 'react';
 

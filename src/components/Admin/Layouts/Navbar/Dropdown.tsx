@@ -1,4 +1,5 @@
 import React, {useRef, useState} from 'react';
+import useClickOutside from '@/hook/useClickOutside';
 
 type DropdownProps = {
     button: React.ReactNode;
@@ -10,6 +11,7 @@ const Dropdown = (props : DropdownProps) => {
     const { button, children, className } = props;
     const wrapperRef  = useRef<HTMLDivElement>(null);
     const [openWrapper, setOpenWrapper] = useState<boolean>(false);
+    useClickOutside(wrapperRef, () => setOpenWrapper(false));
     return (
         <div className="relative flex" ref={wrapperRef}>
             <div className="flex" onMouseDown={() => setOpenWrapper(!openWrapper)}>

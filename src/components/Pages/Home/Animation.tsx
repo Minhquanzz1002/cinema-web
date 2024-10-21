@@ -1,7 +1,6 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import images from '@/variables/client/animation';
-import {FaChevronLeft, FaChevronRight} from 'react-icons/fa';
-import Image from "next/image";
+import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 
 function Animation() {
     const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);

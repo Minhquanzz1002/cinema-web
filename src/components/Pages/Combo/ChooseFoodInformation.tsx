@@ -1,3 +1,4 @@
+"use client";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -39,14 +40,13 @@ function ChooseFoodInformation() {
   const [comboQuantities, setComboQuantities] = useState<{
     [key: number]: number;
   }>({});
-  const [initialTotalPrice, setInitialTotalPrice] = useState<number>(0);
-  const [showConfirmation, setShowConfirmation] = useState<boolean>(false);
+  const [, setShowConfirmation] = useState<boolean>(false);
   const router = useRouter();
   const [totalPriceCombo, setTotalPriceCombo] = useState(0);
 
   useEffect(() => {
+    if (typeof window === "undefined" || !window.localStorage) return;
     const storedDetails = localStorage.getItem("bookingDetails");
-    const storedQuantities = localStorage.getItem("comboQuantities");
     if (storedDetails) {
       const parsedDetails = JSON.parse(storedDetails) as BookingDetails;
       setBookingDetails(parsedDetails);
@@ -67,26 +67,8 @@ function ChooseFoodInformation() {
     fetchFoodData();
   }, []);
 
-  const calculateTotalComboPrice = (quantities: { [key: number]: number }) => {
-    return Object.keys(quantities).reduce((total, id) => {
-      const numericId = parseInt(id, 10);
-      if (isNaN(numericId)) return total;
-
-      const combo = foodData.find((item: FoodItem) => item.id === numericId);
-      if (combo) {
-        const quantity = quantities[numericId] || 0;
-        return total + combo.price * quantity;
-      }
-      return total;
-    }, 0);
-  };
-
-  const updateTotalPrice = (newComboQuantities: { [key: number]: number }) => {
-    const totalComboPrice = calculateTotalComboPrice(newComboQuantities);
-    return initialTotalPrice + totalComboPrice;
-  };
-
   const handleIncrease = async (id: number) => {
+    if (typeof window === "undefined" || !window.localStorage) return;
     setComboQuantities((prevQuantities) => {
       const newQuantities = {
         ...prevQuantities,
@@ -113,6 +95,7 @@ function ChooseFoodInformation() {
   };
 
   const handleDecrease = async (id: number) => {
+    if (typeof window === "undefined" || !window.localStorage) return;
     setComboQuantities((prevQuantities) => {
       const currentQuantity = prevQuantities[id] || 0;
       if (currentQuantity === 0) return prevQuantities;
@@ -198,6 +181,7 @@ function ChooseFoodInformation() {
   console.log("Description:", description);
 
   useEffect(() => {
+    if (typeof window === "undefined" || !window.localStorage) return;
     const token = localStorage.getItem("accessToken");
     if (token) {
       setAccessToken(token);
@@ -206,36 +190,32 @@ function ChooseFoodInformation() {
 
   const [accessToken, setAccessToken] = useState("");
   useEffect(() => {
+    if (typeof window === "undefined" || !window.localStorage) return;
     const token = localStorage.getItem("accessToken");
     if (token) {
       setAccessToken(token);
     }
   }, []);
 
-  console.log("Access Token:", accessToken);
-
   const [orderID, setOrderID] = useState("");
 
   useEffect(() => {
+    if (typeof window === "undefined" || !window.localStorage) return;
     const storedOrderID = localStorage.getItem("orderID");
     if (storedOrderID) {
       setOrderID(storedOrderID); // Đặt trực tiếp giá trị orderID
     }
   }, []);
 
-  console.log("Order ID Tạo hóa đơn:", orderID);
-
   const handleBackClick = () => {
+    if (typeof window === "undefined" || !window.localStorage) return;
     // Lưu giá trị totalPriceCombo vào localStorage
     localStorage.setItem("totalPriceCombo", JSON.stringify(totalPriceCombo));
     router.push("/choose-seat");
   };
 
-  const handleContinueClick = () => {
-    setShowConfirmation(true);
-  };
-
   const handleConfirmClick = () => {
+    if (typeof window === "undefined" || !window.localStorage) return;
     if (bookingDetails) {
       // Collect selected combos with their names and quantities
       const selectedCombos = Object.keys(comboQuantities)
@@ -281,16 +261,12 @@ function ChooseFoodInformation() {
     null
   );
   useEffect(() => {
+    if (typeof window === "undefined" || !window.localStorage) return;
     const storedPaymentDetails = localStorage.getItem("paymentDetails");
     if (storedPaymentDetails) {
       setPaymentDetails(JSON.parse(storedPaymentDetails));
     }
   }, []);
-
-  // Hiển thị totalPriceCombo, selectedCombos
-  console.log("Payment Details:", paymentDetails);
-  console.log("Total Price Combo:", paymentDetails?.totalPriceCombo);
-  console.log("Selected Combos:", paymentDetails?.selectedCombos);
 
   // Hiển thị thời gian hủy đơn hàng
   const initialTime = 6 * 60; // 6 minutes in seconds
@@ -301,6 +277,7 @@ function ChooseFoodInformation() {
 
   // Function to call the delete API
   const deleteOrder = async () => {
+    if (typeof window === "undefined" || !window.localStorage) return;
     if (!orderID || !accessToken) {
       console.error("Missing orderID or accessToken");
       return;
@@ -328,6 +305,7 @@ function ChooseFoodInformation() {
 
   // Start the timer and call the API when time reaches 0
   useEffect(() => {
+    if (typeof window === "undefined" || !window.localStorage) return;
     const timer = setInterval(() => {
       setTimeLeft((prevTime) => {
         if (prevTime <= 1) {
