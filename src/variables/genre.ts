@@ -28,6 +28,6 @@ const createGenre = (id: number): Genre => {
 
 const generateSampleGenres = (length: number): Genre[] => {
     return Array.from({length}, (_, index) => createGenre(index + 1));
-}
+};
 
 export default generateSampleGenres;

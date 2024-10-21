@@ -46,10 +46,10 @@ const PageButton = React.memo(({page, currentPage, onClick}: {
             >
                 {page}
             </button>
-        )
+        );
     }
 
-    return <span className="select-none">{page}</span>
+    return <span className="select-none">{page}</span>;
 });
 
 PageButton.displayName = 'PageButton';

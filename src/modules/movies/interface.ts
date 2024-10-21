@@ -1,6 +1,6 @@
-import { GenreFilter } from '@/modules/genres/interface';
-import { ActorFilter } from '@/modules/actors/interface';
-import { ProducerFilter } from '@/modules/producers/interface';
+import { Genre, GenreFilter } from '@/modules/genres/interface';
+import { Actor, ActorFilter } from '@/modules/actors/interface';
+import { Producer, ProducerFilter } from '@/modules/producers/interface';
 
 export interface MovieFilter {
     genres: GenreFilter[];
@@ -15,6 +15,13 @@ export enum MovieStatus {
     SUSPENDED = 'SUSPENDED',
 }
 
+export const MovieStatusVietnamese : Record<MovieStatus, string> = {
+    ACTIVE: 'Đang chiếu',
+    INACTIVE: 'Ngừng chiếu',
+    COMING_SOON: 'Sắp chiếu',
+    SUSPENDED: 'Tạm ngưng'
+};
+
 export enum AgeRating {
     P = 'P',
     K = 'K',
@@ -26,6 +33,7 @@ export enum AgeRating {
 
 export interface AdminMovie {
     id: string;
+    code: string;
     country: string;
     duration: number;
     title: string;
@@ -43,4 +51,10 @@ export interface AdminMovie {
     ageRating: AgeRating;
     rating: number;
     trailer: string;
+}
+
+export interface Movie extends AdminMovie{
+    genres: Genre[];
+    producers: Producer[];
+    actors: Actor[];
 }

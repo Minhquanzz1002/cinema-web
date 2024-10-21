@@ -13,8 +13,10 @@ type InputProps = {
     min?: number;
     max?: number;
     required?: boolean;
+    readOnly?: boolean;
 };
-const Input = ({ name, label, placeholder = '', tooltip, type = 'text', unit, autoFocus = false, min, max, required = false }: InputProps) => {
+
+const Input = ({ name, label, placeholder = '', tooltip, type = 'text', unit, autoFocus = false, min, max, required = false, readOnly = false }: InputProps) => {
     const id = useId();
     const [field] = useField(name);
     const inputRef = React.useRef<HTMLInputElement>(null);
@@ -43,6 +45,7 @@ const Input = ({ name, label, placeholder = '', tooltip, type = 'text', unit, au
                        autoFocus={autoFocus}
                        min={min}
                        max={max}
+                       readOnly={readOnly}
                        {...field}
                 />
 

@@ -33,8 +33,26 @@ export const breadcrumbs: IBreadcrumb[] = [
         label: 'Quản lý diễn viên',
         link: '^/admin/movies/actors$',
         breadcrumbTrail: [
-            { label: 'Thể loại' },
+            { label: 'Diễn viên' },
             { label: 'Danh sách diễn viên' },
+        ],
+    },
+    {
+        label: 'Chi tiết phim',
+        link: '^/admin/movies/[^/]+$',
+        breadcrumbTrail: [
+            { label: 'Phim' },
+            { label: 'Danh sách phim', link: '/admin/movies' },
+            { label: 'Chi tiết phim' },
+        ],
+    },
+    {
+        label: 'Thêm diễn viên',
+        link: '^/admin/movies/actors/new$',
+        breadcrumbTrail: [
+            { label: 'Diễn viên' },
+            { label: 'Danh sách diễn viên', link: '/admin/movies/actors' },
+            { label: 'Thêm diễn viên' },
         ],
     },
     {
@@ -43,6 +61,14 @@ export const breadcrumbs: IBreadcrumb[] = [
         breadcrumbTrail: [
             { label: 'Đạo diễn' },
             { label: 'Danh sách đạo diễn' },
+        ],
+    },
+    {
+        label: 'Quản lý giá vé',
+        link: '^/admin/ticket-prices$',
+        breadcrumbTrail: [
+            { label: 'Giá vé' },
+            { label: 'Danh sách giá vé' },
         ],
     },
     {
@@ -62,19 +88,19 @@ export const breadcrumbs: IBreadcrumb[] = [
         ],
     },
     {
-        label: 'Quản lý đơn hàng',
-        link: '^/admin/orders$',
+        label: 'Quản lý hóa đơn',
+        link: '^/admin/bills$',
         breadcrumbTrail: [
-            { label: 'Đơn hàng' },
-            { label: 'Danh sách đơn hàng' },
+            { label: 'Hóa đơn' },
+            { label: 'Danh sách hóa đơn' },
         ],
     },
     {
-        label: 'Chi tiết đơn hàng',
-        link: '^/admin/orders/[^/]+$',
+        label: 'Chi tiết hóa đơn',
+        link: '^/admin/bills/[^/]+$',
         breadcrumbTrail: [
             { label: 'Đơn hàng' },
-            { label: 'Danh sách đơn hàng', link: '/admin/orders' },
+            { label: 'Danh sách hóa đơn', link: '/admin/bills' },
             { label: 'Chi tiết' },
         ],
     },
@@ -84,6 +110,33 @@ export const breadcrumbs: IBreadcrumb[] = [
         breadcrumbTrail: [
             { label: 'Sản phẩm' },
             { label: 'Danh sách sản phẩm' },
+        ],
+    },
+    {
+        label: 'Thêm sản phẩm',
+        link: '^/admin/products/new$',
+        breadcrumbTrail: [
+            { label: 'Sản phẩm' },
+            { label: 'Danh sách sản phẩm', link: '/admin/products' },
+            { label: 'Thêm mới' },
+        ],
+    },
+    {
+        label: 'Chi tiết sản phẩm',
+        link: '^/admin/products/[^/]+$',
+        breadcrumbTrail: [
+            { label: 'Sản phẩm' },
+            { label: 'Danh sách sản phẩm', link: '/admin/products' },
+            { label: 'Chi tiết sản phẩm' },
+        ],
+    },
+    {
+        label: 'Cập nhật sản phẩm',
+        link: '^/admin/products/[^/]+/edit$',
+        breadcrumbTrail: [
+            { label: 'Sản phẩm' },
+            { label: 'Danh sách sản phẩm', link: '/admin/products' },
+            { label: 'Cập nhật' },
         ],
     },
 ];

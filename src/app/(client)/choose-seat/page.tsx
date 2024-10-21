@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import SeatInformation from '@/components/Pages/ChooseSeat/SeatInformation';
 import React from 'react';
 

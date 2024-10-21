@@ -156,7 +156,7 @@ function PayMentInformation() {
 
   // Xử lý giảm giá
   const [discountCode, setDiscountCode] = useState<string>(""); // Theo dõi mã giảm giá người dùng nhập
-  const [suggestions, setSuggestions] = useState<string[]>([]); // Gợi ý mã giảm giá
+  const [, setSuggestions] = useState<string[]>([]); // Gợi ý mã giảm giá
 
   // Xử lý sự kiện khi người dùng nhập mã giảm giá
   const handleDiscountCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {

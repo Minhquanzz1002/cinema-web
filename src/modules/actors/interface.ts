@@ -10,10 +10,20 @@ export interface ActorFilter {
  */
 export interface Actor extends BaseEntity {
     id: number;
+    code: string;
     name: string;
     image?: string;
     birthday?: Date;
     country?: string;
     bio?: string;
+    status: BaseStatus;
+}
+
+export interface ActorInsertPayload {
+    name: string;
+    code?: string;
+    bio?: string;
+    birthday?: string;
+    country?: string;
     status: BaseStatus;
 }

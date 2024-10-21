@@ -12,7 +12,7 @@ type SelectFieldProps<T> = React.SelectHTMLAttributes<HTMLSelectElement> & {
 }
 
 const SelectField = <T,>(props: SelectFieldProps<T>) => {
-    const {label, extra, extraLabel, id, suffix, dataSource, renderItem, value,...rest} = props;
+    const {label, extra, extraLabel, id, suffix, dataSource, renderItem, value} = props;
 
     const [showSelect, setShowSelect] = useState<boolean>(false);
 
