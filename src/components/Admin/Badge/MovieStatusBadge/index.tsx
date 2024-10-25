@@ -15,7 +15,7 @@ type MovieStatusBadgeProps = {
 const MovieStatusBadge = ({status} : MovieStatusBadgeProps) => {
     const colorClass = statusColors[status] || 'text-gray-500 bg-gray-100';
     return (
-        <span className={`px-2 py-1 rounded font-medium bg-opacity-50 ${colorClass}`}>
+        <span className={`px-2 py-1 rounded font-medium bg-opacity-50 text-nowrap ${colorClass}`}>
             {MovieStatusVietnamese[status] || status}
         </span>
     );

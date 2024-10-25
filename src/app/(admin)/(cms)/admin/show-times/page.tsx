@@ -1,173 +1,265 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { ColumnDef } from '@tanstack/table-core';
-import { MdOutlineFormatListBulleted } from 'react-icons/md';
-import Link from 'next/link';
-import { FaEdit } from 'react-icons/fa';
-import { LuTrash } from 'react-icons/lu';
 import Card from '@/components/Admin/Card';
-import { GoSearch } from 'react-icons/go';
-import { FaFileImport, FaPlus } from 'react-icons/fa6';
-import { RiFileExcel2Line } from 'react-icons/ri';
-import Table from '@/components/Admin/Tables';
-import { exportToExcel } from '@/utils/exportToExcel';
+import ButtonAction from '@/components/Admin/ButtonAction';
+import { Form, Formik } from 'formik';
+import Typography from '@/components/Admin/Typography';
+import Select from '@/components/Admin/Filters/Select';
+import { BaseStatus, BaseStatusVietnamese } from '@/modules/base/interface';
+import AutoSubmitForm from '@/components/Admin/AutoSubmitForm';
+import { useAllShowTimeFilters, useAllShowTimes } from '@/modules/showTimes/repository';
+import lodash from 'lodash';
 import { AdminShowTime } from '@/modules/showTimes/interface';
-import { useAllShowTimes } from '@/modules/showTimes/repository';
-import { formatDateToLocalDate, formatTime } from '@/utils/formatDate';
-import BaseStatusBadge from '@/components/Admin/Badge/BaseStatusBadge';
+import Loader from '@/components/Admin/Loader';
+import { formatTime } from '@/utils/formatDate';
+import dayjs from 'dayjs';
+
+interface ShowTimeFilter {
+    status: 'ALL' | BaseStatus;
+    cinemaId: number;
+    movieId?: number;
+}
+
+interface ShowTimeGrouped {
+    [key: string]: AdminShowTime[];
+}
+
+const DEFAULT_FILTER: ShowTimeFilter = {
+    status: 'ALL',
+    cinemaId: 0,
+};
+
+const timeSlots: string[] = [
+    '08:00',
+    '10:00',
+    '12:00',
+    '14:00',
+    '16:00',
+    '18:00',
+    '20:00',
+    '22:00',
+];
+
+const movieColors = [
+    "bg-blue-500",
+    "bg-green-500",
+    "bg-yellow-500",
+    "bg-brand-500",
+];
 
 const ShowTimePage = () => {
-    const [currentPage, setCurrentPage] = useState<number>(1);
-    const [totalPages, setTotalPages] = useState<number>(0);
-    const { data: responseData } = useAllShowTimes({page: currentPage - 1});
-    const [showTimes, setShowTimes] = useState<AdminShowTime[]>([]);
+    const [showTimeGrouped, setShowTimeGrouped] = useState<ShowTimeGrouped>({});
+    const [rooms, setRooms] = useState<string[]>(["Rạp 1", "Rạp 2", "Rạp 3", "Rạp 4"]);
+    const [movieColorMap, setMovieColorMap] = useState<{ [key: string]: string }>({});
 
-    const onChangePage = (page: number) => {
-        setCurrentPage(page);
-    };
+    const { data: filterOptions, isLoading: isLoadingFilters } = useAllShowTimeFilters();
+
+    const [filters, setFilters] = useState<ShowTimeFilter>(DEFAULT_FILTER);
+    const [movies, setMovies] = useState<{ id: number; title: string }[]>([]);
+    const [cinemas, setCinemas] = useState<{ id: number; name: string }[]>([]);
+
+    const { data: showTimes, isLoading: isLoadingShowTimes } = useAllShowTimes({
+        cinemaId: filters.cinemaId,
+        movieId: filters.movieId,
+    });
+
 
     useEffect(() => {
-        document.title = 'B&Q Cinema - Diễn viên';
+        document.title = 'B&Q Cinema - Lịch chiếu';
     }, []);
 
-    const columns = React.useMemo<ColumnDef<AdminShowTime>[]>(
-        () => [
-            {
-                accessorKey: 'movieTitle',
-                cell: ({ row }) => {
-                    return (
-                        <div className="">
-                            {row.original.movieTitle}
-                        </div>
-                    );
-                },
-                header: () => <span>Phim</span>,
-                footer: props => props.column.id,
-            },
-            {
-                accessorKey: 'cinemaName',
-                header: () => <span>Rạp</span>,
-                cell: ({ row }) => {
-                    return (
-                        <div className="">
-                            <div>{row.original.cinemaName}</div>
-                        </div>
-                    );
-                },
-                footer: props => props.column.id,
-            },
-            {
-                accessorKey: 'roomName',
-                header: () => <span>Phòng</span>,
-                cell: ({ row }) => {
-                    return (
-                        <div className="">
-                            <div>{row.original.roomName}</div>
-                        </div>
-                    );
-                },
-                footer: props => props.column.id,
-            },
-            {
-                accessorKey: 'startDate',
-                header: () => <span>Phòng</span>,
-                cell: ({ row }) => {
-                    return (
-                        <div className="">
-                            <div>{formatDateToLocalDate(row.original.startDate)}</div>
-                        </div>
-                    );
-                },
-                footer: props => props.column.id,
-            },
-            {
-                accessorKey: 'startTime',
-                cell: ({ row }) => (
-                    <div className="">
-                        <div>{`${formatTime(row.original.startTime)} - ${formatTime(row.original.endTime)}`}</div>
-                    </div>
-                ),
-                header: () => <span>Suất chiếu</span>,
-                footer: props => props.column.id,
-            },
-            {
-                accessorKey: 'status',
-                cell: ({ row }) => (<BaseStatusBadge status={row.original.status}/>),
-                header: () => <span>Trạng thái</span>,
-                footer: props => props.column.id,
-            },
-            {
-                accessorKey: 'actions',
-                header: () => '',
-                cell: () => (
-                    <div className="inline-flex gap-2 items-center">
-                        <Link href="#" type="button" className="text-blue-500">
-                            <FaEdit size={18} />
-                        </Link>
-                        <button type="button" className="text-red-500">
-                            <LuTrash size={18} />
-                        </button>
-                    </div>
-                ),
-                enableSorting: false,
-            },
-        ],
-        [],
-    );
+    useEffect(() => {
+        if (!showTimes) return;
 
-    const handleExportExcel = async () => {
-        await exportToExcel<AdminShowTime>(showTimes, 'showTimes.xlsx');
-    };
+        const grouped = lodash.groupBy(showTimes.data.showTimes, 'movieTitle');
+        const newRooms: string[] = lodash.sortBy(showTimes.data.rooms, 'name').map(room => room.name);
+        setShowTimeGrouped(grouped);
+        setRooms(newRooms);
+    }, [showTimes]);
 
     useEffect(() => {
-        if (responseData?.data) {
-            const { content, page } = responseData.data;
-            setShowTimes(content);
-            setTotalPages(page.totalPages);
-            setCurrentPage(page.number + 1);
+        if (!showTimes) return;
+
+        const uniqueMovies = Array.from(new Set(showTimes.data.showTimes.map(st => st.movieTitle)));
+        const newMovieColorMap = uniqueMovies.reduce((acc, movie, index) => {
+            acc[movie] = movieColors[index % movieColors.length];
+            return acc;
+        }, {} as { [key: string]: string });
+
+        setMovieColorMap(newMovieColorMap);
+    }, [showTimes]);
+
+    useEffect(() => {
+        if (filterOptions?.data.cinemas.length) {
+            const sortedCinemas = lodash.orderBy(filterOptions.data.cinemas, ['name'], ['asc']);
+            const sortedMovies = lodash.orderBy(filterOptions.data.movies, ['title'], ['asc']);
+            setCinemas(sortedCinemas);
+            setMovies(sortedMovies);
+            setFilters(prev => ({
+                ...prev,
+                cinemaId: sortedCinemas[0].id,
+            }));
         }
-    }, [responseData]);
+    }, [filterOptions]);
+
+    const handleFilterSubmit = (values: ShowTimeFilter) => {
+        console.log(values);
+        setFilters(values);
+    };
+
+    const getShowTimesInTimeSlot = (startTime: string, timeSlot: string) => {
+        const [showHour] = startTime.split(':').map(Number);
+        const [slotHour] = timeSlot.split(':').map(Number);
+
+        return showHour >= slotHour && showHour < slotHour + 2;
+    };
+
+    const getShowTimesForCell = (room: string, timeSlot: string): AdminShowTime[] => {
+        return Object.values(showTimeGrouped)
+            .flat()
+            .filter(showTime =>
+                showTime.roomName === room &&
+                getShowTimesInTimeSlot(showTime.startTime, timeSlot)
+            );
+    };
+
+
+    if (isLoadingFilters && isLoadingShowTimes) {
+        return <Loader />;
+    }
 
     return (
         <>
-            <div className="mt-3">
-                <Card extra={`mb-5 h-full w-full px-6 py-4`}>
-                    <div className="flex items-center justify-between">
-                        <div className="flex gap-x-2">
-                            <div
-                                className="flex flex-nowrap items-center border h-9 px-3 rounded gap-x-1 focus-within:shadow-xl focus-within:border-brand-500 dark:text-white text-gray-500">
-                                <GoSearch />
-                                <input type="search" className="outline-none w-[300px] text-sm bg-white/0"
-                                       placeholder="Tìm theo mã hoặc theo tên (/)" />
-                                <button type="button" title="Lọc theo danh mục">
-                                    <MdOutlineFormatListBulleted />
-                                </button>
-                            </div>
-                        </div>
-
+            <div className="flex flex-col gap-4">
+                <Card extra={`h-full w-full px-6 py-4`}>
+                    <div className="flex items-center justify-end">
                         <div className="flex gap-2 h-9">
-                            <Link href={'/admin/movies/new'}
-                                  className="bg-brand-500 py-1.5 px-2 rounded flex items-center justify-center text-white gap-x-2 text-sm">
-                                <FaPlus className="h-4 w-4" /> Thêm
-                            </Link>
-                            <button type="button"
-                                // onClick={() => setShowImportModal(true)}
-                                    className="bg-brand-500 py-1.5 px-2 rounded flex items-center justify-center text-white gap-x-2 text-sm">
-                                <FaFileImport className="h-4 w-4" /> Import
-                            </button>
-                            <button type="button"
-                                    onClick={handleExportExcel}
-                                    className="bg-brand-500 py-1.5 px-2 rounded flex items-center justify-center text-white gap-x-2 text-sm">
-                                <RiFileExcel2Line className="h-5 w-5" /> Export
-                            </button>
+                            <ButtonAction.Add />
+                            <ButtonAction.Import />
                         </div>
                     </div>
                 </Card>
-                <Table<AdminShowTime> data={showTimes} columns={columns} currentPage={currentPage} totalPages={totalPages}
-                              onChangePage={onChangePage} />
+
+                <Card className="py-4">
+                    <Formik initialValues={filters} onSubmit={handleFilterSubmit} enableReinitialize>
+                        <Form>
+                            <div className="px-4">
+                                <Typography.Title level={4}>Bộ lọc</Typography.Title>
+                                <div className="grid grid-cols-3 gap-4">
+                                    <Select name="cinemaId"
+                                            placeholder="Lọc theo rạp"
+                                            options={
+                                                cinemas.map(cinema => ({
+                                                    label: cinema.name,
+                                                    value: cinema.id,
+                                                }))
+                                            }
+                                    />
+                                    <Select name="movieId"
+                                            placeholder="Lọc theo phim"
+                                            options={
+                                                movies.map(movie => ({
+                                                    label: movie.title,
+                                                    value: movie.id,
+                                                }))
+                                            }
+                                    />
+                                    <Select name="status"
+                                            placeholder="Lọc theo trạng thái"
+                                            options={[
+                                                { label: 'Tất cả trạng thái', value: 'ALL' },
+                                                ...Object.values(BaseStatus).map(value => ({
+                                                    label: BaseStatusVietnamese[value],
+                                                    value,
+                                                })),
+                                            ]}
+                                    />
+                                </div>
+                            </div>
+                            <AutoSubmitForm />
+                        </Form>
+                    </Formik>
+                </Card>
+
+                {/*{*/}
+                {/*    Object.entries(showTimeGrouped).map(([key, value]) => (*/}
+                {/*        <Card key={key} className="p-4">*/}
+                {/*            <Typography.Title level={4}>{key}</Typography.Title>*/}
+                {/*            <div className="grid grid-cols-6 gap-4">*/}
+                {/*                {*/}
+                {/*                    value.map((showTime) => (*/}
+                {/*                        <CardShowTime showTime={showTime} key={showTime.id} />*/}
+                {/*                    ))*/}
+                {/*                }*/}
+                {/*            </div>*/}
+                {/*        </Card>*/}
+                {/*    ))*/}
+                {/*}*/}
+
+                <Card className="p-4">
+                    <Typography.Title level={4}>Bảng lịch chiếu</Typography.Title>
+                    <div className="relative w-full overflow-auto">
+                        <table className="w-full border-collapse min-w-[800px]">
+                            <thead>
+                            <tr>
+                                <th className="font-medium text-sm bg-white sticky left-0 z-10 border-b border-r w-32 min-w-32">
+                                    Thời gian
+                                </th>
+                                {
+                                    rooms.map((room) => (
+                                        <th key={`${room}-header`}
+                                            className="font-medium text-sm px-4 py-2 border-b border-r last-of-type:border-r-0 min-w-72 max-w-72">
+                                            {room}
+                                        </th>
+                                    ))
+                                }
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {
+                                timeSlots.map((time) => (
+                                    <tr key={time}>
+                                        <td className="border-b border-r sticky left-0 z-10 bg-white text-center text-sm min-h-14 h-14">
+                                            <div className="flex flex-col justify-between h-full py-2">
+                                                <div className="font-medium">{time}</div>
+                                                <div className="text-xs font-normal text-gray-600">{dayjs(time, "HH:mm").add(2, "hour").format("HH:mm")}</div>
+                                            </div>
+                                        </td>
+                                        {
+                                            rooms.map((room) => {
+                                                const showTimesInCell = getShowTimesForCell(room, time);
+
+                                                return (
+                                                    <td key={`${room}-${time}`} className="border-b border-r last-of-type:border-r-0 px-2 py-3">
+                                                        <div className="flex flex-col gap-2">
+                                                            {
+                                                                showTimesInCell.map(showTime => (
+                                                                    <div key={showTime.id}
+                                                                         className={`p-2 ${movieColorMap[showTime.movieTitle] || 'bg-green-500'} text-white rounded-lg`}>
+                                                                        <div className="text-sm">{showTime.movieTitle}</div>
+                                                                        <div className="text-xs">
+                                                                            {`${formatTime(showTime.startTime)} - ${formatTime(showTime.endTime)}`}
+                                                                        </div>
+                                                                    </div>
+                                                                ))
+                                                            }
+                                                        </div>
+                                                    </td>
+                                                );
+                                            })
+                                        }
+                                    </tr>
+                                ))
+                            }
+
+                            </tbody>
+                        </table>
+                    </div>
+                </Card>
             </div>
         </>
-    );
+    )
+        ;
 };
 
 export default ShowTimePage;

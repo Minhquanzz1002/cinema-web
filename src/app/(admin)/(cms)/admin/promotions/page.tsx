@@ -200,7 +200,6 @@ const PromotionPage = () => {
                                                        showAllData={true}
                                                        // isExpandable={true}
                                                        // renderSubComponent={renderPromotionDetail}
-                                                       containerClassName="!px-0"
                     >
                         <div className="flex justify-between items-center">
                             <div className="font-semibold">Danh sách chương trình:</div>

@@ -7,6 +7,12 @@ export enum OrderStatus {
     COMPLETED = 'COMPLETED',
 }
 
+export const OrderStatusVietnamese = {
+    [OrderStatus.PENDING]: 'Chờ xử lý',
+    [OrderStatus.PAID]: 'Đã thanh toán',
+    [OrderStatus.COMPLETED]: 'Hoàn thành',
+};
+
 export enum SeatType {
     NORMAL = 'NORMAL',
     VIP = 'VIP',

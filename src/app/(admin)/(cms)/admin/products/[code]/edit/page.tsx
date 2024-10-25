@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import { Form, Formik } from 'formik';
 import Input from '@/components/Admin/Input';
 import Card from '@/components/Admin/Card';
-import { object, string } from 'yup';
+import { array, mixed, object, string } from 'yup';
 import Typography from '@/components/Admin/Typography';
 import Select from '@/components/Admin/Select';
 import { ButtonIcon } from '@/components/Admin/Button';
@@ -12,19 +12,26 @@ import { TiArrowBackOutline } from 'react-icons/ti';
 import Link from '@/components/Link';
 import { ProductStatus, ProductStatusVietnamese } from '@/modules/products/interface';
 import TextArea from '@/components/Admin/TextArea';
-import UploadImage from '@/components/Admin/UploadImage';
+import UploadImage, { ImageFile } from '@/components/Admin/UploadImage';
 import { useProductByCode, useUpdateProduct } from '@/modules/products/repository';
 import { useParams, useRouter } from 'next/navigation';
 
 const ProductSchema = object({
     name: string().required('Tên không được để trống'),
-    description: string().required("Mô tả không được để trống"),
+    description: string().required('Mô tả không được để trống'),
+    image: array().of(
+        object().shape({
+            path: string().required('Hình ảnh là bắt buộc'),
+            file: mixed().optional(),
+        }),
+    ).min(1, 'Chọn ít nhất 1 ảnh sản phẩm').required('Chọn ít nhất 1 ảnh sản phẩm'),
 });
 
 interface FormValues {
     name?: string;
     description?: string;
     status: ProductStatus;
+    image: ImageFile[];
 }
 
 const EditMoviePage = () => {
@@ -40,12 +47,14 @@ const EditMoviePage = () => {
 
     if (!product) return null;
 
-    const initialFormValues : FormValues = {
+    const initialFormValues: FormValues = {
         name: product.name,
         description: product.description,
         status: product.status,
+        image: [
+            { path: product.image },
+        ],
     };
-
 
 
     const handleSubmit = async (values: FormValues) => {
@@ -56,7 +65,7 @@ const EditMoviePage = () => {
                     name: values.name,
                     description: values.description,
                     status: values.status,
-                }
+                },
             });
             router.push('/admin/products');
         } catch (error) {
@@ -81,7 +90,8 @@ const EditMoviePage = () => {
                         <Card className={`p-[18px] col-span-2`}>
                             <Typography.Title level={4}>Thông tin chung</Typography.Title>
                             <div className="border rounded-[6px] border-[rgb(236, 243, 250)] py-4 px-4.5">
-                                <Input name="name" label="Tên sản phẩm" placeholder="Nhập tên sản phẩm" required readOnly={isReadOnly}/>
+                                <Input name="name" label="Tên sản phẩm" placeholder="Nhập tên sản phẩm" required
+                                       readOnly={isReadOnly} />
                                 <Select name="status" label="Trạng thái" options={[
                                     { label: ProductStatusVietnamese.ACTIVE, value: ProductStatus.ACTIVE },
                                     { label: ProductStatusVietnamese.INACTIVE, value: ProductStatus.INACTIVE },
@@ -92,7 +102,7 @@ const EditMoviePage = () => {
                         <Card className={`p-[18px] col-span-3`}>
                             <Typography.Title level={4}>Mô tả</Typography.Title>
                             <div className="border rounded-[6px] border-[rgb(236, 243, 250)] py-4 px-4.5">
-                                <TextArea name="description" label="Mô tả" required readOnly={isReadOnly}/>
+                                <TextArea name="description" label="Mô tả" required readOnly={isReadOnly} />
                             </div>
                         </Card>
                     </div>

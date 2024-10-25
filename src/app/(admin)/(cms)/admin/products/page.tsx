@@ -1,5 +1,5 @@
 'use client';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ColumnDef, Row } from '@tanstack/table-core';
 import Image from 'next/image';
 import Card from '@/components/Admin/Card';
@@ -8,56 +8,55 @@ import { BsGrid3X3Gap } from 'react-icons/bs';
 import { PiListBold } from 'react-icons/pi';
 import Table from '@/components/Admin/Tables';
 import { exportToExcel } from '@/utils/exportToExcel';
-import { BaseProductWithPrice, ProductStatus } from '@/modules/products/interface';
+import { BaseProductWithPrice, ProductStatus, ProductStatusVietnamese } from '@/modules/products/interface';
 import { useAllProducts, useDeleteProduct } from '@/modules/products/repository';
 import { formatNumberToCurrency } from '@/utils/formatNumber';
 import ProductStatusBadge from '@/components/Admin/Badge/ProductStatusBadge';
 import ButtonAction from '@/components/Admin/ButtonAction';
-import usePagination from '@/hook/usePagination';
-import DropdownInput, { DropDownInputOption, DropdownInputProps } from '@/components/Admin/Filters/DropdownInput';
 import { toast } from 'react-toastify';
 import ModalAlert from '@/components/Admin/ModalAlert';
+import { Form, Formik } from 'formik';
+import Input from '@/components/Admin/Filters/Input';
+import Typography from '@/components/Admin/Typography';
+import AutoSubmitForm from '@/components/Admin/AutoSubmitForm';
+import Select from '@/components/Admin/Filters/Select';
+import useFilterPagination, { PaginationState } from '@/hook/useFilterPagination';
+
+interface ProductFilter extends PaginationState{
+    search: string;
+    status: string | ProductStatus;
+}
 
 const ProductPage = () => {
     const [displayType, setDisplayType] = useState<'Grid' | 'Table'>('Table');
     const [productToDelete, setProductToDelete] = useState<BaseProductWithPrice | null>(null);
     const deleteProduct = useDeleteProduct();
-    const options: DropdownInputProps['options'] = [
-        { label: 'Tìm theo tên', value: 'name' },
-        { label: 'Tìm theo mã', value: 'code' },
-    ];
-    const [selectedOption, setSelectedOption] = useState<DropDownInputOption>(options[0]);
-    const [searchValue, setSearchValue] = useState<string>('');
-
-    const handleChangeDropdown = (option: DropDownInputOption) => {
-        setSelectedOption(option);
+    const initialFilters: ProductFilter = {
+        page: 1,
+        search: '',
+        status: 'ALL',
     };
 
-    const handleChangeSearchValue = (value: string) => {
-        setSearchValue(value);
-    };
+    const [filters, setFilters] = useState<ProductFilter>(initialFilters);
 
-    const [page, setPage] = useState(0);
     const productsQuery = useAllProducts({
-        page,
-        name: selectedOption.value === 'name' ? searchValue : undefined,
-        code: selectedOption.value === 'code' ? searchValue : undefined,
+        page: filters.page - 1,
+        search: filters.search,
+        status: filters.status === 'ALL' ? undefined : filters.status as ProductStatus,
     });
+
     const {
+        data: products,
         currentPage,
         totalPages,
-        data: products,
-        onChangePage,
-    } = usePagination<BaseProductWithPrice>({
+        isLoading,
+        onFilterChange,
+        onPageChange
+    } = useFilterPagination({
         queryResult: productsQuery,
-        initialPage: 1,
+        initialFilters: filters,
+        onFilterChange: setFilters
     });
-
-    const handlePageChange = useCallback((newPage: number) => {
-        setPage(newPage - 1);
-        onChangePage(newPage);
-    }, [onChangePage]);
-
 
     useEffect(() => {
         document.title = 'B&Q Cinema - Sản phẩm';
@@ -67,9 +66,7 @@ const ProductPage = () => {
         () => [
             {
                 accessorKey: 'code',
-                header: () => (
-                    <p className="text-sm font-bold text-gray-600 dark:text-white uppercase">Mã</p>
-                ),
+                header: 'Mã sản phẩm',
             },
             {
                 accessorKey: 'image',
@@ -82,12 +79,11 @@ const ProductPage = () => {
                         </div>
                     );
                 },
-                header: () => <span>Ảnh</span>,
-                enableSorting: false,
+                header: 'Ảnh',
             },
             {
                 accessorKey: 'name',
-                header: () => <span>Tên</span>,
+                header: 'Tên',
                 cell: ({ row }) => (
                     <div>
                         <div className="text-nowrap">{row.original.name}</div>
@@ -99,15 +95,15 @@ const ProductPage = () => {
                 accessorKey: 'price',
                 cell: ({ row }) =>
                     <span>{row.original.price ? formatNumberToCurrency(row.original.price) : 'Chưa cập nhật'}</span>,
-                header: () => <span>Giá hiện tại</span>,
+                header: 'Giá hiện tại',
             },
             {
                 accessorKey: 'status',
                 cell: ({ row }) => <ProductStatusBadge status={row.original.status} />,
-                header: () => <span>Trạng thái</span>,
+                header: 'Trạng thái',
             },
             {
-                accessorKey: 'actions',
+                id: 'actions',
                 header: () => '',
                 cell: ({ row }) => (
                     <div className="inline-flex gap-2 items-center">
@@ -116,7 +112,6 @@ const ProductPage = () => {
                         <ButtonAction.Delete onClick={() => handleClickDeleteProduct(row)} />
                     </div>
                 ),
-                enableSorting: false,
             },
         ],
         [],
@@ -166,14 +161,39 @@ const ProductPage = () => {
                         </div>
                     </div>
                 </Card>
-                <Table<BaseProductWithPrice> data={products} columns={columns} currentPage={currentPage}
-                                             totalPages={totalPages}
-                                             onChangePage={handlePageChange}>
-                    <div className="grid grid-cols-3 mb-3">
-                        <DropdownInput options={options} onChangeDropdown={handleChangeDropdown}
-                                       onChangeInputSearch={handleChangeSearchValue} />
+                <Card className="py-4">
+                    <Formik initialValues={filters} onSubmit={onFilterChange} enableReinitialize>
+                        <Form>
+                            <div className="px-4 pb-3">
+                                <Typography.Title level={4}>Bộ lọc</Typography.Title>
+                                <div className="grid grid-cols-3 gap-4">
+                                    <Input name="search" placeholder="Tìm theo mã hoặc tên" />
+                                    <Select name="status"
+                                            options={[
+                                                { label: 'Tất cả', value: 'ALL' },
+                                                {
+                                                    label: ProductStatusVietnamese[ProductStatus.ACTIVE],
+                                                    value: ProductStatus.ACTIVE,
+                                                },
+                                                {
+                                                    label: ProductStatusVietnamese[ProductStatus.INACTIVE],
+                                                    value: ProductStatus.INACTIVE,
+                                                },
+                                            ]}
+                                    />
+                                </div>
+                            </div>
+                            <AutoSubmitForm />
+                        </Form>
+                    </Formik>
+                    <div>
+
                     </div>
-                </Table>
+                    <Table<BaseProductWithPrice> data={products} columns={columns} currentPage={currentPage}
+                                                 isLoading={isLoading}
+                                                 totalPages={totalPages}
+                                                 onChangePage={onPageChange} />
+                </Card>
             </div>
 
             {

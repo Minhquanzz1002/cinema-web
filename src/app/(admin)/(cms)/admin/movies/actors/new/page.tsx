@@ -14,14 +14,19 @@ import { BaseStatus, BaseStatusVietnamese } from '@/modules/base/interface';
 import TextArea from '@/components/Admin/TextArea';
 import { useCreateActor } from '@/modules/actors/repository';
 import { useRouter } from 'next/navigation';
-import UploadImage from '@/components/Admin/UploadImage';
+import UploadImage, { ImageFile } from '@/components/Admin/UploadImage';
 import DatePicker from '@/components/Admin/DatePicker';
 import { toast } from 'react-toastify';
 import dayjs from 'dayjs';
 
 const ActorSchema = object({
     name: string().required('Tên không được để trống'),
-    code: string(),
+    code: string().test('valid-code', 'Mã không hợp lệ', function(value) {
+        if (!value) return true;
+        if (value.length !== 8) return this.createError({ message: 'Mã phải có đúng 8 ký tự' });
+        if (!/^[A-Z0-9]+$/.test(value)) return this.createError({ message: 'Mã phải chỉ chứa chữ in hoa và số' });
+        return true;
+    }),
     bio: string(),
     birthday: date().nullable()
         .test('is-date-or-empty', 'Ngày sinh không hợp lệ', (value) => {
@@ -46,6 +51,7 @@ interface ActorFormValues {
     birthday?: Date;
     country?: string;
     status: BaseStatus;
+    image: ImageFile[];
 }
 
 const initialFormValues: ActorFormValues = {
@@ -54,6 +60,7 @@ const initialFormValues: ActorFormValues = {
     bio: '',
     code: '',
     status: BaseStatus.ACTIVE,
+    image: [],
 };
 
 const NewActorPage = () => {
@@ -67,10 +74,24 @@ const NewActorPage = () => {
     const handleSubmit = async (values: ActorFormValues, { setSubmitting } : FormikHelpers<ActorFormValues>) => {
         console.log('submit:', values);
         try {
+            const uploadedImages : string[] = [];
+
+            await Promise.all(
+                values.image.map(async (img: ImageFile) => {
+                    if (img.file) {
+                        const filename = `${Date.now()}-${img.file.name}`;
+                        // TODO upload image to S3
+                        uploadedImages.push(filename);
+                    } else {
+                        uploadedImages.push(img.path);
+                    }
+                })
+            );
             const formattedBirthday = values.birthday instanceof Date ? dayjs(values.birthday).format('YYYY-MM-DD') : undefined;
 
             await createActor.mutateAsync({
                 ...values,
+                image: uploadedImages[0],
                 code: values?.code?.trim() || undefined,
                 birthday: formattedBirthday,
             });

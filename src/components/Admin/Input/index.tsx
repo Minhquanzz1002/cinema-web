@@ -4,7 +4,7 @@ import Tooltip from '@/components/Admin/Tooltip';
 
 type InputProps = {
     name: string;
-    label: string;
+    label?: string;
     placeholder?: string;
     tooltip?: string;
     unit?: string;
@@ -27,13 +27,17 @@ const Input = ({ name, label, placeholder = '', tooltip, type = 'text', unit, au
 
     return (
         <div className="mb-3">
-            <div className="mb-1 inline-flex gap-x-1 h-6">
-                <label className="font-normal text-sm cursor-pointer after:content-[':']"
-                       htmlFor={id} title={label}>{label}</label>
-                {required && <span className="text-red-500">*</span>}
+            {
+                label && (
+                    <div className="mb-1 inline-flex gap-x-1 h-6">
+                        <label className="font-normal text-sm cursor-pointer after:content-[':']"
+                               htmlFor={id} title={label}>{label}</label>
+                        {required && <span className="text-red-500">*</span>}
 
-                {tooltip && <Tooltip text={tooltip} />}
-            </div>
+                        {tooltip && <Tooltip text={tooltip} />}
+                    </div>
+                )
+            }
             <div
                 onClick={handleContainerClick}
                 className={`border rounded-md h-10 px-3 dark:text-white dark:bg-navy-900 w-full text-[16px] focus-within:border-brand-500 flex items-center group`}>

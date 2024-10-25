@@ -1,17 +1,24 @@
 import React, { useMemo, useState } from 'react';
-import {
-    ColumnDef,
-    ExpandedState,
-    getCoreRowModel,
-    getExpandedRowModel,
-    getSortedRowModel,
-    Row,
-} from '@tanstack/table-core';
+import { ColumnDef, ExpandedState, getCoreRowModel, getExpandedRowModel, Row } from '@tanstack/table-core';
 import { flexRender, useReactTable } from '@tanstack/react-table';
-import Card from '@/components/Admin/Card';
-import { TiArrowSortedDown, TiArrowSortedUp } from 'react-icons/ti';
 import Pagination from '@/components/Admin/Pagination';
 import { LuChevronDown, LuSearch } from 'react-icons/lu';
+
+const TableSkeleton = ({ columnCount }: { columnCount: number }) => {
+    return (
+        <>
+            {[...Array(5)].map((_, index) => (
+                <tr key={index} className="border-t last:border-b">
+                    {[...Array(columnCount)].map((_, cellIndex) => (
+                        <td key={cellIndex} className="px-4 py-2 first:pr-0">
+                            <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                        </td>
+                    ))}
+                </tr>
+            ))}
+        </>
+    );
+};
 
 type TableProps<T> = {
     data: T[],
@@ -22,8 +29,8 @@ type TableProps<T> = {
     children?: React.ReactNode;
     isExpandable?: boolean;
     renderSubComponent?: (props: { row: Row<T> }) => React.ReactNode;
-    containerClassName?: string;
     showAllData?: boolean;
+    isLoading?: boolean;
 }
 
 const Table = <T, >({
@@ -35,13 +42,13 @@ const Table = <T, >({
                         children,
                         isExpandable = false,
                         renderSubComponent,
-                        containerClassName = '',
                         showAllData = false,
+                        isLoading = false,
                     }: TableProps<T>) => {
     const [expanded, setExpanded] = useState<ExpandedState>({});
     const pagination = useMemo(() => ({
         pageIndex: currentPage - 1,
-        pageSize: 10,
+        pageSize: 5,
     }), [currentPage]);
 
     const expandableColumns = useMemo(() => {
@@ -78,7 +85,6 @@ const Table = <T, >({
         debugTable: true,
         onExpandedChange: setExpanded,
         getCoreRowModel: getCoreRowModel(),
-        getSortedRowModel: getSortedRowModel(),
         manualPagination: true,
         getExpandedRowModel: getExpandedRowModel(),
         pageCount: totalPages,
@@ -89,39 +95,23 @@ const Table = <T, >({
     });
 
     return (
-        <Card extra={`h-full w-full sm:overflow-auto px-6 py-4 ${containerClassName}`}>
+        <div>
             {children}
             <div className="w-full overflow-x-scroll xl:overflow-x-hidden">
                 <table className="w-full">
                     <thead>
                     {table.getHeaderGroups().map(headerGroup => (
-                        <tr key={headerGroup.id}>
+                        <tr key={headerGroup.id} className="h-14 border-t">
                             {headerGroup.headers.map(header => {
                                 return (
                                     <th key={header.id} colSpan={header.colSpan}
-                                        className="text-sm text-gray-800 dark:text-white uppercase border-b border-gray-200 pb-2 pr-4 pt-4">
-                                        <div
-                                            {...{
-                                                className: header.column.getCanSort()
-                                                    ? 'cursor-pointer select-none flex items-center justify-between gap-x-3'
-                                                    : 'flex justify-start',
-                                                onClick: header.column.getToggleSortingHandler(),
-                                            }}
+                                        className="text-tiny text-gray-800 dark:text-white uppercase border-gray-200 px-4 py-2 first-of-type:pr-0">
+                                        <div className="flex justify-start"
                                         >
                                             {flexRender(
                                                 header.column.columnDef.header,
                                                 header.getContext(),
                                             )}
-                                            {
-                                                header.column.getCanSort() && (
-                                                    <div className="flex items-center flex-col justify-center">
-                                                        <TiArrowSortedUp
-                                                            className={`${header.column.getIsSorted() === 'asc' ? 'text-gray-900' : 'text-gray-400'} size-3  translate-y-0.5`} />
-                                                        <TiArrowSortedDown
-                                                            className={`${header.column.getIsSorted() === 'desc' ? 'text-gray-900' : 'text-gray-400'} size-3 -translate-y-0.5`} />
-                                                    </div>
-                                                )
-                                            }
                                         </div>
                                     </th>
                                 );
@@ -132,7 +122,9 @@ const Table = <T, >({
 
                     <tbody>
                     {
-                        table.getRowModel().rows.length === 0 ? (
+                        isLoading ? (
+                            <TableSkeleton columnCount={expandableColumns.length}/>
+                        ) : table.getRowModel().rows.length === 0 ? (
                             <tr>
                                 <td colSpan={expandableColumns.length} className="text-center py-4">
                                     <div className="flex flex-col justify-center items-center gap-4">
@@ -145,11 +137,11 @@ const Table = <T, >({
                             table.getRowModel().rows.map(row => {
                                 return (
                                     <React.Fragment key={row.id}>
-                                        <tr className={`border-b`}>
+                                        <tr className={`border-t last-of-type:border-b`}>
                                             {row.getVisibleCells().map(cell => {
                                                 return (
                                                     <td key={cell.id}
-                                                        className="text-sm dark:text-white py-3 pr-4">
+                                                        className="text-sm dark:text-white px-4 py-2 first-of-type:pr-0">
                                                         {flexRender(
                                                             cell.column.columnDef.cell,
                                                             cell.getContext(),
@@ -176,13 +168,13 @@ const Table = <T, >({
                 </table>
             </div>
             {
-                !showAllData && table.getRowModel().rows.length > 0 && (
+                !isLoading && !showAllData && table.getRowModel().rows.length > 0 && (
                     <div className="pt-7">
                         <Pagination totalPages={totalPages} currentPage={currentPage} onChangePage={onChangePage} />
                     </div>
                 )
             }
-        </Card>
+        </div>
     );
 };
 

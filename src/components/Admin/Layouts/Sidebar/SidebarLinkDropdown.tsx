@@ -27,7 +27,7 @@ const SidebarLinkDropdown = (props: SidebarLinkDropdownProps) => {
         <li className="relative transition">
             <div
                 onClick={props.onToggle}
-                className={`relative flex cursor-pointer items-center gap-2.5 hover:bg-gray-100 rounded-sm font-medium text-gray-700 px-4 py-2 dark:text-white ${isParentActive() ? 'font-bold text-navy-700' : 'font-medium text-gray-700'}`}
+                className={`relative flex cursor-pointer items-center gap-2.5 hover:bg-gray-100 rounded-sm text-gray-700 px-4 py-2 dark:text-white ${isParentActive() ? 'font-bold text-navy-700' : 'font-medium text-gray-700'}`}
             >
                 <span className="font-bold">
                     {icon}
