@@ -7,6 +7,7 @@ export interface DirectorFilter {
 
 export interface Director extends BaseEntity {
     id: number;
+    code: string;
     name: string;
     image?: string;
     birthday?: Date;

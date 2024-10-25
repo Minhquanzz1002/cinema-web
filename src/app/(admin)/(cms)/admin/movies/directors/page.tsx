@@ -2,34 +2,55 @@
 import React, { useEffect, useState } from 'react';
 import { ColumnDef } from '@tanstack/table-core';
 import Image from 'next/image';
-import { MdOutlineFormatListBulleted } from 'react-icons/md';
-import Link from 'next/link';
-import { FaEdit } from 'react-icons/fa';
-import { LuTrash } from 'react-icons/lu';
 import Card from '@/components/Admin/Card';
-import { GoSearch } from 'react-icons/go';
-import { ButtonSquare } from '@/components/Admin/Button';
-import { BsGrid3X3Gap } from 'react-icons/bs';
-import { PiListBold } from 'react-icons/pi';
-import { FaFileImport, FaPlus } from 'react-icons/fa6';
-import { RiFileExcel2Line } from 'react-icons/ri';
 import Table from '@/components/Admin/Tables';
 import { exportToExcel } from '@/utils/exportToExcel';
 import avatar from '/public/img/avatar/avt.png';
 import { Director } from '@/modules/directors/interface';
-import { useAllDirectors } from '@/modules/directors/repository';
 import BaseStatusBadge from '@/components/Admin/Badge/BaseStatusBadge';
+import ButtonAction from '@/components/Admin/ButtonAction';
+import useFilterPagination, { PaginationState } from '@/hook/useFilterPagination';
+import { BaseStatus, BaseStatusVietnamese } from '@/modules/base/interface';
+import { useAllDirectors } from '@/modules/directors/repository';
+import { Form, Formik } from 'formik';
+import Typography from '@/components/Admin/Typography';
+import Input from '@/components/Admin/Filters/Input';
+import Select from '@/components/Admin/Filters/Select';
+import AutoSubmitForm from '@/components/Admin/AutoSubmitForm';
+
+interface DirectorFilter extends PaginationState {
+    search: string;
+    country: string;
+    status: 'ALL' | BaseStatus;
+}
 
 const DirectorPage = () => {
-    const [currentPage, setCurrentPage] = useState<number>(1);
-    const [totalPages, setTotalPages] = useState<number>(0);
-    const [displayType, setDisplayType] = useState<'Grid' | 'Table'>('Table');
-    const { data: responseData } = useAllDirectors();
-    const [directors, setDirectors] = useState<Director[]>([]);
+    const [filters, setFilters] = useState<DirectorFilter>({
+        page: 1,
+        search: '',
+        country: '',
+        status: 'ALL',
+    });
 
-    const onChangePage = (page: number) => {
-        setCurrentPage(page);
-    };
+    const directorsQuery = useAllDirectors({
+        page: filters.page - 1,
+        search: filters.search,
+        country: filters.country,
+        status: filters.status === 'ALL' ? undefined : filters.status,
+    });
+
+    const {
+        data: directors,
+        currentPage,
+        totalPages,
+        isLoading,
+        onFilterChange,
+        onPageChange,
+    } = useFilterPagination({
+        queryResult: directorsQuery,
+        initialFilters: filters,
+        onFilterChange: setFilters,
+    });
 
     useEffect(() => {
         document.title = 'B&Q Cinema - Đạo diễn';
@@ -38,11 +59,8 @@ const DirectorPage = () => {
     const columns = React.useMemo<ColumnDef<Director>[]>(
         () => [
             {
-                accessorKey: 'id',
-                header: () => (
-                    <p className="text-sm font-bold text-gray-600 dark:text-white uppercase">ID</p>
-                ),
-                footer: props => props.column.id,
+                accessorKey: 'code',
+                header: 'Mã',
             },
             {
                 accessorKey: 'image',
@@ -61,40 +79,31 @@ const DirectorPage = () => {
                         </div>
                     );
                 },
-                header: () => <span>Ảnh</span>,
-                footer: props => props.column.id,
+                header: 'Ảnh',
             },
             {
                 accessorKey: 'name',
-                header: () => <span>Tên</span>,
-                footer: props => props.column.id,
+                header: 'Tên',
             },
             {
                 accessorKey: 'country',
                 cell: ({ row }) => <span>{row.original.country || 'Chưa cập nhật'}</span>,
-                header: () => <span>Quốc gia</span>,
-                footer: props => props.column.id,
+                header: 'Quốc gia',
             },
             {
                 accessorKey: 'status',
-                cell: ({ row }) => <BaseStatusBadge status={row.original.status}/>,
-                header: () => <span>Trạng thái</span>,
-                footer: props => props.column.id,
+                cell: ({ row }) => <BaseStatusBadge status={row.original.status} />,
+                header: 'Trạng thái',
             },
             {
-                accessorKey: 'actions',
-                header: () => '',
+                id: 'actions',
+                header: '',
                 cell: () => (
                     <div className="inline-flex gap-2 items-center">
-                        <Link href="#" type="button" className="text-blue-500">
-                            <FaEdit size={18} />
-                        </Link>
-                        <button type="button" className="text-red-500">
-                            <LuTrash size={18} />
-                        </button>
+                        <ButtonAction.Update />
+                        <ButtonAction.Delete />
                     </div>
                 ),
-                enableSorting: false,
             },
         ],
         [],
@@ -104,60 +113,47 @@ const DirectorPage = () => {
         await exportToExcel<Director>(directors, 'directors.xlsx');
     };
 
-    useEffect(() => {
-        if (responseData?.data) {
-            const { content, page } = responseData.data;
-            setDirectors(content);
-            setTotalPages(page.totalPages);
-            setCurrentPage(page.number + 1);
-        }
-    }, [responseData]);
-
     return (
         <>
             <div className="mt-3">
                 <Card extra={`mb-5 h-full w-full px-6 py-4`}>
-                    <div className="flex items-center justify-between">
-                        <div className="flex gap-x-2">
-                            <div
-                                className="flex flex-nowrap items-center border h-9 px-3 rounded gap-x-1 focus-within:shadow-xl focus-within:border-brand-500 dark:text-white text-gray-500">
-                                <GoSearch />
-                                <input type="search" className="outline-none w-[300px] text-sm bg-white/0"
-                                       placeholder="Tìm theo mã hoặc theo tên (/)" />
-                                <button type="button" title="Lọc theo danh mục">
-                                    <MdOutlineFormatListBulleted />
-                                </button>
-                            </div>
-
-                            <ButtonSquare title={displayType !== 'Grid' ? 'Hiển thị dạng thẻ' : 'Hiển thị dạng bảng'}
-                                          onClick={() => setDisplayType(displayType === 'Grid' ? 'Table' : 'Grid')}>
-                                {
-                                    displayType !== 'Grid' ? <BsGrid3X3Gap /> : <PiListBold />
-                                }
-                            </ButtonSquare>
-
-                        </div>
-
+                    <div className="flex items-center justify-end">
                         <div className="flex gap-2 h-9">
-                            <Link href={'/admin/movies/new'}
-                                  className="bg-brand-500 py-1.5 px-2 rounded flex items-center justify-center text-white gap-x-2 text-sm">
-                                <FaPlus className="h-4 w-4" /> Thêm
-                            </Link>
-                            <button type="button"
-                                // onClick={() => setShowImportModal(true)}
-                                    className="bg-brand-500 py-1.5 px-2 rounded flex items-center justify-center text-white gap-x-2 text-sm">
-                                <FaFileImport className="h-4 w-4" /> Import
-                            </button>
-                            <button type="button"
-                                    onClick={handleExportExcel}
-                                    className="bg-brand-500 py-1.5 px-2 rounded flex items-center justify-center text-white gap-x-2 text-sm">
-                                <RiFileExcel2Line className="h-5 w-5" /> Export
-                            </button>
+                            <ButtonAction.Add />
+                            <ButtonAction.Import />
+                            <ButtonAction.Export onClick={handleExportExcel} />
                         </div>
                     </div>
                 </Card>
-                <Table<Director> data={directors} columns={columns} currentPage={currentPage} totalPages={totalPages}
-                                 onChangePage={onChangePage} />
+
+                <Card className="py-4">
+                    <Formik initialValues={filters} onSubmit={onFilterChange} enableReinitialize>
+                        <Form>
+                            <div className="px-4 pb-3">
+                                <Typography.Title level={4}>Bộ lọc</Typography.Title>
+                                <div className="grid grid-cols-3 gap-4">
+                                    <Input name="search" placeholder="Mã hoặc tên đạo diễn" />
+                                    <Input name="country" placeholder="Quốc gia" />
+                                    <Select name="status"
+                                            placeholder="Lọc theo trạng thái"
+                                            options={[
+                                                { label: 'Tất cả trạng thái', value: 'ALL' },
+                                                ...Object.values(BaseStatus).map(value => ({
+                                                    label: BaseStatusVietnamese[value],
+                                                    value,
+                                                }))
+                                            ]}
+                                    />
+                                </div>
+                            </div>
+                            <AutoSubmitForm />
+                        </Form>
+                    </Formik>
+                    <Table<Director> data={directors} columns={columns} currentPage={currentPage}
+                                     totalPages={totalPages}
+                                     isLoading={isLoading}
+                                     onChangePage={onPageChange} />
+                </Card>
             </div>
         </>
     );

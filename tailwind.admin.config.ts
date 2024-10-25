@@ -12,6 +12,9 @@ const config: Config = {
     mode: 'jit',
     theme: {
         extend: {
+            fontSize: {
+                'tiny': ['0.8125rem', '1.125rem'],
+            },
             spacing: {
                 '4.5': '1.125rem',
             },
@@ -89,7 +92,8 @@ const config: Config = {
                     200: '#A195FD',
                     300: '#8171FC',
                     400: '#7551FF',
-                    500: '#422AFB',
+                    // 500: '#422AFB',
+                    500: '#7367F0',
                     600: '#3311DB',
                     700: '#2111A5',
                     800: '#190793',

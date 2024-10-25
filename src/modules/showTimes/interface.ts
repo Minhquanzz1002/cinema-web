@@ -10,3 +10,8 @@ export interface AdminShowTime {
     startDate: Date;
     status: BaseStatus;
 }
+
+export interface AdminShowTimeFilters {
+    cinemas: { id: number; name: string }[];
+    movies: { id: number; title: string }[];
+}

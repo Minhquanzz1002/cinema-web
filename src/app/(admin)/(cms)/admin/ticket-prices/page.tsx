@@ -128,12 +128,12 @@ const TicketPricePage = () => {
             },
             {
                 accessorKey: 'startTime',
-                cell: ({ row }) => <span>{formatTime(row.original.startTime)}</span>,
+                cell: ({ row }) => formatTime(row.original.startTime),
                 header: 'Bắt đầu',
             },
             {
                 accessorKey: 'endTime',
-                cell: ({ row }) => <span>{formatTime(row.original.endTime)}</span>,
+                cell: ({ row }) => formatTime(row.original.endTime),
                 header: 'Kết thúc',
             },
             {
@@ -186,7 +186,6 @@ const TicketPricePage = () => {
                         <ButtonAction.Delete />
                     </div>
                 ),
-                enableSorting: false,
             },
         ],
         [],
@@ -198,7 +197,7 @@ const TicketPricePage = () => {
 
     const renderSubComponent = React.useCallback(
         ({ row }: { row: Row<AdminTicketPriceOverview> }) => (
-            <div className="pl-6 py-4 border-l-2 ">
+            <div className="pl-6 border-l-2 ">
                 <div>
                     <Table<AdminTicketPriceLineOverview> data={row.original.ticketPriceLines}
                                                          columns={ticketPriceLineColumns}
@@ -208,7 +207,6 @@ const TicketPricePage = () => {
                                                          showAllData={true}
                                                          isExpandable={true}
                                                          renderSubComponent={renderTicketPriceDetail}
-                                                         containerClassName="!px-0"
                     >
                         <div className="flex justify-between items-center">
                             <div className="font-semibold">Chi tiết hàng:</div>
@@ -236,7 +234,6 @@ const TicketPricePage = () => {
                                                            totalPages={totalPages}
                                                            onChangePage={handlePageChange}
                                                            showAllData={true}
-                                                           containerClassName="!px-0"
                     >
                         <div className="flex justify-between items-center">
                             <div className="font-semibold">Chi tiết giá:</div>

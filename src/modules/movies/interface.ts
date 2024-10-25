@@ -25,9 +25,9 @@ export const MovieStatusVietnamese : Record<MovieStatus, string> = {
 export enum AgeRating {
     P = 'P',
     K = 'K',
-    T13 = '13',
-    T16 = '16',
-    T18 = '18',
+    T13 = 'T13',
+    T16 = 'T16',
+    T18 = 'T18',
     C = 'C'
 }
 

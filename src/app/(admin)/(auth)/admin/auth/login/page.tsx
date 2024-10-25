@@ -14,7 +14,7 @@ const LoginSchema = Yup.object().shape({
 });
 
 const Login = () => {
-    const initialValues: LoginCredentials = { email: '', password: '' };
+    const initialValues: LoginCredentials = { email: 'quannguyenminh1001@gmail.com', password: 'Cinema123123@' };
     const login = useLogin();
     const router = useRouter();
 

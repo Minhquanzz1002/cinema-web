@@ -9,51 +9,52 @@ import { exportToExcel } from '@/utils/exportToExcel';
 import { useAllActors } from '@/modules/actors/repository';
 import avatar from '/public/img/avatar/avt.png';
 import BaseStatusBadge from '@/components/Admin/Badge/BaseStatusBadge';
-import usePagination from '@/hook/usePagination';
-import DropdownInput, { DropDownInputOption, DropdownInputProps } from '@/components/Admin/Filters/DropdownInput';
 import ButtonAction from '@/components/Admin/ButtonAction';
 import Modal from '@/components/Admin/Modal';
 import ItemInfo from '@/components/Admin/ItemInfo';
 import { formatDateToLocalDate } from '@/utils/formatDate';
-import { BaseStatusVietnamese } from '@/modules/base/interface';
+import { BaseStatus, BaseStatusVietnamese } from '@/modules/base/interface';
+import useFilterPagination, { PaginationState } from '@/hook/useFilterPagination';
+import { Form, Formik } from 'formik';
+import Typography from '@/components/Admin/Typography';
+import Input from '@/components/Admin/Filters/Input';
+import Select from '@/components/Admin/Filters/Select';
+import AutoSubmitForm from '@/components/Admin/AutoSubmitForm';
+
+interface ActorFilter extends PaginationState {
+    search: string;
+    country: string;
+    status: 'ALL' | BaseStatus;
+}
 
 const ActorPage = () => {
-    const options: DropdownInputProps['options'] = [
-        { label: 'Tìm theo tên', value: 'name' },
-        { label: 'Tìm theo mã', value: 'code' },
-    ];
-    const [selectedOption, setSelectedOption] = useState<DropDownInputOption>(options[0]);
-    const [searchValue, setSearchValue] = useState<string>('');
     const [actorDetail, setActorDetail] = useState<Actor | null>(null);
-
-    const handleChangeDropdown = (option: DropDownInputOption) => {
-        setSelectedOption(option);
-    };
-
-    const handleChangeSearchValue = (value: string) => {
-        setSearchValue(value);
-    };
-
-    const [page, setPage] = useState(0);
-    const actorsQuery = useAllActors({
-        page,
-        name: selectedOption.value === 'name' ? searchValue : undefined,
-        code: selectedOption.value === 'code' ? searchValue : undefined,
+    const [filters, setFilters] = useState<ActorFilter>({
+        page: 1,
+        search: '',
+        country: '',
+        status: 'ALL',
     });
+
+    const actorsQuery = useAllActors({
+        page: filters.page - 1,
+        search: filters.search,
+        country: filters.country,
+        status: filters.status === 'ALL' ? undefined : filters.status,
+    });
+
     const {
+        data: actors,
         currentPage,
         totalPages,
-        data: actors,
-        onChangePage,
-    } = usePagination<Actor>({
+        isLoading,
+        onFilterChange,
+        onPageChange,
+    } = useFilterPagination({
         queryResult: actorsQuery,
-        initialPage: 1,
+        initialFilters: filters,
+        onFilterChange: setFilters,
     });
-
-    const handlePageChange = useCallback((newPage: number) => {
-        setPage(newPage - 1);
-        onChangePage(newPage);
-    }, [onChangePage]);
 
     useEffect(() => {
         document.title = 'B&Q Cinema - Diễn viên';
@@ -63,9 +64,7 @@ const ActorPage = () => {
         () => [
             {
                 accessorKey: 'code',
-                header: () => (
-                    <p className="text-sm font-bold text-gray-600 dark:text-white uppercase">Mã</p>
-                ),
+                header: 'Mã',
             },
             {
                 accessorKey: 'image',
@@ -80,26 +79,25 @@ const ActorPage = () => {
                         </div>
                     );
                 },
-                enableSorting: false,
-                header: () => <span>Ảnh</span>,
+                header: 'Ảnh',
             },
             {
                 accessorKey: 'name',
-                header: () => <span>Tên</span>,
+                header: 'Tên',
             },
             {
                 accessorKey: 'country',
                 cell: ({ row }) => <span>{row.original.country || 'Chưa cập nhật'}</span>,
-                header: () => <span>Quốc gia</span>,
+                header: 'Quốc gia',
             },
             {
                 accessorKey: 'status',
                 cell: ({ row }) => <BaseStatusBadge status={row.original.status} />,
-                header: () => <span>Trạng thái</span>,
+                header: 'Trạng thái',
             },
             {
                 id: 'actions',
-                header: () => '',
+                header: '',
                 cell: ({ row }) => (
                     <div className="inline-flex gap-2 items-center">
                         <ButtonAction.View onClick={() => setActorDetail(row.original)} />
@@ -107,7 +105,6 @@ const ActorPage = () => {
                         <ButtonAction.Delete />
                     </div>
                 ),
-                enableSorting: false,
             },
         ],
         [],
@@ -129,20 +126,42 @@ const ActorPage = () => {
                         </div>
                     </div>
                 </Card>
-                <Table<Actor> data={actors} columns={columns}
-                              currentPage={currentPage}
-                              totalPages={totalPages}
-                              onChangePage={handlePageChange}
-                >
-                    <div className="grid grid-cols-3 mb-3">
-                        <DropdownInput options={options} onChangeDropdown={handleChangeDropdown}
-                                       onChangeInputSearch={handleChangeSearchValue} />
-                    </div>
-                </Table>
+
+                <Card className="py-4">
+                    <Formik initialValues={filters} onSubmit={onFilterChange} enableReinitialize>
+                        <Form>
+                            <div className="px-4 pb-3">
+                                <Typography.Title level={4}>Bộ lọc</Typography.Title>
+                                <div className="grid grid-cols-3 gap-4">
+                                    <Input name="search" placeholder="Mã hoặc tên diễn viên" />
+                                    <Input name="country" placeholder="Quốc gia" />
+                                    <Select name="status"
+                                            placeholder="Lọc theo trạng thái"
+                                            options={[
+                                                { label: 'Tất cả trạng thái', value: 'ALL' },
+                                                ...Object.values(BaseStatus).map(value => ({
+                                                    label: BaseStatusVietnamese[value],
+                                                    value,
+                                                }))
+                                            ]}
+                                    />
+                                </div>
+                            </div>
+                            <AutoSubmitForm />
+                        </Form>
+                    </Formik>
+                    <Table<Actor> data={actors} columns={columns}
+                                  currentPage={currentPage}
+                                  totalPages={totalPages}
+                                  onChangePage={onPageChange}
+                                  isLoading={isLoading}
+                    />
+                </Card>
             </div>
             {
                 actorDetail && (
-                    <Modal title={`Thông tin diễn viên #${actorDetail.code}`} onClose={() => setActorDetail(null)} open={true}>
+                    <Modal title={`Thông tin diễn viên #${actorDetail.code}`} onClose={() => setActorDetail(null)}
+                           open={true}>
                         <div className="grid grid-cols-4 gap-4">
                             <div className="relative aspect-square">
                                 <Image src={actorDetail.image || avatar} alt={actorDetail.name} fill
@@ -151,11 +170,12 @@ const ActorPage = () => {
                                 />
                             </div>
                             <div className="flex flex-col gap-3 col-span-3">
-                                <ItemInfo label="Tên" value={actorDetail.name}/>
-                                <ItemInfo label="Ngày sinh" value={actorDetail.birthday ? formatDateToLocalDate(actorDetail.birthday) : 'Chưa cập nhật'}/>
-                                <ItemInfo label="Quốc gia" value={actorDetail.country || 'Chưa cập nhật'}/>
-                                <ItemInfo label="Tiểu sử" value={actorDetail.bio || "Chưa cập nhật"}/>
-                                <ItemInfo label="Trạng thái" value={BaseStatusVietnamese[actorDetail.status]}/>
+                                <ItemInfo label="Tên" value={actorDetail.name} />
+                                <ItemInfo label="Ngày sinh"
+                                          value={actorDetail.birthday ? formatDateToLocalDate(actorDetail.birthday) : 'Chưa cập nhật'} />
+                                <ItemInfo label="Quốc gia" value={actorDetail.country || 'Chưa cập nhật'} />
+                                <ItemInfo label="Tiểu sử" value={actorDetail.bio || 'Chưa cập nhật'} />
+                                <ItemInfo label="Trạng thái" value={BaseStatusVietnamese[actorDetail.status]} />
                             </div>
                         </div>
                     </Modal>
