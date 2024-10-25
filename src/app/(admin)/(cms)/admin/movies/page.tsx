@@ -2,36 +2,65 @@
 import React, { useEffect, useState } from 'react';
 import { ColumnDef } from '@tanstack/table-core';
 import Table from '@/components/Admin/Tables';
-import Link from 'next/link';
 import Card from '@/components/Admin/Card';
-import { RiFileExcel2Line } from 'react-icons/ri';
-import { FaFileImport, FaPlus } from 'react-icons/fa6';
-import { MdOutlineFormatListBulleted } from 'react-icons/md';
-import { GoSearch } from 'react-icons/go';
 import { BsGrid3X3Gap } from 'react-icons/bs';
 import { PiListBold } from 'react-icons/pi';
 import FilterModal from '@/components/Admin/Pages/Movies/FilterModal';
 import ImportModal from '@/components/Admin/Pages/Movies/ImportModal';
 import { exportToExcel } from '@/utils/exportToExcel';
-import { AdminMovie, AgeRating } from '@/modules/movies/interface';
+import { AdminMovie, AgeRating, MovieStatus, MovieStatusVietnamese } from '@/modules/movies/interface';
 import { useAllMovies } from '@/modules/movies/repository';
 import Image from 'next/image';
 import { ButtonSquare } from '@/components/Admin/Button';
 import MovieStatusBadge from '@/components/Admin/Badge/MovieStatusBadge';
 import ButtonAction from '@/components/Admin/ButtonAction';
+import { Form, Formik } from 'formik';
+import Typography from '@/components/Admin/Typography';
+import Input from '@/components/Admin/Filters/Input';
+import Select from '@/components/Admin/Filters/Select';
+import AutoSubmitForm from '@/components/Admin/AutoSubmitForm';
+import useFilterPagination, { PaginationState } from '@/hook/useFilterPagination';
+
+interface MovieFilter extends PaginationState {
+    search: string;
+    country: string;
+    ageRating: 'ALL' | AgeRating;
+    status: 'ALL' | MovieStatus;
+}
 
 const MoviePage = () => {
-    const [currentPage, setCurrentPage] = useState<number>(1);
-    const [totalPages, setTotalPages] = useState<number>(0);
+    const [filters, setFilters] = useState<MovieFilter>({
+        page: 1,
+        search: '',
+        ageRating: 'ALL',
+        country: '',
+        status: MovieStatus.ACTIVE,
+    });
+
+    const moviesQuery = useAllMovies({
+        page: filters.page - 1,
+        search: filters.search,
+        country: filters.country,
+        ageRating: filters.ageRating === 'ALL' ? undefined : filters.ageRating,
+        status: filters.status === 'ALL' ? undefined : filters.status,
+    });
+
+    const {
+        data: movies,
+        currentPage,
+        totalPages,
+        isLoading,
+        onFilterChange,
+        onPageChange,
+    } = useFilterPagination({
+        queryResult: moviesQuery,
+        initialFilters: filters,
+        onFilterChange: setFilters,
+    });
+
     const [displayType, setDisplayType] = useState<'Grid' | 'Table'>('Table');
     const [showFilter, setShowFilter] = useState<boolean>(false);
     const [showImportModal, setShowImportModal] = useState<boolean>(false);
-    const { data: responseData } = useAllMovies();
-    const [movies, setMovies] = React.useState<AdminMovie[]>([]);
-
-    const onChangePage = (page: number) => {
-        setCurrentPage(page);
-    };
 
     useEffect(() => {
         document.title = 'B&Q Cinema - Quản lý phim';
@@ -41,9 +70,7 @@ const MoviePage = () => {
         () => [
             {
                 accessorKey: 'code',
-                header: () => (
-                    <p className="text-sm dark:text-white uppercase">Mã phim</p>
-                ),
+                header: 'Mã phim',
             },
             {
                 accessorKey: 'imagePortrait',
@@ -56,54 +83,50 @@ const MoviePage = () => {
                         </div>
                     );
                 },
-                header: () => <span>Ảnh</span>,
+                header: 'Ảnh',
             },
             {
-                accessorFn: row => ({ title: row.title, ageRating: row.ageRating }),
-                id: 'titleAndAge',
-                cell: ({ getValue }) => {
-                    const { title, ageRating } = getValue() as { title: string; ageRating: AgeRating };
+                accessorKey: 'title',
+                cell: ({ row }) => {
                     return (
                         <div className="flex flex-col gap-2">
-                            <div>{title}</div>
+                            <div className="font-medium">{row.original.title}</div>
                             <div>
-                                <span className="px-2 py-1 bg-brand-300 rounded text-white">{ageRating}</span>
+                                <span
+                                    className="px-2 py-1 bg-brand-300 rounded text-white">{row.original.ageRating}</span>
                             </div>
                         </div>
                     );
                 },
-                header: () => <span>Tiêu đề</span>,
+                header: 'Tiêu đề',
             },
             {
                 accessorKey: 'duration',
-                header: () => <span>Thời lượng (phút)</span>,
+                header: 'Thời lượng (phút)',
             },
             {
                 accessorKey: 'country',
-                header: () => <span>Quốc gia</span>,
+                header: 'Quốc gia',
             },
             {
                 accessorKey: 'status',
                 header: 'Trạng thái',
-                cell: ({ row }) => (
-                    <MovieStatusBadge status={row.original.status} />
-                ),
+                cell: ({ row }) => <MovieStatusBadge status={row.original.status} />,
             },
             {
                 accessorKey: 'rating',
                 header: 'Đánh giá',
             },
             {
-                accessorKey: 'actions',
-                header: () => '',
+                id: 'actions',
+                header: '',
                 cell: ({ row }) => (
-                    <div className="inline-flex gap-2 items-center">
+                    <div className="flex gap-2 items-center justify-end">
                         <ButtonAction.View href={`/admin/movies/${row.original.code}`} />
                         <ButtonAction.Update />
                         <ButtonAction.Delete />
                     </div>
                 ),
-                enableSorting: false,
             },
         ],
         [],
@@ -114,31 +137,12 @@ const MoviePage = () => {
         await exportToExcel<AdminMovie>(movies);
     };
 
-    useEffect(() => {
-        if (responseData?.data) {
-            const { content, page } = responseData.data;
-            setMovies(content);
-            setTotalPages(page.totalPages);
-            setCurrentPage(page.number + 1);
-        }
-    }, [responseData]);
-
     return (
         <>
             <div className="mt-3">
                 <Card extra={`mb-5 h-full w-full px-6 py-4`}>
                     <div className="flex items-center justify-between">
                         <div className="flex gap-x-2">
-                            <div
-                                className="flex flex-nowrap items-center border h-9 px-3 rounded gap-x-1 focus-within:shadow-xl focus-within:border-brand-500 dark:text-white text-gray-500">
-                                <GoSearch />
-                                <input type="search" className="outline-none w-[300px] text-sm bg-white/0"
-                                       placeholder="Tìm theo mã hoặc theo tên (/)" />
-                                <button type="button" title="Lọc theo danh mục" onClick={() => setShowFilter(true)}>
-                                    <MdOutlineFormatListBulleted />
-                                </button>
-                            </div>
-
                             <ButtonSquare title={displayType !== 'Grid' ? 'Hiển thị dạng thẻ' : 'Hiển thị dạng bảng'}
                                           onClick={() => setDisplayType(displayType === 'Grid' ? 'Table' : 'Grid')}>
                                 {
@@ -149,25 +153,50 @@ const MoviePage = () => {
                         </div>
 
                         <div className="flex gap-2 h-9">
-                            <Link href={'/admin/movies/new'}
-                                  className="bg-brand-500 py-1.5 px-2 rounded flex items-center justify-center text-white gap-x-2 text-sm">
-                                <FaPlus className="h-4 w-4" /> Thêm
-                            </Link>
-                            <button type="button"
-                                    onClick={() => setShowImportModal(true)}
-                                    className="bg-brand-500 py-1.5 px-2 rounded flex items-center justify-center text-white gap-x-2 text-sm">
-                                <FaFileImport className="h-4 w-4" /> Import
-                            </button>
-                            <button type="button"
-                                    onClick={handleExportExcel}
-                                    className="bg-brand-500 py-1.5 px-2 rounded flex items-center justify-center text-white gap-x-2 text-sm">
-                                <RiFileExcel2Line className="h-5 w-5" /> Export
-                            </button>
+                            <ButtonAction.Add text="Thêm phim mới" href="/admin/movies/new"/>
+                            <ButtonAction.Import onClick={() => setShowImportModal(true)}/>
+                            <ButtonAction.Export onClick={handleExportExcel}/>
                         </div>
                     </div>
                 </Card>
-                <Table<AdminMovie> data={movies} columns={columns} currentPage={currentPage} totalPages={totalPages}
-                                   onChangePage={onChangePage} />
+                <Card className="py-4">
+                    <Formik initialValues={filters} onSubmit={onFilterChange} enableReinitialize>
+                        <Form>
+                            <div className="px-4 pb-3">
+                                <Typography.Title level={4}>Bộ lọc</Typography.Title>
+                                <div className="grid grid-cols-4 gap-4">
+                                    <Input name="search" placeholder="Mã hoặc tên phim" />
+                                    <Input name="country" placeholder="Quốc gia" />
+                                    <Select name="status"
+                                            placeholder="Lọc theo trạng thái"
+                                            options={[
+                                                { label: 'Tất cả trạng thái', value: 'ALL' },
+                                                {
+                                                    label: MovieStatusVietnamese[MovieStatus.ACTIVE],
+                                                    value: MovieStatus.ACTIVE,
+                                                },
+                                            ]}
+                                    />
+                                    <Select name="ageRating"
+                                            placeholder="Phân loại tuổi"
+                                            options={[
+                                                { label: 'Tất cả nhãn', value: 'ALL' },
+                                                ...Object.values(AgeRating).map(value => ({
+                                                    label: value,
+                                                    value,
+                                                }))
+                                            ]}
+                                    />
+                                </div>
+                            </div>
+                            <AutoSubmitForm />
+                        </Form>
+                    </Formik>
+                    <Table<AdminMovie> data={movies} columns={columns} currentPage={currentPage} totalPages={totalPages}
+                                       onChangePage={onPageChange}
+                                       isLoading={isLoading}
+                    />
+                </Card>
             </div>
             {
                 showFilter && (<FilterModal onClose={() => setShowFilter(false)} />)

@@ -34,7 +34,7 @@ const DropdownInput = ({ options, placeholder = 'Nhập', onChangeInputSearch, o
 
     return (
         <div ref={wrapRef}
-             className="flex flex-row w-full items-center border rounded-md min-h-10 focus-within:border-brand-500">
+             className="flex flex-row w-full items-center border rounded-md min-h-10 focus-within:border-brand-500 h-10">
             <div className="w-fit relative flex items-center gap-x-2 border-r-2 h-5 px-2 text-xs cursor-default"
                  onClick={() => setShowDropdown(!showDropdown)}>
                 <div className="text-nowrap text-gray-800 font-medium">{selectedOption.label}</div>

@@ -13,7 +13,7 @@ type Option = {
 
 export type SelectProps = {
     name: string;
-    label: string;
+    label?: string;
     tooltip?: string;
     placeholder?: string;
     multiple?: boolean;
@@ -61,14 +61,18 @@ const Select = ({ name, label, tooltip, multiple, options, placeholder, readOnly
 
     return (
         <div className="mb-3">
-            <div className="mb-1 inline-flex gap-x-1 h-6">
-                <label className="font-normal text-sm cursor-pointer after:content-[':']"
-                       onClick={() => setIsOpen(!isOpen)}
-                       htmlFor={id} title={label}>{label}</label>
-                <span className="text-red-500">*</span>
+            {
+                label && (
+                    <div className="mb-1 inline-flex gap-x-1 h-6">
+                        <label className="font-normal text-sm cursor-pointer after:content-[':']"
+                               onClick={() => setIsOpen(!isOpen)}
+                               htmlFor={id} title={label}>{label}</label>
+                        <span className="text-red-500">*</span>
 
-                {tooltip && <Tooltip text={tooltip} />}
-            </div>
+                        {tooltip && <Tooltip text={tooltip} />}
+                    </div>
+                )
+            }
             <div
                 ref={dropdownRef}
                 onClick={() => !readOnly && setIsOpen(!isOpen)}

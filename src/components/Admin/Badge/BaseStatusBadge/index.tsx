@@ -15,7 +15,7 @@ type BaseStatusBadgeProps = {
 const BaseStatusBadge = ({ status }: BaseStatusBadgeProps) => {
     const colorClass = statusColors[status] || 'text-gray-500';
     return (
-        <span className={`px-2 py-1 rounded font-medium bg-opacity-50 ${colorClass}`}>
+        <span className={`px-2 py-1 rounded font-medium bg-opacity-50 text-nowrap ${colorClass}`}>
             {baseStatusLabels[status] || status}
         </span>
     );

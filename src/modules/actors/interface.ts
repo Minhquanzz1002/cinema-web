@@ -26,4 +26,5 @@ export interface ActorInsertPayload {
     birthday?: string;
     country?: string;
     status: BaseStatus;
+    image: string;
 }

@@ -10,6 +10,9 @@ import { formatDateInOrder, formatTime } from '@/utils/formatDate';
 import { formatNumberToCurrency } from '@/utils/formatNumber';
 import { LuGift } from 'react-icons/lu';
 import { orderStatusLabels, seatTypeLabels } from '@/utils/enumMappings';
+import Loader from '@/components/Admin/Loader';
+import NotFound from '@/components/Admin/NotFound';
+import PrintBill from '@/components/Admin/Pages/Bills/PrintBill';
 
 const OrderDetailInfo = ({ label, value }: { label: string, value: string | React.ReactNode }) => (
     <div className="flex justify-between items-center">
@@ -21,7 +24,7 @@ const OrderDetailInfo = ({ label, value }: { label: string, value: string | Reac
 
 const OrderDetailPage = () => {
     const { code } = useParams<{ code: string }>();
-    const { data: responseData } = useOrderDetail(code);
+    const { data: responseData, isLoading } = useOrderDetail(code);
     const [order, setOrder] = useState<AdminOrderOverview | null>(null);
 
     useEffect(() => {
@@ -34,16 +37,24 @@ const OrderDetailPage = () => {
         document.title = 'B&Q Cinema - Chi tiết đơn hàng';
     }, []);
 
+    if (isLoading) {
+        return <Loader />;
+    }
+
     if (!order) {
-        return null;
+        return <NotFound />;
     }
 
     return (
         <div className="my-5">
             <Card className="p-[18px]">
-                <div className="flex gap-1 text-xl font-nunito font-medium">
-                    <div>Mã hóa đơn</div>
-                    <div className="text-brand-500">#{order.code}</div>
+                <div className="flex justify-between items-center">
+                    <div className="flex gap-1 text-xl font-nunito font-medium">
+                        <div>Mã hóa đơn</div>
+                        <div className="text-brand-500">#{order.code}</div>
+                    </div>
+
+                    <PrintBill bill={order} />
                 </div>
             </Card>
             <div className="grid grid-cols-3 gap-4 mt-4">
@@ -68,7 +79,7 @@ const OrderDetailPage = () => {
                                                             {orderDetail.product.name}
                                                             {orderDetail.isGift && (
                                                                 <div className="flex justify-center items-center">
-                                                                    <LuGift className="text-brand-500"/>
+                                                                    <LuGift className="text-brand-500" />
                                                                 </div>
                                                             )}
                                                         </div>
@@ -102,7 +113,7 @@ const OrderDetailPage = () => {
                                                             {seatTypeLabels[orderDetail.seat.type]}
                                                             {orderDetail.isGift && (
                                                                 <div className="flex justify-center items-center">
-                                                                    <LuGift className="text-brand-500"/>
+                                                                    <LuGift className="text-brand-500" />
                                                                 </div>
                                                             )}
                                                         </div>
@@ -132,7 +143,8 @@ const OrderDetailPage = () => {
                             <OrderDetailInfo label="Tổng tiền" value={formatNumberToCurrency(order.totalPrice)} />
                             <OrderDetailInfo label="Giảm giá" value={formatNumberToCurrency(order.totalDiscount)} />
                             <OrderDetailInfo label="Thành tiền"
-                                             value={<span className="font-medium text-lg text-brand-500">{formatNumberToCurrency(order.finalAmount)}</span>}
+                                             value={<span
+                                                 className="font-medium text-lg text-brand-500">{formatNumberToCurrency(order.finalAmount)}</span>}
                             />
                         </div>
                     </Card>

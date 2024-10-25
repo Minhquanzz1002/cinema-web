@@ -1,29 +1,54 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { ColumnDef } from '@tanstack/table-core';
-import { MdOutlineFormatListBulleted } from 'react-icons/md';
 import Link from 'next/link';
 import { FaEye } from 'react-icons/fa';
 import Card from '@/components/Admin/Card';
-import { GoSearch } from 'react-icons/go';
 import { RiFileExcel2Line } from 'react-icons/ri';
 import Table from '@/components/Admin/Tables';
 import { exportToExcel } from '@/utils/exportToExcel';
-import { BaseOrder } from '@/modules/orders/interface';
+import { BaseOrder, OrderStatus, OrderStatusVietnamese } from '@/modules/orders/interface';
 import { useAllOrders } from '@/modules/orders/repository';
 import { formatNumberToCurrency } from '@/utils/formatNumber';
 import { formatDateInOrder, timeFromNow } from '@/utils/formatDate';
 import OrderStatusBadge from '@/components/Admin/Badge/OrderStatusBadge';
+import useFilterPagination, { PaginationState } from '@/hook/useFilterPagination';
+import { Form, Formik } from 'formik';
+import Typography from '@/components/Admin/Typography';
+import Input from '@/components/Admin/Filters/Input';
+import Select from '@/components/Admin/Filters/Select';
+import AutoSubmitForm from '@/components/Admin/AutoSubmitForm';
 
-const OrderPage = () => {
-    const [currentPage, setCurrentPage] = useState<number>(1);
-    const [totalPages, setTotalPages] = useState<number>(0);
-    const { data: responseData } = useAllOrders();
-    const [orders, setOrders] = useState<BaseOrder[]>([]);
+interface BillFilter extends PaginationState{
+    code: string;
+    status: 'ALL' | OrderStatus;
+}
 
-    const onChangePage = (page: number) => {
-        setCurrentPage(page);
-    };
+const BillPage = () => {
+    const [filters, setFilters] = useState<BillFilter>({
+        page: 1,
+        code: '',
+        status: OrderStatus.COMPLETED,
+    });
+
+    const productsQuery = useAllOrders({
+        page: filters.page - 1,
+        code: filters.code,
+        status: filters.status === 'ALL' ? undefined : filters.status,
+    });
+
+    const {
+        data: orders,
+        currentPage,
+        totalPages,
+        isLoading,
+        onFilterChange,
+        onPageChange
+    } = useFilterPagination({
+        queryResult: productsQuery,
+        initialFilters: filters,
+        onFilterChange: setFilters
+    });
 
     useEffect(() => {
         document.title = 'B&Q Cinema - Đơn hàng';
@@ -34,7 +59,6 @@ const OrderPage = () => {
             {
                 accessorKey: 'code',
                 header: 'Mã hóa đơn',
-                footer: props => props.column.id,
             },
             {
                 accessorKey: 'user',
@@ -45,7 +69,6 @@ const OrderPage = () => {
                         <div className="text-xs text-gray-700">{row.original.user.phone}</div>
                     </div>
                 ),
-                footer: props => props.column.id,
             },
             {
                 accessorKey: 'orderDate',
@@ -56,28 +79,24 @@ const OrderPage = () => {
                         <div className="text-xs text-gray-700">{timeFromNow(row.original.orderDate)}</div>
                     </div>
                 ),
-                footer: props => props.column.id,
             },
             {
                 accessorKey: 'totalPrice',
-                cell: ({ row }) => <span>{formatNumberToCurrency(row.original.totalPrice)}</span>,
+                cell: ({ row }) => formatNumberToCurrency(row.original.totalPrice),
                 header: 'Tổng tiền hàng',
-                footer: props => props.column.id,
             },
             {
                 accessorKey: 'finalAmount',
-                cell: ({ row }) => <span>{formatNumberToCurrency(row.original.finalAmount)}</span>,
+                cell: ({ row }) => formatNumberToCurrency(row.original.finalAmount),
                 header: 'Thành tiền',
-                footer: props => props.column.id,
             },
             {
                 accessorKey: 'status',
                 cell: ({ row }) => <OrderStatusBadge status={row.original.status}/>,
                 header: 'Trạng thái',
-                footer: props => props.column.id,
             },
             {
-                accessorKey: 'actions',
+                id: 'actions',
                 header: () => '',
                 cell: ({row}) => (
                     <div className="inline-flex gap-2 items-center">
@@ -86,7 +105,6 @@ const OrderPage = () => {
                         </Link>
                     </div>
                 ),
-                enableSorting: false,
             },
         ],
         [],
@@ -96,32 +114,11 @@ const OrderPage = () => {
         await exportToExcel<BaseOrder>(orders,'bills.xlsx');
     };
 
-    useEffect(() => {
-        if (responseData?.data) {
-            const { content, page } = responseData.data;
-            setOrders(content);
-            setTotalPages(page.totalPages);
-            setCurrentPage(page.number + 1);
-        }
-    }, [responseData]);
-
     return (
         <>
             <div className="mt-3">
                 <Card extra={`mb-5 h-full w-full px-6 py-4`}>
-                    <div className="flex items-center justify-between">
-                        <div className="flex gap-x-2">
-                            <div
-                                className="flex flex-nowrap items-center border h-9 px-3 rounded gap-x-1 focus-within:shadow-xl focus-within:border-brand-500 dark:text-white text-gray-500">
-                                <GoSearch />
-                                <input type="search" className="outline-none w-[300px] text-sm bg-white/0"
-                                       placeholder="Tìm theo mã hoặc theo tên (/)" />
-                                <button type="button" title="Lọc theo danh mục">
-                                    <MdOutlineFormatListBulleted />
-                                </button>
-                            </div>
-
-                        </div>
+                    <div className="flex items-center justify-end">
 
                         <div className="flex gap-2 h-9">
                             <button type="button"
@@ -132,12 +129,35 @@ const OrderPage = () => {
                         </div>
                     </div>
                 </Card>
-                <Table<BaseOrder> data={orders} columns={columns} currentPage={currentPage}
-                                             totalPages={totalPages}
-                                             onChangePage={onChangePage} />
+                <Card className="py-4">
+                    <Formik initialValues={filters} onSubmit={onFilterChange} enableReinitialize>
+                        <Form>
+                            <div className="px-4 pb-3">
+                                <Typography.Title level={4}>Bộ lọc</Typography.Title>
+                                <div className="grid grid-cols-3 gap-4">
+                                    <Input name="code" placeholder="Mã đơn hàng" />
+                                    <Select name="status"
+                                            options={[
+                                                { label: 'Tất cả', value: 'ALL' },
+                                                {
+                                                    label: OrderStatusVietnamese[OrderStatus.COMPLETED],
+                                                    value: OrderStatus.COMPLETED,
+                                                },
+                                            ]}
+                                    />
+                                </div>
+                            </div>
+                            <AutoSubmitForm />
+                        </Form>
+                    </Formik>
+                    <Table<BaseOrder> data={orders} columns={columns} currentPage={currentPage}
+                                      totalPages={totalPages}
+                                      isLoading={isLoading}
+                                      onChangePage={onPageChange} />
+                </Card>
             </div>
         </>
     );
 };
 
-export default OrderPage;
+export default BillPage;

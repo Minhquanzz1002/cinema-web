@@ -10,37 +10,20 @@ import { BaseStatus } from '@/modules/base/interface';
 export const PRODUCT_QUERY_KEY = 'products';
 export const PRODUCT_PRICE_QUERY_KEY = 'product-prices';
 
+/**
+ * Fetch all products
+ */
 interface FetchAllProductParams {
     page?: number;
-    code?: string;
-    name?: string;
+    search?: string;
     status?: ProductStatus;
 }
 
 const findAllProducts = (params: FetchAllProductParams): Promise<SuccessResponse<PageObject<BaseProductWithPrice>>> => {
     return httpRepository.get<PageObject<BaseProductWithPrice>>('/admin/v1/products', {
         page: params.page?.toString() || '0',
-        code: params.code,
-        name: params.name,
+        search: params.search,
         status: params.status,
-    });
-};
-
-const findProductByCode = (code: string): Promise<SuccessResponse<BaseProductWithPrice>> => {
-    return httpRepository.get<BaseProductWithPrice>(`/admin/v1/products/${code}`);
-};
-
-interface FetchAllProductPriceHistoriesParams {
-    page?: number;
-    code: string;
-}
-
-const findAllProductPriceHistories = ({
-                                          code,
-                                          page = 0,
-                                      }: FetchAllProductPriceHistoriesParams): Promise<SuccessResponse<PageObject<ProductPriceHistory>>> => {
-    return httpRepository.get<PageObject<ProductPriceHistory>>(`/admin/v1/products/${code}/price-histories`, {
-        page,
     });
 };
 
@@ -53,6 +36,10 @@ export const useAllProducts = (params: FetchAllProductParams) => {
     });
 };
 
+const findProductByCode = (code: string): Promise<SuccessResponse<BaseProductWithPrice>> => {
+    return httpRepository.get<BaseProductWithPrice>(`/admin/v1/products/${code}`);
+};
+
 export const useProductByCode = (code: string) => {
     return useDataFetching(
         [PRODUCT_QUERY_KEY, code],
@@ -61,11 +48,31 @@ export const useProductByCode = (code: string) => {
     );
 };
 
-export const useAllProductPriceHistories = ({ code, page = 0 }: FetchAllProductPriceHistoriesParams) => {
+/**
+ * Fetch all product price histories
+ */
+interface FetchAllProductPriceHistoriesParams {
+    code: string;
+    page?: number;
+    status?: BaseStatus;
+}
+
+const findAllProductPriceHistories = ({
+                                          code,
+                                          page = 0,
+                                          status,
+                                      }: FetchAllProductPriceHistoriesParams): Promise<SuccessResponse<PageObject<ProductPriceHistory>>> => {
+    return httpRepository.get<PageObject<ProductPriceHistory>>(`/admin/v1/products/${code}/price-histories`, {
+        page,
+        status
+    });
+};
+
+export const useAllProductPriceHistories = (params: FetchAllProductPriceHistoriesParams) => {
     return useQuery({
-        queryKey: [PRODUCT_QUERY_KEY, code, 'price-histories'],
-        queryFn: () => findAllProductPriceHistories({ code, page }),
-        enabled: !!code,
+        queryKey: [PRODUCT_QUERY_KEY, PRODUCT_PRICE_QUERY_KEY, params],
+        queryFn: () => findAllProductPriceHistories(params),
+        enabled: !!params.code,
     });
 };
 
