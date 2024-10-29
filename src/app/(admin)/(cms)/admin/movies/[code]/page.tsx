@@ -9,6 +9,8 @@ import { useMovieByCode } from '@/modules/movies/repository';
 import avatar from '/public/img/avatar/avt.png';
 import ItemInfo from '@/components/Admin/ItemInfo';
 import { MovieStatusVietnamese } from '@/modules/movies/interface';
+import HTMLContent from '@/components/Admin/HTMLContent';
+import NotFound from '@/components/Admin/NotFound';
 
 const MovieDetailPage = () => {
     const { code } = useParams<{ code: string }>();
@@ -19,10 +21,10 @@ const MovieDetailPage = () => {
     }, []);
 
     if (isLoading) return (
-        <Loader/>
+        <Loader />
     );
 
-    if (!movie) return null;
+    if (!movie) return <NotFound/>;
 
     return (
         <div className="mt-5 flex flex-col gap-4">
@@ -51,7 +53,8 @@ const MovieDetailPage = () => {
                         <ItemInfo label="Tên" value={movie.title} />
                         <ItemInfo label="Quốc gia" value={movie.country} />
                         <ItemInfo label="Thời lượng" value={`${movie.duration} phút`} />
-                        <ItemInfo label="Nhà xuất bản" value={movie.producers.map(producer => producer.name).join(', ')} />
+                        <ItemInfo label="Nhà xuất bản"
+                                  value={movie.producers.map(producer => producer.name).join(', ')} />
                         <ItemInfo label="Diễn viên" value={movie.actors.map(actor => actor.name).join(', ')} />
                         <ItemInfo label="Thể loại" value={movie.genres.map(genre => genre.name).join(', ')} />
                         <ItemInfo label="Trạng thái" value={MovieStatusVietnamese[movie.status]} />
@@ -60,9 +63,13 @@ const MovieDetailPage = () => {
             </div>
             <Card className="p-[18px]">
                 <Typography.Title level={4}>Nội dung phim</Typography.Title>
-                <p className="font-normal text-gray-800">
-                    {movie.summary}
-                </p>
+                {
+                    movie.summary && movie.summary.trim().length > 0 ? (
+                        <HTMLContent content={movie.summary} />
+                    ) : (
+                        <p className="font-normal text-gray-400">Chưa cập nhật</p>
+                    )
+                }
             </Card>
         </div>
     );

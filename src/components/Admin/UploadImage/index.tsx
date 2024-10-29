@@ -127,7 +127,7 @@ const UploadImage = ({
                     <div {...getRootProps()}>
                         <input {...getInputProps()} />
                         <div className="flex flex-col items-center justify-center text-center border-2 border-dashed p-4 h-40">
-                            <BsCloudUpload size={40} className="text-gray-800"/>
+                            <BsCloudUpload size={40} className="text-gray-600"/>
                             {
                                 isDragActive ? (
                                     <p className="text-gray-600 font-medium">Thả file để tải lên...</p>

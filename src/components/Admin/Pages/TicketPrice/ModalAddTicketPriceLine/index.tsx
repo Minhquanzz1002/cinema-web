@@ -2,18 +2,18 @@ import React from 'react';
 import { Form, Formik } from 'formik';
 import dayjs from 'dayjs';
 import Select from '@/components/Admin/Select';
-import { BaseStatus, BaseStatusVietnamese } from '@/modules/base/interface';
+import { BaseStatus } from '@/modules/base/interface';
 import ButtonAction from '@/components/Admin/ButtonAction';
 import Modal from '@/components/Admin/Modal';
 import * as Yup from 'yup';
-import { ApplyForDay, ApplyForDayVietnamese } from '@/modules/ticketPrices/interface';
+import { AdminTicketPriceOverview, ApplyForDay, ApplyForDayVietnamese } from '@/modules/ticketPrices/interface';
 import TimePicker from '@/components/Admin/TimePicker';
 import { useCreateTicketPriceLine } from '@/modules/ticketPrices/repository';
+import InputCurrency from '@/components/Admin/InputCurrency';
 
 type ModalAddTicketPriceLineProps = {
     onClose: () => void;
-    onSuccess: () => void;
-    ticketPriceId: number;
+    ticketPrice: AdminTicketPriceOverview | null;
 }
 
 interface FormValues {
@@ -21,6 +21,10 @@ interface FormValues {
     startTime: Date;
     endTime: Date;
     status: BaseStatus;
+    normalPrice: number;
+    vipPrice: number;
+    couplePrice: number;
+    triplePrice: number;
 }
 
 const getCurrentTimeOnBaseDate = (): Date => {
@@ -38,6 +42,10 @@ const initialValues: FormValues = {
     startTime: getCurrentTimeOnBaseDate(),
     endTime: getCurrentTimeOnBaseDate(),
     status: BaseStatus.INACTIVE,
+    normalPrice: 0,
+    vipPrice: 0,
+    couplePrice: 0,
+    triplePrice: 0,
 };
 
 const validationSchema = Yup.object().shape({
@@ -57,20 +65,26 @@ const validationSchema = Yup.object().shape({
         .required('Trạng thái không được để trống'),
 });
 
-const ModalAddTicketPriceLine = ({ onClose, ticketPriceId }: ModalAddTicketPriceLineProps) => {
+const ModalAddTicketPriceLine = ({ onClose, ticketPrice }: ModalAddTicketPriceLineProps) => {
     const saveTicketPriceLine = useCreateTicketPriceLine();
+
+    if (!ticketPrice) return null;
 
     const handleSubmit = async (values: FormValues) => {
         console.log(values);
         try {
             await saveTicketPriceLine.mutateAsync({
-                ticketPriceId: ticketPriceId,
+                ticketPriceId: ticketPrice.id,
                 data: {
                     applyForDays: values.applyForDays,
                     startTime: dayjs(values.startTime).format('HH:mm'),
                     endTime: dayjs(values.endTime).format('HH:mm'),
-                    status: values.status
-                }
+                    status: values.status,
+                    normalPrice: values.normalPrice,
+                    vipPrice: values.vipPrice,
+                    couplePrice: values.couplePrice,
+                    triplePrice: values.triplePrice,
+                },
             });
             onClose();
         } catch (error) {
@@ -100,10 +114,11 @@ const ModalAddTicketPriceLine = ({ onClose, ticketPriceId }: ModalAddTicketPrice
                     </div>
                 </div>
 
-                <Select name="status" label="Trạng thái" options={[
-                    { value: BaseStatus.ACTIVE, label: BaseStatusVietnamese[BaseStatus.ACTIVE] },
-                    { value: BaseStatus.INACTIVE, label: BaseStatusVietnamese[BaseStatus.INACTIVE] },
-                ]} />
+                <InputCurrency min={0} max={10000000} name="normalPrice" label="Giá ghế thường" unit="VND"/>
+                <InputCurrency min={0} name="vipPrice" label="Giá VIP" unit="VND"/>
+                <InputCurrency min={0} name="couplePrice" label="Giá ghế đôi" unit="VND"/>
+                <InputCurrency min={0} name="triplePrice" label="Giá ghế ba" unit="VND"/>
+
                 <div className="flex justify-end items-center gap-3">
                     <ButtonAction.Cancel onClick={onClose} />
                     <ButtonAction.Submit />
