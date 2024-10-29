@@ -1,10 +1,11 @@
 import { SuccessResponse } from '@/core/repository/interface';
 import { PageObject } from '@/core/pagination/interface';
 import httpRepository from '@/core/repository/http';
-import { Actor, ActorInsertPayload } from '@/modules/actors/interface';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { Actor, ActorInsertPayload, ActorUpdatePayload } from '@/modules/actors/interface';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import { BaseStatus } from '@/modules/base/interface';
+import useDataFetching from '@/hook/useDataFetching';
 
 export const ACTOR_QUERY_KEY = 'actors';
 
@@ -51,3 +52,60 @@ export const useCreateActor = () => {
         },
     });
 };
+
+/**
+ * Update actor
+ */
+const updateActor = ({ id, payload }: {
+    id: number,
+    payload: ActorUpdatePayload
+}): Promise<SuccessResponse<Actor>> => {
+    return httpRepository.put<Actor, ActorUpdatePayload>(`/admin/v1/actors/${id}`, payload);
+};
+
+export const useUpdateActor = () => {
+    return useMutation({
+        mutationFn: updateActor,
+        onSuccess: (res) => {
+            toast.success(res.message);
+        },
+    });
+};
+
+/**
+ * Fetch actor by code
+ */
+const fetchActorByCode = (code: string): Promise<SuccessResponse<Actor>> => {
+    return httpRepository.get<Actor>(`/admin/v1/actors/${code}`);
+};
+
+export const useActorByCode = (code: string) => {
+    return useDataFetching(
+        [ACTOR_QUERY_KEY, code],
+        () => fetchActorByCode(code),
+        { enabled: !!code },
+    );
+};
+
+/**
+ * Delete actor by id
+ */
+const deleteActor = (id: number): Promise<SuccessResponse<void>> => {
+    return httpRepository.delete<void>(`/admin/v1/actors/${id}`);
+};
+
+export const useDeleteActor = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: deleteActor,
+        onSuccess: async (res) => {
+            await queryClient.invalidateQueries({ queryKey: [ACTOR_QUERY_KEY] });
+            toast.success(res.message);
+        },
+        onError: (error) => {
+            toast.error('Xóa sản phẩm thất bại');
+            console.error('Delete ticket price error:', error);
+        },
+    });
+};
+

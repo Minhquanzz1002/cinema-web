@@ -13,6 +13,8 @@ interface FetchAllOrdersParams {
     page?: number;
     status?: OrderStatus;
     code?: string;
+    fromDate?: string;
+    toDate?: string;
 }
 
 const findAllOrders = (params: FetchAllOrdersParams): Promise<SuccessResponse<PageObject<BaseOrder>>> => {
@@ -20,6 +22,8 @@ const findAllOrders = (params: FetchAllOrdersParams): Promise<SuccessResponse<Pa
         page: params.page?.toString() || '0',
         status: params.status,
         code: params.code,
+        fromDate: params.fromDate,
+        toDate: params.toDate,
     });
 };
 

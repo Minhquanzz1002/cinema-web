@@ -1,243 +1,81 @@
 'use client';
-import React, { useCallback, useEffect, useState } from 'react';
-import { ColumnDef, Row } from '@tanstack/table-core';
+import React, { useEffect, useState } from 'react';
+import { ColumnDef } from '@tanstack/table-core';
 import Image from 'next/image';
-import { MdOutlineFormatListBulleted } from 'react-icons/md';
-import Link from 'next/link';
-import { FaEdit } from 'react-icons/fa';
-import { LuTrash } from 'react-icons/lu';
 import Card from '@/components/Admin/Card';
-import { GoSearch } from 'react-icons/go';
-import { FaFileImport, FaPlus } from 'react-icons/fa6';
-import { RiFileExcel2Line } from 'react-icons/ri';
 import Table from '@/components/Admin/Tables';
 import { exportToExcel } from '@/utils/exportToExcel';
 import avatar from '/public/img/avatar/avt.png';
-import {
-    AdminPromotionLineOverview,
-    AdminPromotionOverview,
-    PromotionLineTypeVietnamese,
-} from '@/modules/promotions/interface';
+import { AdminPromotionOverview } from '@/modules/promotions/interface';
 import { formatDateToLocalDate } from '@/utils/formatDate';
-import usePagination from '@/hook/usePagination';
-import { useAllPromotions } from '@/modules/promotions/repository';
+import { useAllPromotions, useDeletePromotion } from '@/modules/promotions/repository';
 import BaseStatusBadge from '@/components/Admin/Badge/BaseStatusBadge';
 import ButtonAction from '@/components/Admin/ButtonAction';
+import { Form, Formik } from 'formik';
+import Typography from '@/components/Admin/Typography';
+import Input from '@/components/Admin/Filters/Input';
+import Select from '@/components/Admin/Filters/Select';
+import AutoSubmitForm from '@/components/Admin/AutoSubmitForm';
+import useFilterPagination, { PaginationState } from '@/hook/useFilterPagination';
+import { BaseStatus, BaseStatusVietnamese } from '@/modules/base/interface';
+import useDeleteModal from '@/hook/useDeleteModal';
+import HighlightedText from '@/components/Admin/ModalDeleteAlert/HighlightedText';
+import ModalDeleteAlert from '@/components/Admin/ModalDeleteAlert';
+import RangePicker from '@/components/Admin/RangePicker';
+import dayjs from 'dayjs';
+
+
+interface PromotionFilter extends PaginationState {
+    search: string;
+    status: 'ALL' | BaseStatus;
+    startDate?: Date;
+    endDate?: Date;
+}
 
 const PromotionPage = () => {
-    const [page, setPage] = useState(0);
+    const [filters, setFilters] = useState<PromotionFilter>({
+        page: 1,
+        search: '',
+        status: 'ALL',
+    });
 
     const promotionsQuery = useAllPromotions({
-        page,
-        name: undefined,
-        code: undefined,
+        page: filters.page - 1,
+        search: filters.search,
+        status: filters.status === 'ALL' ? undefined : filters.status,
+        startDate: filters.startDate ? dayjs(filters.startDate).format('YYYY-MM-DD') : undefined,
+        endDate: filters.endDate ? dayjs(filters.endDate).format('YYYY-MM-DD') : undefined,
     });
+
+    const deletePromotion = useDeletePromotion();
 
     const {
+        data: promotions,
         currentPage,
         totalPages,
-        data: promotions,
-        onChangePage,
-    } = usePagination<AdminPromotionOverview>({
+        isLoading,
+        onFilterChange,
+        onPageChange,
+    } = useFilterPagination({
         queryResult: promotionsQuery,
-        initialPage: 1,
+        initialFilters: filters,
+        onFilterChange: setFilters,
     });
 
-    const handlePageChange = useCallback((newPage: number) => {
-        setPage(newPage - 1);
-        onChangePage(newPage);
-    }, [onChangePage]);
+    const deleteModal = useDeleteModal<AdminPromotionOverview>({
+        onDelete: async (promotion: AdminPromotionOverview) => {
+            await deletePromotion.mutateAsync(promotion.id);
+        },
+        onSuccess: () => {
+            setFilters((prev) => ({ ...prev, page: 1 }));
+        },
+        canDelete: (promotion) => promotion.status !== BaseStatus.ACTIVE,
+        unableDeleteMessage: 'Không thể khuyến mãi đang hoạt động',
+    });
 
     useEffect(() => {
         document.title = 'B&Q Cinema - Khuyến mãi';
     }, []);
-
-    const promotionLineColumns = React.useMemo<ColumnDef<AdminPromotionLineOverview>[]>(
-        () => [
-            {
-                accessorKey: 'code',
-                header: 'Mã khuyến mãi',
-            },
-            {
-                accessorKey: 'name',
-                cell: ({ row }) => (
-                    <div>
-                        <div>{row.original.name}</div>
-                        {/*<div className="text-sm text-gray-800 font-normal">Mô tả: {row.original.description || "Chưa cập nhật"}</div>*/}
-                    </div>
-                ),
-                header: 'Tên',
-            },
-            {
-                accessorKey: 'type',
-                cell: ({ row }) => <span>{PromotionLineTypeVietnamese[row.original.type]}</span>,
-                header: 'Loại',
-            },
-            {
-                accessorKey: 'startDate',
-                cell: ({ row }) => <span>{formatDateToLocalDate(row.original.startDate)}</span>,
-                header: 'Bắt đầu',
-            },
-            {
-                accessorKey: 'endDate',
-                cell: ({ row }) => <span>{formatDateToLocalDate(row.original.endDate)}</span>,
-                header: 'Kết thúc',
-            },
-            {
-                accessorKey: 'status',
-                cell: ({ row }) => <BaseStatusBadge status={row.original.status} />,
-                header: 'Trạng thái',
-            },
-            {
-                accessorKey: 'actions',
-                header: () => '',
-                cell: () => (
-                    <div className="inline-flex gap-2 items-center">
-                        <Link href="#" type="button" className="text-blue-500">
-                            <FaEdit size={18} />
-                        </Link>
-                        <button type="button" className="text-red-500">
-                            <LuTrash size={18} />
-                        </button>
-                    </div>
-                ),
-                enableSorting: false,
-            },
-        ],
-        [],
-    );
-
-    // const promotionDetailColumns = React.useMemo<ColumnDef<AdminPromotionDetailOverview>[]>(
-    //     () => [
-    //         {
-    //             header: 'Thông tin giảm giá',
-    //             columns: [
-    //                 {
-    //                     accessorKey: 'discountValue',
-    //                     header: 'Giá trị giảm',
-    //                     cell: ({ row }) => `${row.original.discountValue}%`,
-    //                 },
-    //                 {
-    //                     accessorKey: 'maxDiscountValue',
-    //                     header: 'Giảm tối đa',
-    //                     cell: ({ row }) => `${row.original.maxDiscountValue.toLocaleString()} VND`,
-    //                 },
-    //                 {
-    //                     accessorKey: 'minOrderValue',
-    //                     header: 'Đơn tối thiểu',
-    //                     cell: ({ row }) => `${row.original.minOrderValue.toLocaleString()} VND`,
-    //                 },
-    //             ],
-    //         },
-    //         {
-    //             header: 'Điều kiện áp dụng',
-    //             columns: [
-    //                 // {
-    //                 //     accessorKey: 'requiredProduct',
-    //                 //     header: 'Sản phẩm yêu cầu',
-    //                 //     cell: ({ row }) => row.original.requiredProduct.name,
-    //                 // },
-    //                 {
-    //                     accessorKey: 'requiredProductQuantity',
-    //                     header: 'Số lượng',
-    //                 },
-    //                 {
-    //                     accessorKey: 'requiredSeatType',
-    //                     header: 'Loại ghế',
-    //                 },
-    //                 {
-    //                     accessorKey: 'requiredSeatQuantity',
-    //                     header: 'Số lượng ghế',
-    //                 },
-    //             ],
-    //         },
-    //         {
-    //             header: 'Giới hạn sử dụng',
-    //             columns: [
-    //                 {
-    //                     accessorKey: 'usageLimit',
-    //                     header: 'Giới hạn',
-    //                 },
-    //                 {
-    //                     accessorKey: 'currentUsageCount',
-    //                     header: 'Đã sử dụng',
-    //                 },
-    //             ],
-    //         },
-    //         {
-    //             accessorKey: 'status',
-    //             cell: ({ row }) => <BaseStatusBadge status={row.original.status} />,
-    //             header: 'Trạng thái',
-    //         },
-    //         {
-    //             accessorKey: 'actions',
-    //             header: () => '',
-    //             cell: () => (
-    //                 <div className="inline-flex gap-2 items-center">
-    //                     <Link href="#" type="button" className="text-blue-500">
-    //                         <FaEdit size={18} />
-    //                     </Link>
-    //                     <button type="button" className="text-red-500">
-    //                         <LuTrash size={18} />
-    //                     </button>
-    //                 </div>
-    //             ),
-    //             enableSorting: false,
-    //         },
-    //     ],
-    //     [],
-    // );
-
-    const renderSubComponent = React.useCallback(
-        ({ row }: { row: Row<AdminPromotionOverview> }) => (
-            <div className="pl-6 py-4 border-l-2 ">
-                <div>
-                    <Table<AdminPromotionLineOverview> data={row.original.promotionLines}
-                                                       columns={promotionLineColumns}
-                                                       currentPage={currentPage}
-                                                       totalPages={totalPages}
-                                                       onChangePage={handlePageChange}
-                                                       showAllData={true}
-                                                       // isExpandable={true}
-                                                       // renderSubComponent={renderPromotionDetail}
-                    >
-                        <div className="flex justify-between items-center">
-                            <div className="font-semibold">Danh sách chương trình:</div>
-                            <div>
-                                <ButtonAction.Add text="Thêm chương trình" />
-                            </div>
-                        </div>
-                    </Table>
-                </div>
-            </div>
-        ),
-        [],
-    );
-
-    // const renderPromotionDetail = React.useCallback(
-    //     ({ row }: { row: Row<AdminPromotionLineOverview> }) => (
-    //         <div className="pl-6 py-4 border-l-2 ">
-    //             <div>
-    //                 <Table<AdminPromotionDetailOverview> data={row.original.promotionDetails}
-    //                                                      columns={promotionDetailColumns}
-    //                                                      currentPage={currentPage}
-    //                                                      totalPages={totalPages}
-    //                                                      onChangePage={handlePageChange}
-    //                                                      showAllData={true}
-    //                                                      containerClassName="!px-0"
-    //                 >
-    //                     <div className="flex justify-between items-center">
-    //                         <div className="font-semibold">Danh sách chương trình:</div>
-    //                         <div>
-    //                             <ButtonAction.Add text="Thêm hàng mới" />
-    //                         </div>
-    //                     </div>
-    //                 </Table>
-    //             </div>
-    //         </div>
-    //     ),
-    //     [],
-    // );
 
     const columns = React.useMemo<ColumnDef<AdminPromotionOverview>[]>(
         () => [
@@ -257,17 +95,9 @@ const PromotionPage = () => {
                     );
                 },
                 header: 'Ảnh',
-                enableSorting: false,
             },
             {
                 accessorKey: 'name',
-                cell: ({ row }) => (
-                    <div>
-                        <div>{row.original.name}</div>
-                        <div className="text-sm text-gray-800 font-normal">Mô
-                            tả: {row.original.description || 'Chưa cập nhật'}</div>
-                    </div>
-                ),
                 header: 'Tên',
             },
             {
@@ -288,20 +118,16 @@ const PromotionPage = () => {
             {
                 accessorKey: 'actions',
                 header: () => '',
-                cell: () => (
-                    <div className="inline-flex gap-2 items-center">
-                        <Link href="#" type="button" className="text-blue-500">
-                            <FaEdit size={18} />
-                        </Link>
-                        <button type="button" className="text-red-500">
-                            <LuTrash size={18} />
-                        </button>
+                cell: ({ row }) => (
+                    <div className="flex gap-2 items-center justify-end">
+                        <ButtonAction.View href={`/admin/promotions/${row.original.code}`} />
+                        <ButtonAction.Update href={`/admin/promotions/${row.original.code}/edit`} />
+                        <ButtonAction.Delete onClick={() => deleteModal.openDeleteModal(row.original)} />
                     </div>
                 ),
-                enableSorting: false,
             },
         ],
-        [],
+        [deleteModal],
     );
 
     const handleExportExcel = async () => {
@@ -312,43 +138,52 @@ const PromotionPage = () => {
         <>
             <div className="mt-3">
                 <Card extra={`mb-5 h-full w-full px-6 py-4`}>
-                    <div className="flex items-center justify-between">
-                        <div className="flex gap-x-2">
-                            <div
-                                className="flex flex-nowrap items-center border h-9 px-3 rounded gap-x-1 focus-within:shadow-xl focus-within:border-brand-500 dark:text-white text-gray-500">
-                                <GoSearch />
-                                <input type="search" className="outline-none w-[300px] text-sm bg-white/0"
-                                       placeholder="Tìm theo mã hoặc theo tên (/)" />
-                                <button type="button" title="Lọc theo danh mục">
-                                    <MdOutlineFormatListBulleted />
-                                </button>
-                            </div>
-                        </div>
+                    <div className="flex items-center justify-end">
 
                         <div className="flex gap-2 h-9">
-                            <Link href={'/admin/movies/new'}
-                                  className="bg-brand-500 py-1.5 px-2 rounded flex items-center justify-center text-white gap-x-2 text-sm">
-                                <FaPlus className="h-4 w-4" /> Thêm
-                            </Link>
-                            <button type="button"
-                                // onClick={() => setShowImportModal(true)}
-                                    className="bg-brand-500 py-1.5 px-2 rounded flex items-center justify-center text-white gap-x-2 text-sm">
-                                <FaFileImport className="h-4 w-4" /> Import
-                            </button>
-                            <button type="button"
-                                    onClick={handleExportExcel}
-                                    className="bg-brand-500 py-1.5 px-2 rounded flex items-center justify-center text-white gap-x-2 text-sm">
-                                <RiFileExcel2Line className="h-5 w-5" /> Export
-                            </button>
+                            <ButtonAction.Add href="/admin/promotions/new" />
+                            <ButtonAction.Import />
+                            <ButtonAction.Export onClick={handleExportExcel} />
                         </div>
                     </div>
                 </Card>
-                <Table<AdminPromotionOverview> data={promotions} columns={columns} currentPage={currentPage}
-                                               totalPages={totalPages}
-                                               renderSubComponent={renderSubComponent}
-                                               onChangePage={handlePageChange} isExpandable={true}
-                />
+                <Card className="py-4">
+                    <Formik initialValues={filters} onSubmit={onFilterChange} enableReinitialize>
+                        <Form>
+                            <div className="px-4 pb-3">
+                                <Typography.Title level={4}>Bộ lọc</Typography.Title>
+                                <div className="grid grid-cols-3 gap-4">
+                                    <Input name="search" placeholder="Mã hoặc tên khuyến mãi" />
+                                    <RangePicker startName="startDate" endName="endDate" />
+                                    <Select name="status"
+                                            options={[
+                                                { label: 'Tất cả', value: 'ALL' },
+                                                ...Object.keys(BaseStatus).map((status) => ({
+                                                    label: BaseStatusVietnamese[status as BaseStatus],
+                                                    value: status,
+                                                })),
+                                            ]}
+                                    />
+                                </div>
+                            </div>
+                            <AutoSubmitForm />
+                        </Form>
+                    </Formik>
+                    <Table<AdminPromotionOverview> data={promotions} columns={columns} currentPage={currentPage}
+                                                   totalPages={totalPages}
+                                                   isLoading={isLoading}
+                                                   onChangePage={onPageChange}
+                    />
+                </Card>
             </div>
+
+            <ModalDeleteAlert onConfirm={deleteModal.handleDelete}
+                              onClose={deleteModal.closeDeleteModal}
+                              isOpen={deleteModal.showDeleteModal}
+                              title="Xác nhận xóa?"
+                              content={<>Bạn có chắc chắn muốn xóa khuyến
+                                  mãi <HighlightedText>{deleteModal.selectedData?.name}</HighlightedText> không?</>}
+            />
         </>
     );
 };

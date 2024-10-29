@@ -1,11 +1,13 @@
 import { Genre, GenreFilter } from '@/modules/genres/interface';
 import { Actor, ActorFilter } from '@/modules/actors/interface';
 import { Producer, ProducerFilter } from '@/modules/producers/interface';
+import { Director } from '@/modules/directors/interface';
 
 export interface MovieFilter {
     genres: GenreFilter[];
     actors: ActorFilter[];
     producers: ProducerFilter[];
+    directors: ProducerFilter[];
 }
 
 export enum MovieStatus {
@@ -32,7 +34,7 @@ export enum AgeRating {
 }
 
 export interface AdminMovie {
-    id: string;
+    id: number;
     code: string;
     country: string;
     duration: number;
@@ -57,4 +59,5 @@ export interface Movie extends AdminMovie{
     genres: Genre[];
     producers: Producer[];
     actors: Actor[];
+    directors: Director[];
 }

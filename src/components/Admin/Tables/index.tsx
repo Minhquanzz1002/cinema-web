@@ -60,7 +60,7 @@ const Table = <T, >({
                     cell: ({ row }) => (
                         <button
                             title={row.getIsExpanded() ? 'Thu gọn' : 'Mở rộng'}
-                            className={`border rounded h-7 aspect-square flex items-center justify-center text-brand-500`}
+                            className={`border rounded h-7 aspect-square flex items-center justify-center text-brand-500 bg-white`}
                             {...{
                                 onClick: (e) => {
                                     e.stopPropagation();
@@ -137,7 +137,7 @@ const Table = <T, >({
                             table.getRowModel().rows.map(row => {
                                 return (
                                     <React.Fragment key={row.id}>
-                                        <tr className={`border-t last-of-type:border-b`}>
+                                        <tr className={`border-t last-of-type:border-b ${isExpandable && row.getIsExpanded() ? 'bg-gray-100' : ''}`}>
                                             {row.getVisibleCells().map(cell => {
                                                 return (
                                                     <td key={cell.id}
@@ -153,7 +153,7 @@ const Table = <T, >({
                                         {
                                             isExpandable && row.getIsExpanded() && renderSubComponent && (
                                                 <tr>
-                                                    <td colSpan={expandableColumns.length}>
+                                                    <td colSpan={expandableColumns.length} className="p-0">
                                                         {renderSubComponent({ row })}
                                                     </td>
                                                 </tr>

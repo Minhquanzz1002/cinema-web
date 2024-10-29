@@ -5,11 +5,10 @@ import Table from '@/components/Admin/Tables';
 import Card from '@/components/Admin/Card';
 import { BsGrid3X3Gap } from 'react-icons/bs';
 import { PiListBold } from 'react-icons/pi';
-import FilterModal from '@/components/Admin/Pages/Movies/FilterModal';
 import ImportModal from '@/components/Admin/Pages/Movies/ImportModal';
 import { exportToExcel } from '@/utils/exportToExcel';
 import { AdminMovie, AgeRating, MovieStatus, MovieStatusVietnamese } from '@/modules/movies/interface';
-import { useAllMovies } from '@/modules/movies/repository';
+import { useAllMovies, useDeleteMovie } from '@/modules/movies/repository';
 import Image from 'next/image';
 import { ButtonSquare } from '@/components/Admin/Button';
 import MovieStatusBadge from '@/components/Admin/Badge/MovieStatusBadge';
@@ -20,6 +19,9 @@ import Input from '@/components/Admin/Filters/Input';
 import Select from '@/components/Admin/Filters/Select';
 import AutoSubmitForm from '@/components/Admin/AutoSubmitForm';
 import useFilterPagination, { PaginationState } from '@/hook/useFilterPagination';
+import useDeleteModal from '@/hook/useDeleteModal';
+import ModalDeleteAlert from '@/components/Admin/ModalDeleteAlert';
+import HighlightedText from '@/components/Admin/ModalDeleteAlert/HighlightedText';
 
 interface MovieFilter extends PaginationState {
     search: string;
@@ -37,6 +39,9 @@ const MoviePage = () => {
         status: MovieStatus.ACTIVE,
     });
 
+    /**
+     * React query
+     */
     const moviesQuery = useAllMovies({
         page: filters.page - 1,
         search: filters.search,
@@ -44,7 +49,11 @@ const MoviePage = () => {
         ageRating: filters.ageRating === 'ALL' ? undefined : filters.ageRating,
         status: filters.status === 'ALL' ? undefined : filters.status,
     });
+    const deleteMovieMutation = useDeleteMovie();
 
+    /**
+     * Custom hooks CRUD
+     */
     const {
         data: movies,
         currentPage,
@@ -58,8 +67,18 @@ const MoviePage = () => {
         onFilterChange: setFilters,
     });
 
+    const deleteModal = useDeleteModal<AdminMovie>({
+        onDelete: async (movie: AdminMovie) => {
+            await deleteMovieMutation.mutateAsync(movie.id);
+        },
+        onSuccess: () => {
+            setFilters((prev) => ({ ...prev, page: 1 }));
+        },
+        canDelete: (movie) => movie.status !== MovieStatus.ACTIVE,
+        unableDeleteMessage: 'Không thể xóa phim đang chiếu',
+    });
+
     const [displayType, setDisplayType] = useState<'Grid' | 'Table'>('Table');
-    const [showFilter, setShowFilter] = useState<boolean>(false);
     const [showImportModal, setShowImportModal] = useState<boolean>(false);
 
     useEffect(() => {
@@ -123,13 +142,13 @@ const MoviePage = () => {
                 cell: ({ row }) => (
                     <div className="flex gap-2 items-center justify-end">
                         <ButtonAction.View href={`/admin/movies/${row.original.code}`} />
-                        <ButtonAction.Update />
-                        <ButtonAction.Delete />
+                        <ButtonAction.Update href={`/admin/movies/${row.original.code}/edit`}/>
+                        <ButtonAction.Delete onClick={() => deleteModal.openDeleteModal(row.original)} />
                     </div>
                 ),
             },
         ],
-        [],
+        [deleteModal],
     );
 
 
@@ -153,9 +172,9 @@ const MoviePage = () => {
                         </div>
 
                         <div className="flex gap-2 h-9">
-                            <ButtonAction.Add text="Thêm phim mới" href="/admin/movies/new"/>
-                            <ButtonAction.Import onClick={() => setShowImportModal(true)}/>
-                            <ButtonAction.Export onClick={handleExportExcel}/>
+                            <ButtonAction.Add text="Thêm phim mới" href="/admin/movies/new" />
+                            <ButtonAction.Import onClick={() => setShowImportModal(true)} />
+                            <ButtonAction.Export onClick={handleExportExcel} />
                         </div>
                     </div>
                 </Card>
@@ -171,10 +190,10 @@ const MoviePage = () => {
                                             placeholder="Lọc theo trạng thái"
                                             options={[
                                                 { label: 'Tất cả trạng thái', value: 'ALL' },
-                                                {
-                                                    label: MovieStatusVietnamese[MovieStatus.ACTIVE],
-                                                    value: MovieStatus.ACTIVE,
-                                                },
+                                                ...Object.values(MovieStatus).map(value => ({
+                                                    label: MovieStatusVietnamese[value],
+                                                    value,
+                                                })),
                                             ]}
                                     />
                                     <Select name="ageRating"
@@ -184,7 +203,7 @@ const MoviePage = () => {
                                                 ...Object.values(AgeRating).map(value => ({
                                                     label: value,
                                                     value,
-                                                }))
+                                                })),
                                             ]}
                                     />
                                 </div>
@@ -199,11 +218,14 @@ const MoviePage = () => {
                 </Card>
             </div>
             {
-                showFilter && (<FilterModal onClose={() => setShowFilter(false)} />)
-            }
-            {
                 showImportModal && <ImportModal onClose={() => setShowImportModal(false)} />
             }
+            <ModalDeleteAlert onConfirm={deleteModal.handleDelete}
+                              onClose={deleteModal.closeDeleteModal}
+                              isOpen={deleteModal.showDeleteModal}
+                              title="Xác nhận xóa?"
+                              content={<>Bạn có chắc chắn muốn xóa phim <HighlightedText>{deleteModal.selectedData?.title}</HighlightedText> không?</>}
+            />
         </>
     );
 };

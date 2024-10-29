@@ -28,3 +28,12 @@ export interface ActorInsertPayload {
     status: BaseStatus;
     image: string;
 }
+
+export interface ActorUpdatePayload {
+    name: string;
+    bio?: string;
+    birthday?: string;
+    country?: string;
+    status: BaseStatus;
+    image: string;
+}
