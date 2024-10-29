@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { ColumnDef, Row } from '@tanstack/table-core';
+import { ColumnDef } from '@tanstack/table-core';
 import Image from 'next/image';
 import Card from '@/components/Admin/Card';
 import { ButtonSquare } from '@/components/Admin/Button';
@@ -13,23 +13,23 @@ import { useAllProducts, useDeleteProduct } from '@/modules/products/repository'
 import { formatNumberToCurrency } from '@/utils/formatNumber';
 import ProductStatusBadge from '@/components/Admin/Badge/ProductStatusBadge';
 import ButtonAction from '@/components/Admin/ButtonAction';
-import { toast } from 'react-toastify';
-import ModalAlert from '@/components/Admin/ModalAlert';
 import { Form, Formik } from 'formik';
 import Input from '@/components/Admin/Filters/Input';
 import Typography from '@/components/Admin/Typography';
 import AutoSubmitForm from '@/components/Admin/AutoSubmitForm';
 import Select from '@/components/Admin/Filters/Select';
 import useFilterPagination, { PaginationState } from '@/hook/useFilterPagination';
+import useDeleteModal from '@/hook/useDeleteModal';
+import ModalDeleteAlert from '@/components/Admin/ModalDeleteAlert';
+import HighlightedText from '@/components/Admin/ModalDeleteAlert/HighlightedText';
 
-interface ProductFilter extends PaginationState{
+interface ProductFilter extends PaginationState {
     search: string;
     status: string | ProductStatus;
 }
 
 const ProductPage = () => {
     const [displayType, setDisplayType] = useState<'Grid' | 'Table'>('Table');
-    const [productToDelete, setProductToDelete] = useState<BaseProductWithPrice | null>(null);
     const deleteProduct = useDeleteProduct();
     const initialFilters: ProductFilter = {
         page: 1,
@@ -45,17 +45,28 @@ const ProductPage = () => {
         status: filters.status === 'ALL' ? undefined : filters.status as ProductStatus,
     });
 
+    const deleteModal = useDeleteModal<BaseProductWithPrice>({
+        onDelete: async (product: BaseProductWithPrice) => {
+            await deleteProduct.mutateAsync(product.code);
+        },
+        onSuccess: () => {
+            setFilters((prev) => ({ ...prev, page: 1 }));
+        },
+        canDelete: (product) => product.status !== ProductStatus.ACTIVE,
+        unableDeleteMessage: 'Không thể xóa sản phẩm đang hoạt động',
+    });
+
     const {
         data: products,
         currentPage,
         totalPages,
         isLoading,
         onFilterChange,
-        onPageChange
+        onPageChange,
     } = useFilterPagination({
         queryResult: productsQuery,
         initialFilters: filters,
-        onFilterChange: setFilters
+        onFilterChange: setFilters,
     });
 
     useEffect(() => {
@@ -109,34 +120,16 @@ const ProductPage = () => {
                     <div className="inline-flex gap-2 items-center">
                         <ButtonAction.View href={`/admin/products/${row.original.code}`} />
                         <ButtonAction.Update href={`/admin/products/${row.original.code}/edit`} />
-                        <ButtonAction.Delete onClick={() => handleClickDeleteProduct(row)} />
+                        <ButtonAction.Delete onClick={() => deleteModal.openDeleteModal(row.original)} />
                     </div>
                 ),
             },
         ],
-        [],
+        [deleteModal],
     );
 
     const handleExportExcel = async () => {
         await exportToExcel<BaseProductWithPrice>(products, 'products.xlsx');
-    };
-
-    const handleClickDeleteProduct = (row: Row<BaseProductWithPrice>) => {
-        if (row.original.status === ProductStatus.ACTIVE) {
-            toast.warning('Không thể xóa sản phẩm đang hoạt động');
-            return;
-        } else {
-            setProductToDelete(row.original);
-        }
-    };
-
-    const handleDeleteProduct = async (product: BaseProductWithPrice) => {
-        try {
-            await deleteProduct.mutateAsync(product.code);
-            setProductToDelete(null);
-        } catch (error) {
-            console.error(error);
-        }
     };
 
     return (
@@ -196,20 +189,15 @@ const ProductPage = () => {
                 </Card>
             </div>
 
-            {
-                productToDelete && (
-                    <ModalAlert onClose={() => setProductToDelete(null)}
-                                title="Xóa sản phẩm?"
-                                content={`Bạn có chắc chắn muốn xóa sản phẩm \`${productToDelete.name}\` này không?`}
-                                footer={
-                                    <div className="flex justify-center items-center gap-3 mt-4">
-                                        <ButtonAction.Cancel onClick={() => setProductToDelete(null)} />
-                                        <ButtonAction.SubmitDelete onClick={() => handleDeleteProduct(productToDelete)} />
-                                    </div>
-                                }
-                    />
-                )
-            }
+            <ModalDeleteAlert onClose={deleteModal.closeDeleteModal}
+                              onConfirm={deleteModal.handleDelete}
+                              isOpen={deleteModal.showDeleteModal}
+                              title="Xóa sản phẩm?"
+                              content={
+                                  <>Bạn có chắc chắn muốn xóa sản
+                                      phẩm <HighlightedText>{deleteModal.selectedData?.name}</HighlightedText> không?</>
+                              }
+            />
         </>
     );
 };

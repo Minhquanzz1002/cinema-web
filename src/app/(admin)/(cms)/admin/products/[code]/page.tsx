@@ -23,9 +23,14 @@ import { Form, Formik } from 'formik';
 import Select from '@/components/Admin/Filters/Select';
 import AutoSubmitForm from '@/components/Admin/AutoSubmitForm';
 import { BaseStatus, BaseStatusVietnamese } from '@/modules/base/interface';
+import NotFound from '@/components/Admin/NotFound';
+import dayjs from 'dayjs';
+import RangePicker from '@/components/Admin/RangePicker';
 
 interface ProductPriceFilter extends PaginationState {
     status: BaseStatus | 'ALL';
+    startDate?: Date;
+    endDate?: Date;
 }
 
 const ProductDetailPage = () => {
@@ -46,7 +51,9 @@ const ProductDetailPage = () => {
     const productPricesQuery = useAllProductPriceHistories({
         code,
         page: filters.page - 1,
-        status: filters.status === 'ALL' ? undefined : filters.status
+        status: filters.status === 'ALL' ? undefined : filters.status,
+        startDate: filters.startDate ? dayjs(filters.startDate).format('YYYY-MM-DD') : undefined,
+        endDate: filters.endDate ? dayjs(filters.endDate).format('YYYY-MM-DD') : undefined,
     });
 
     const {
@@ -55,11 +62,11 @@ const ProductDetailPage = () => {
         totalPages,
         isLoading,
         onFilterChange,
-        onPageChange
+        onPageChange,
     } = useFilterPagination({
         queryResult: productPricesQuery,
         initialFilters: filters,
-        onFilterChange: setFilters
+        onFilterChange: setFilters,
     });
 
 
@@ -124,9 +131,13 @@ const ProductDetailPage = () => {
         [],
     );
 
-    if (!product) return (
+    if (isLoading) return (
         <Loader />
     );
+
+    if (!product) {
+        return <NotFound />;
+    }
 
     return (
         <>
@@ -182,6 +193,7 @@ const ProductDetailPage = () => {
                                                 },
                                             ]}
                                     />
+                                    <RangePicker startName="startDate" endName="endDate" />
                                 </div>
                             </div>
                             <AutoSubmitForm />

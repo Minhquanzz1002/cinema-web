@@ -11,7 +11,7 @@ type DeleteButtonProps = {
 
 type UpdateButtonProps = {
     href?: string;
-    onClick?: MouseEventHandler<HTMLButtonElement>
+    onClick?: MouseEventHandler<HTMLButtonElement>;
 }
 
 type ViewButtonProps = {
@@ -34,7 +34,8 @@ type ExportButtonProps = {
 }
 
 type SubmitButtonProps = {
-    onClick?: MouseEventHandler<HTMLButtonElement>
+    onClick?: MouseEventHandler<HTMLButtonElement>;
+    text?: string;
 }
 
 type SubmitDeleteButtonProps = {
@@ -119,11 +120,13 @@ const ButtonAction = {
             </button>
         );
     },
-    Submit: ({ onClick }: SubmitButtonProps) => {
+    Submit: ({ onClick, text = "Xác nhận" }: SubmitButtonProps) => {
         return (
             <button
                 className="bg-brand-500 py-1.5 px-2 rounded flex items-center justify-center text-white gap-x-2 text-sm"
-                onClick={onClick} type="submit">Xác nhận</button>
+                onClick={onClick} type="submit">
+                {text}
+            </button>
         );
     },
     SubmitDelete: ({ onClick }: SubmitDeleteButtonProps) => {

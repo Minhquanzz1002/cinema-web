@@ -1,26 +1,31 @@
-"use client";
-import React, {useRef, useState} from 'react';
+'use client';
+import React, { useRef } from 'react';
 import dynamic from 'next/dynamic';
-// import JoditEditor from "jodit-react";
-const JoditEditor = dynamic(() => import("jodit-react"), {ssr: false});
+import { useField } from 'formik';
 
-const Editor = () => {
+const JoditEditor = dynamic(() => import('jodit-react'), { ssr: false });
+
+type EditorProps = {
+    name: string;
+}
+
+const Editor = ({ name }: EditorProps) => {
     const editor = useRef(null);
-    const [content, setContent] = useState<string>('');
+    const [field, , helpers] = useField(name);
     const config = {
         readonly: false,
-        placeholder: "",
-        removeButtons: ["print", "spellcheck", "symbols", "ai-commands", "paragraph", "preview", "speechRecognize", "eraser"],
-        height: "300px",
+        placeholder: '',
+        removeButtons: ['print', 'spellcheck', 'symbols', 'ai-commands', 'paragraph', 'preview', 'speechRecognize', 'eraser'],
+        height: '300px',
     };
 
     return (
         <div>
             <JoditEditor
-                value={content}
+                value={field.value}
                 ref={editor}
                 config={config}
-                onBlur={(newContent: string) => setContent(newContent)}
+                onBlur={(newContent: string) => helpers.setValue(newContent)}
             />
         </div>
     );

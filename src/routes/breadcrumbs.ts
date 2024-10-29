@@ -38,6 +38,15 @@ export const breadcrumbs: IBreadcrumb[] = [
         ],
     },
     {
+        label: 'Cập nhật phim',
+        link: '^/admin/movies/[^/]+/edit$',
+        breadcrumbTrail: [
+            { label: 'Phim' },
+            { label: 'Danh sách phim', link: '/admin/movies' },
+            { label: 'Cập nhật' },
+        ],
+    },
+    {
         label: 'Chi tiết phim',
         link: '^/admin/movies/[^/]+$',
         breadcrumbTrail: [
@@ -53,6 +62,15 @@ export const breadcrumbs: IBreadcrumb[] = [
             { label: 'Diễn viên' },
             { label: 'Danh sách diễn viên', link: '/admin/movies/actors' },
             { label: 'Thêm diễn viên' },
+        ],
+    },
+    {
+        label: 'Cập nhật diễn viên',
+        link: '^/admin/movies/actors/[^/]+/edit$',
+        breadcrumbTrail: [
+            { label: 'Diễn viên' },
+            { label: 'Danh sách diễn viên', link: '/admin/movies/actors' },
+            { label: 'Cập nhật' },
         ],
     },
     {
@@ -77,6 +95,53 @@ export const breadcrumbs: IBreadcrumb[] = [
         breadcrumbTrail: [
             { label: 'Khuyến mãi' },
             { label: 'Danh sách khuyến mãi' },
+        ],
+    },
+    {
+        label: 'Thêm CTKM',
+        link: '^/admin/promotions/[^/]+/lines/new$',
+        breadcrumbTrail: [
+            { label: 'Khuyến mãi' },
+            { label: 'Danh sách khuyến mãi', link: '/admin/promotions' },
+            { label: 'Chi tiết', link: '/admin/promotions/[code]' },
+            { label: 'Thêm chương trình' },
+        ],
+    },
+    {
+        label: 'Cập nhật CTKM',
+        link: '^/admin/promotions/[^/]+/lines/[^/]+/edit$',
+        breadcrumbTrail: [
+            { label: 'Khuyến mãi' },
+            { label: 'Danh sách khuyến mãi', link: '/admin/promotions' },
+            { label: 'Chi tiết', link: '/admin/promotions/[code]' },
+            { label: 'Cập nhật' },
+        ],
+    },
+    {
+        label: 'Quản lý khuyến mãi',
+        link: '^/admin/promotions/new$',
+        breadcrumbTrail: [
+            { label: 'Khuyến mãi' },
+            { label: 'Danh sách khuyến mãi', link: '/admin/promotions' },
+            { label: 'Thêm mới' },
+        ],
+    },
+    {
+        label: 'Chi tiết khuyến mãi',
+        link: '^/admin/promotions/[^/]+$',
+        breadcrumbTrail: [
+            { label: 'Khuyến mãi' },
+            { label: 'Danh sách khuyến mãi', link: '/admin/promotions' },
+            { label: 'Chi tiết' },
+        ],
+    },
+    {
+        label: 'Cập nhật khuyến mãi',
+        link: '^/admin/promotions/[^/]+/edit$',
+        breadcrumbTrail: [
+            { label: 'Khuyến mãi' },
+            { label: 'Danh sách khuyến mãi', link: '/admin/promotions' },
+            { label: 'Cập nhật' },
         ],
     },
     {

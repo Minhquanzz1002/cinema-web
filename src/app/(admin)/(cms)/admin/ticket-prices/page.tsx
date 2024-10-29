@@ -1,79 +1,110 @@
 'use client';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ColumnDef, Row } from '@tanstack/table-core';
 import Card from '@/components/Admin/Card';
 import Table from '@/components/Admin/Tables';
 import { exportToExcel } from '@/utils/exportToExcel';
 import { formatDateToLocalDate, formatTime } from '@/utils/formatDate';
-import usePagination from '@/hook/usePagination';
 import BaseStatusBadge from '@/components/Admin/Badge/BaseStatusBadge';
 import {
-    AdminTicketPriceDetailOverview,
     AdminTicketPriceLineOverview,
     AdminTicketPriceOverview,
     ApplyForDayVietnamese,
 } from '@/modules/ticketPrices/interface';
-import { TICKET_PRICES_QUERY_KEY, useAllTicketPrices, useDeleteTicketPrice } from '@/modules/ticketPrices/repository';
+import { useAllTicketPrices, useDeleteTicketPrice, useDeleteTicketPriceLine } from '@/modules/ticketPrices/repository';
 import ButtonAction from '@/components/Admin/ButtonAction';
-import { SeatTypeVietnamese } from '@/modules/seats/interface';
 import ModalAddTicketPrice from '@/components/Admin/Pages/TicketPrice/ModalAddTicketPrice';
-import { useQueryClient } from '@tanstack/react-query';
-import { toast } from 'react-toastify';
-import ModalAlert from '@/components/Admin/ModalAlert';
 import ModalAddTicketPriceLine from '@/components/Admin/Pages/TicketPrice/ModalAddTicketPriceLine';
 import ModalUpdateTicketPrice from '@/components/Admin/Pages/TicketPrice/ModalUpdateTicketPrice';
+import { Form, Formik } from 'formik';
+import Typography from '@/components/Admin/Typography';
+import Input from '@/components/Admin/Filters/Input';
+import Select from '@/components/Admin/Filters/Select';
+import AutoSubmitForm from '@/components/Admin/AutoSubmitForm';
+import useFilterPagination, { PaginationState } from '@/hook/useFilterPagination';
+import { BaseStatus, BaseStatusVietnamese } from '@/modules/base/interface';
+import useDeleteModal from '@/hook/useDeleteModal';
+import ModalDeleteAlert from '@/components/Admin/ModalDeleteAlert';
+import HighlightedText from '@/components/Admin/ModalDeleteAlert/HighlightedText';
+import { SeatTypeVietnamese } from '@/modules/seats/interface';
 import { formatNumberToCurrency } from '@/utils/formatNumber';
-import ModalAddTicketPriceDetail from '@/components/Admin/Pages/TicketPrice/ModalAddTicketPriceDetail';
+import { FaPlus } from 'react-icons/fa6';
+import { LuSearch } from 'react-icons/lu';
+import ModalUpdateTicketPriceLine from '@/components/Admin/Pages/TicketPrice/ModalUpdateTicketPriceLine';
+import RangePicker from '@/components/Admin/RangePicker';
+import dayjs from 'dayjs';
+
+interface TicketPriceFilter extends PaginationState {
+    name: string;
+    startDate?: Date;
+    endDate?: Date;
+    status: BaseStatus | 'ALL';
+}
 
 const TicketPricePage = () => {
-    const queryClient = useQueryClient();
     const deleteTicketPrice = useDeleteTicketPrice();
+    const deleteTicketPriceLine = useDeleteTicketPriceLine();
+    const [filters, setFilters] = useState<TicketPriceFilter>({
+        page: 1,
+        name: '',
+        status: 'ALL',
+    });
     const [showModalAddTicketPrice, setShowModalAddTicketPrice] = useState<boolean>(false);
-    const [showModalAddTicketPriceLine, setShowModalAddTicketPriceLine] = useState<boolean>(false);
-    const [ticketPriceToDelete, setTicketPriceToDelete] = useState<AdminTicketPriceOverview | null>(null);
     const [ticketPriceToUpdate, setTicketPriceToUpdate] = useState<AdminTicketPriceOverview | null>(null);
-    const [page, setPage] = useState<number>(0);
-    const [ticketPriceId, setTicketPriceId] = useState<number>(0);
-    const [ticketPriceLineId, setTicketPriceLineId] = useState<number | null>(null);
+    const [ticketPriceToUpdateTicketPriceLine, setTicketPriceToUpdateTicketPriceLine] = useState<AdminTicketPriceOverview | null>(null);
+    const [ticketPriceLineToUpdate, setTicketPriceLineToUpdate] = useState<AdminTicketPriceLineOverview | null>(null);
+    const [ticketPriceToAddNewLine, setTicketPriceToAddNewLine] = useState<AdminTicketPriceOverview | null>(null);
 
     const ticketPricesQuery = useAllTicketPrices({
-        page,
-        name: undefined,
+        page: filters.page - 1,
+        name: filters.name,
+        startDate: filters.startDate ? dayjs(filters.startDate).format('YYYY-MM-DD') : undefined,
+        endDate: filters.endDate ? dayjs(filters.endDate).format('YYYY-MM-DD') : undefined,
+        status: filters.status === 'ALL' ? undefined : filters.status,
     });
 
+    /**
+     * Custom hooks CRUD
+     */
     const {
+        data: ticketPrices,
         currentPage,
         totalPages,
-        data: ticketPrices,
-        onChangePage,
-    } = usePagination<AdminTicketPriceOverview>({
+        isLoading,
+        onFilterChange,
+        onPageChange,
+    } = useFilterPagination({
         queryResult: ticketPricesQuery,
-        initialPage: 1,
+        initialFilters: filters,
+        onFilterChange: setFilters,
     });
 
-    const handlePageChange = useCallback((newPage: number) => {
-        setPage(newPage - 1);
-        onChangePage(newPage);
-    }, [onChangePage]);
+    const deleteTicketPriceModal = useDeleteModal<AdminTicketPriceOverview>({
+        onDelete: async (ticketPrice) => {
+            await deleteTicketPrice.mutateAsync(ticketPrice.id);
+        },
+        onSuccess: () => {
+            setFilters((prev) => ({ ...prev, page: 1 }));
+        },
+        canDelete: (ticketPrice) => ticketPrice.status !== BaseStatus.ACTIVE,
+        unableDeleteMessage: 'Không thể xóa bảng giá đang hoạt động',
+    });
+
+    const deleteTicketPriceLineModal = useDeleteModal<AdminTicketPriceLineOverview>({
+        onDelete: async (ticketPriceLine) => {
+            console.log('delete ticket price line', ticketPriceLine);
+            await deleteTicketPriceLine.mutateAsync(ticketPriceLine.id);
+        },
+        onSuccess: () => {
+            setFilters((prev) => ({ ...prev, page: 1 }));
+        },
+        canDelete: (ticketPriceLine) => ticketPriceLine.status !== BaseStatus.ACTIVE,
+        unableDeleteMessage: 'Không thể xóa giá vé đang hoạt động',
+    });
 
     useEffect(() => {
         document.title = 'B&Q Cinema - Giá vé';
     }, []);
-
-    const handleClickDeleteTicketPrice = (row: Row<AdminTicketPriceOverview>) => {
-        if (row.original.status === 'ACTIVE') {
-            toast.warning('Không thể xóa giá vé đang hoạt động');
-            return;
-        } else {
-            setTicketPriceToDelete(row.original);
-        }
-    };
-
-    const handleDeleteTicketPrice = async (ticketPrice: AdminTicketPriceOverview) => {
-        await deleteTicketPrice.mutateAsync(ticketPrice.id);
-        setTicketPriceToDelete(null);
-        queryClient.invalidateQueries({ queryKey: [TICKET_PRICES_QUERY_KEY] });
-    };
 
     const columns = React.useMemo<ColumnDef<AdminTicketPriceOverview>[]>(
         () => [
@@ -106,89 +137,13 @@ const TicketPricePage = () => {
                 cell: ({ row }) => (
                     <div className="flex gap-2 items-center justify-end">
                         <ButtonAction.Update onClick={() => setTicketPriceToUpdate(row.original)} />
-                        <ButtonAction.Delete onClick={() => handleClickDeleteTicketPrice(row)} />
+                        <ButtonAction.Delete onClick={() => deleteTicketPriceModal.openDeleteModal(row.original)} />
                     </div>
                 ),
                 enableSorting: false,
             },
         ],
-        [],
-    );
-
-    const ticketPriceLineColumns = useMemo<ColumnDef<AdminTicketPriceLineOverview>[]>(
-        () => [
-            {
-                accessorKey: 'id',
-                header: 'Mã',
-            },
-            {
-                accessorKey: 'applyForDays',
-                cell: ({ row }) => row.original.applyForDays.map((day) => ApplyForDayVietnamese[day]).join(', '),
-                header: 'Ngày áp dụng',
-            },
-            {
-                accessorKey: 'startTime',
-                cell: ({ row }) => formatTime(row.original.startTime),
-                header: 'Bắt đầu',
-            },
-            {
-                accessorKey: 'endTime',
-                cell: ({ row }) => formatTime(row.original.endTime),
-                header: 'Kết thúc',
-            },
-            {
-                accessorKey: 'status',
-                cell: ({ row }) => <BaseStatusBadge status={row.original.status} />,
-                header: 'Trạng thái',
-            },
-            {
-                accessorKey: 'actions',
-                header: () => '',
-                cell: () => (
-                    <div className="flex gap-2 items-center justify-end">
-                        <ButtonAction.Update />
-                        <ButtonAction.Delete />
-                    </div>
-                ),
-                enableSorting: false,
-            },
-        ],
-        [],
-    );
-
-    const ticketPriceDetailColumns = useMemo<ColumnDef<AdminTicketPriceDetailOverview>[]>(
-        () => [
-            {
-                accessorKey: 'id',
-                header: 'Mã',
-            },
-            {
-                accessorKey: 'seatType',
-                cell: ({ row }) => <span>{SeatTypeVietnamese[row.original.seatType]}</span>,
-                header: 'Loại ghế',
-            },
-            {
-                accessorKey: 'price',
-                cell: ({ row }) => <span>{formatNumberToCurrency(row.original.price)}</span>,
-                header: 'Giá',
-            },
-            {
-                accessorKey: 'status',
-                cell: ({ row }) => <BaseStatusBadge status={row.original.status} />,
-                header: 'Trạng thái',
-            },
-            {
-                accessorKey: 'actions',
-                header: () => '',
-                cell: () => (
-                    <div className="flex gap-2 items-center justify-end">
-                        <ButtonAction.Update />
-                        <ButtonAction.Delete />
-                    </div>
-                ),
-            },
-        ],
-        [],
+        [deleteTicketPriceModal],
     );
 
     const handleExportExcel = async () => {
@@ -197,68 +152,86 @@ const TicketPricePage = () => {
 
     const renderSubComponent = React.useCallback(
         ({ row }: { row: Row<AdminTicketPriceOverview> }) => (
-            <div className="pl-6 border-l-2 ">
-                <div>
-                    <Table<AdminTicketPriceLineOverview> data={row.original.ticketPriceLines}
-                                                         columns={ticketPriceLineColumns}
-                                                         currentPage={currentPage}
-                                                         totalPages={totalPages}
-                                                         onChangePage={handlePageChange}
-                                                         showAllData={true}
-                                                         isExpandable={true}
-                                                         renderSubComponent={renderTicketPriceDetail}
-                    >
-                        <div className="flex justify-between items-center">
-                            <div className="font-semibold">Chi tiết hàng:</div>
-                            <div>
-                                <ButtonAction.Add text="Thêm hàng mới" onClick={() => {
-                                    setTicketPriceId(row.original.id);
-                                    setShowModalAddTicketPriceLine(true);
-                                }} />
-                            </div>
-                        </div>
-                    </Table>
+            <div className="bg-gray-100">
+                <div className="ml-14 bg-white overflow-x-scroll xl:overflow-x-hidden">
+                    <table className="w-full">
+                        <thead>
+                        <tr className="h-10 border-t">
+                            <td className="text-tiny font-bold text-gray-800 dark:text-white uppercase border-gray-200 px-4 py-2 first-of-type:pr-0">Mã</td>
+                            <td className="text-tiny font-bold text-gray-800 dark:text-white uppercase border-gray-200 px-4 py-2 first-of-type:pr-0">Ngày
+                                áp dụng
+                            </td>
+                            <td className="text-tiny font-bold text-gray-800 dark:text-white uppercase border-gray-200 px-4 py-2 first-of-type:pr-0">Bắt
+                                đầu
+                            </td>
+                            <td className="text-tiny font-bold text-gray-800 dark:text-white uppercase border-gray-200 px-4 py-2 first-of-type:pr-0">Kết
+                                thúc
+                            </td>
+                            <td className="text-tiny font-bold text-gray-800 dark:text-white uppercase border-gray-200 px-4 py-2 first-of-type:pr-0">Giá</td>
+                            <td className="text-tiny font-bold text-gray-800 dark:text-white uppercase border-gray-200 px-4 py-2 first-of-type:pr-0">
+                                {
+                                    row.original.status !== BaseStatus.ACTIVE ? (
+                                        <div className="flex justify-end">
+                                            <button className="bg-brand-500 text-white px-2 py-1.5 rounded-md"
+                                                    onClick={() => setTicketPriceToAddNewLine(row.original)}>
+                                                <FaPlus className="h-4 w-4" />
+                                            </button>
+                                        </div>
+                                    ) : null
+                                }
+                            </td>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {
+                            row.original.ticketPriceLines.length === 0 ? (
+                                <tr>
+                                    <td colSpan={7} className="text-center py-4 border-t ">
+                                        <div className="flex flex-col justify-center items-center gap-4">
+                                            <LuSearch size={50} className="text-gray-600" />
+                                            <span
+                                                className="text-sm font-normal">Không có dữ liệu nào được tìm thấy</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ) : (
+                                row.original.ticketPriceLines.map((line) => (
+                                    <tr key={line.id} className="border-t last-of-type:border-b">
+                                        <td className="text-sm dark:text-white px-4 py-2 first-of-type:pr-0">{line.id}</td>
+                                        <td className="text-sm dark:text-white px-4 py-2 first-of-type:pr-0">{line.applyForDays.map(day => ApplyForDayVietnamese[day]).join(', ')}</td>
+                                        <td className="text-sm dark:text-white px-4 py-2 first-of-type:pr-0">{formatTime(line.startTime)}</td>
+                                        <td className="text-sm dark:text-white px-4 py-2 first-of-type:pr-0">{formatTime(line.endTime)}</td>
+                                        <td className="text-sm dark:text-white px-4 py-2 first-of-type:pr-0">
+                                            {
+                                                line.ticketPriceDetails.map((detail) => (
+                                                    <div key={detail.id} className="flex justify-between">
+                                                        <span>{SeatTypeVietnamese[detail.seatType]}</span>
+                                                        <span>{formatNumberToCurrency(detail.price)}</span>
+                                                    </div>
+                                                ))
+                                            }
+                                        </td>
+                                        <td className="text-sm dark:text-white px-4 py-2 first-of-type:pr-0">
+                                            <div className="flex gap-2 items-center justify-end">
+                                                <ButtonAction.Update onClick={() => {
+                                                    setTicketPriceToUpdateTicketPriceLine(row.original);
+                                                    setTicketPriceLineToUpdate(line);
+                                                }} />
+                                                <ButtonAction.Delete
+                                                    onClick={() => deleteTicketPriceLineModal.openDeleteModal(line)} />
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
+                            )
+                        }
+                        </tbody>
+                    </table>
                 </div>
             </div>
         ),
-        [],
+        [deleteTicketPriceLineModal],
     );
-
-    const renderTicketPriceDetail = React.useCallback(
-        ({ row }: { row: Row<AdminTicketPriceLineOverview> }) => (
-            <div className="pl-6 py-4 border-l-2">
-                <div>
-                    <Table<AdminTicketPriceDetailOverview> data={row.original.ticketPriceDetails}
-                                                           columns={ticketPriceDetailColumns}
-                                                           currentPage={currentPage}
-                                                           totalPages={totalPages}
-                                                           onChangePage={handlePageChange}
-                                                           showAllData={true}
-                    >
-                        <div className="flex justify-between items-center">
-                            <div className="font-semibold">Chi tiết giá:</div>
-                            <div>
-                                <ButtonAction.Add text="Thêm chi tiết" onClick={() => {
-                                    setTicketPriceLineId(row.original.id);
-                                }} />
-                            </div>
-                        </div>
-                    </Table>
-                </div>
-            </div>
-        ),
-        [],
-    );
-
-    const handleTicketPriceCreated = async () => {
-        setPage(0);
-        await queryClient.invalidateQueries({ queryKey: [TICKET_PRICES_QUERY_KEY] });
-    };
-
-    const reloadTicketPrices = async () => {
-        setPage(0);
-        await queryClient.invalidateQueries({ queryKey: [TICKET_PRICES_QUERY_KEY] });
-    };
 
     return (
         <>
@@ -266,7 +239,7 @@ const TicketPricePage = () => {
                 <Card extra={`mb-5 h-full w-full px-6 py-4`}>
                     <div className="flex items-center justify-end">
 
-                    <div className="flex gap-2 h-9">
+                        <div className="flex gap-2 h-9">
                             <ButtonAction.Add onClick={() => setShowModalAddTicketPrice(true)} />
                             <ButtonAction.Import />
                             <ButtonAction.Export onClick={handleExportExcel} />
@@ -274,51 +247,72 @@ const TicketPricePage = () => {
                     </div>
                 </Card>
 
-                <Table<AdminTicketPriceOverview> data={ticketPrices} columns={columns} currentPage={currentPage}
-                                                 totalPages={totalPages}
-                                                 onChangePage={handlePageChange}
-                                                 isExpandable={true}
-                                                 renderSubComponent={renderSubComponent}
-                />
+                <Card className="py-4">
+                    <Formik initialValues={filters} onSubmit={onFilterChange} enableReinitialize>
+                        <Form>
+                            <div className="px-4 pb-3">
+                                <Typography.Title level={4}>Bộ lọc</Typography.Title>
+                                <div className="grid grid-cols-3 gap-4">
+                                    <Input name="name" placeholder="Tên bảng giá" />
+                                    <RangePicker startName="startDate" endName="endDate"/>
+                                    <Select name="status"
+                                            options={[
+                                                { label: 'Tất cả', value: 'ALL' },
+                                                ...Object.keys(BaseStatus).map((status) => ({
+                                                    label: BaseStatusVietnamese[status as BaseStatus],
+                                                    value: status,
+                                                })),
+                                            ]}
+                                    />
+                                </div>
+                            </div>
+                            <AutoSubmitForm />
+                        </Form>
+                    </Formik>
+                    <Table<AdminTicketPriceOverview> data={ticketPrices} columns={columns} currentPage={currentPage}
+                                                     totalPages={totalPages}
+                                                     onChangePage={onPageChange}
+                                                     isExpandable={true}
+                                                     isLoading={isLoading}
+                                                     renderSubComponent={renderSubComponent}
+                    />
+                </Card>
             </div>
+            <ModalDeleteAlert onConfirm={deleteTicketPriceModal.handleDelete}
+                              onClose={deleteTicketPriceModal.closeDeleteModal}
+                              isOpen={deleteTicketPriceModal.showDeleteModal}
+                              title="Xác nhận xóa bảng giá"
+                              content={
+                                  <>Bạn có chắc chắc muốn xóa bảng
+                                      giá <HighlightedText>{deleteTicketPriceModal.selectedData?.name}</HighlightedText> không?</>
+                              }
+            />
+            <ModalDeleteAlert onConfirm={deleteTicketPriceLineModal.handleDelete}
+                              onClose={deleteTicketPriceLineModal.closeDeleteModal}
+                              isOpen={deleteTicketPriceLineModal.showDeleteModal}
+                              title="Xác nhận xóa giá vé"
+                              content={
+                                  <>Bạn có chắc chắc muốn xóa giá
+                                      vé <HighlightedText>{deleteTicketPriceLineModal.selectedData?.applyForDays.map((day) => ApplyForDayVietnamese[day]).join(', ')}</HighlightedText> không?</>
+                              }
+            />
+
             {
                 showModalAddTicketPrice && (
-                    <ModalAddTicketPrice onClose={() => setShowModalAddTicketPrice(false)}
-                                         onSuccess={handleTicketPriceCreated} />
+                    <ModalAddTicketPrice onClose={() => setShowModalAddTicketPrice(false)} />
                 )
             }
-            {
-                showModalAddTicketPriceLine && (
-                    <ModalAddTicketPriceLine onClose={() => setShowModalAddTicketPriceLine(false)} onSuccess={() => {
-                    }} ticketPriceId={ticketPriceId} />
-                )
-            }
-            {
-                ticketPriceToDelete && (
-                    <ModalAlert onClose={() => setTicketPriceToDelete(null)}
-                                title="Xóa giá vé?"
-                                content={`Bạn có chắc chắn muốn xóa giá vé \`${ticketPriceToDelete.name}\` này không?`}
-                                footer={
-                                    <div className="flex justify-center items-center gap-3 mt-4">
-                                        <ButtonAction.Cancel onClick={() => setTicketPriceToDelete(null)} />
-                                        <ButtonAction.SubmitDelete
-                                            onClick={() => handleDeleteTicketPrice(ticketPriceToDelete)} />
-                                    </div>
-                                }
-                    />
-                )
-            }
-            {
-                ticketPriceToUpdate && (
-                    <ModalUpdateTicketPrice onClose={() => setTicketPriceToUpdate(null)} onSuccess={reloadTicketPrices} ticketPrice={ticketPriceToUpdate} />
-                )
-            }
-            {
-                ticketPriceLineId && (
-                    <ModalAddTicketPriceDetail onClose={() => setTicketPriceLineId(null)} onSuccess={() => {
-                    }} lineId={ticketPriceLineId}/>
-                )
-            }
+            <ModalAddTicketPriceLine onClose={() => setTicketPriceToAddNewLine(null)}
+                                     ticketPrice={ticketPriceToAddNewLine} />
+            <ModalUpdateTicketPriceLine onClose={() => {
+                                            setTicketPriceToUpdateTicketPriceLine(null);
+                                            setTicketPriceLineToUpdate(null);
+                                        }}
+                                        ticketPrice={ticketPriceToUpdateTicketPriceLine}
+                                        ticketPriceLine={ticketPriceLineToUpdate}
+            />
+            <ModalUpdateTicketPrice onClose={() => setTicketPriceToUpdate(null)}
+                                    ticketPrice={ticketPriceToUpdate} />
         </>
     );
 };

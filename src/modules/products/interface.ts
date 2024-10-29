@@ -8,7 +8,7 @@ export enum ProductStatus {
 
 export const ProductStatusVietnamese: Record<ProductStatus, string> = {
     [ProductStatus.ACTIVE]: 'Đang hoạt động',
-    [ProductStatus.INACTIVE]: 'Không hoạt động',
+    [ProductStatus.INACTIVE]: 'Ngừng kinh doanh',
     [ProductStatus.SUSPENDED]: 'Tạm ngưng'
 };
 
