@@ -13,6 +13,7 @@
   "dependencies": {
     "@faker-js/faker": "^8.4.1",
     "@react-input/mask": "^1.2.11",
+    "@react-pdf/renderer": "^4.0.0",
     "@tanstack/react-query": "^5.56.2",
     "@tanstack/react-query-devtools": "^5.58.0",
     "@tanstack/react-table": "^8.20.5",
@@ -20,6 +21,7 @@
     "apexcharts": "^3.52.0",
     "axios": "^1.7.7",
     "dayjs": "^1.11.13",
+    "docx": "^9.0.2",
     "exceljs": "^4.4.0",
     "file-saver": "^2.0.5",
     "formik": "^2.4.6",
