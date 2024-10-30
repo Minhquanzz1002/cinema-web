@@ -7,13 +7,19 @@ import Typography from '@/components/Admin/Typography';
 import Select from '@/components/Admin/Filters/Select';
 import { BaseStatus, BaseStatusVietnamese } from '@/modules/base/interface';
 import AutoSubmitForm from '@/components/Admin/AutoSubmitForm';
-import { useAllShowTimeFilters, useAllShowTimes } from '@/modules/showTimes/repository';
+import { useAllShowTimeFilters, useAllShowTimes, useDeleteShowTime } from '@/modules/showTimes/repository';
 import lodash from 'lodash';
 import { AdminShowTime } from '@/modules/showTimes/interface';
 import Loader from '@/components/Admin/Loader';
 import { formatTime } from '@/utils/formatDate';
 import dayjs from 'dayjs';
 import DatePicker from '@/components/Admin/DatePicker';
+import ModalAddShowTime from '@/components/Admin/Pages/ShowTimes/ModalAddShowTime/page';
+import { FaLock, FaLockOpen, FaPlus } from 'react-icons/fa6';
+import useDeleteModal from '@/hook/useDeleteModal';
+import HighlightedText from '@/components/Admin/ModalDeleteAlert/HighlightedText';
+import ModalDeleteAlert from '@/components/Admin/ModalDeleteAlert';
+import ModalUpdateShowTime from '@/components/Admin/Pages/ShowTimes/ModalUpdateShowTime/page';
 
 interface ShowTimeFilter {
     status: 'ALL' | BaseStatus;
@@ -51,16 +57,49 @@ const movieColors = [
     'bg-brand-500',
 ];
 
+interface Room {
+    id: number;
+    name: string;
+}
+
 const ShowTimePage = () => {
     const [showTimeGrouped, setShowTimeGrouped] = useState<ShowTimeGrouped>({});
-    const [rooms, setRooms] = useState<string[]>(['Rạp 1', 'Rạp 2', 'Rạp 3', 'Rạp 4']);
+    const [rooms, setRooms] = useState<Room[]>([]);
     const [movieColorMap, setMovieColorMap] = useState<{ [key: string]: string }>({});
 
     const { data: filterOptions, isLoading: isLoadingFilters } = useAllShowTimeFilters();
 
+    /**
+     * States for delete show time
+     */
+    const deleteShowTime = useDeleteShowTime();
+    const deleteModal = useDeleteModal<AdminShowTime>({
+        onDelete: async (showTime) => {
+            await deleteShowTime.mutateAsync(showTime.id);
+        },
+        onSuccess: () => {
+            setFilters((prev) => ({ ...prev, page: 1 }));
+        },
+        canDelete: (product) => product.status !== BaseStatus.ACTIVE,
+        unableDeleteMessage: 'Không thể xóa suất chiếu đang hiển thị',
+    });
+
+    /**
+     * States for update show time
+     */
+    const [showTimeToUpdate, setShowTimeToUpdate] = useState<AdminShowTime | undefined>(undefined);
+
     const [filters, setFilters] = useState<ShowTimeFilter>(DEFAULT_FILTER);
-    const [movies, setMovies] = useState<{ id: number; title: string }[]>([]);
+    const [movies, setMovies] = useState<{ id: number; title: string, duration: number }[]>([]);
     const [cinemas, setCinemas] = useState<{ id: number; name: string }[]>([]);
+
+    /**
+     * States for add show time modal
+     */
+    const [showModalAddShowTime, setShowModalAddShowTime] = useState<boolean>(false);
+    const [defaultRoomToAdd, setDefaultRoomToAdd] = useState<Room | undefined>(undefined);
+    const [defaultStartTime, setDefaultStartTime] = useState<Date | undefined>(undefined);
+
 
     const { data: showTimes, isLoading: isLoadingShowTimes } = useAllShowTimes({
         cinemaId: filters.cinemaId,
@@ -77,7 +116,7 @@ const ShowTimePage = () => {
         if (!showTimes) return;
 
         const grouped = lodash.groupBy(showTimes.data.showTimes, 'movieTitle');
-        const newRooms: string[] = lodash.sortBy(showTimes.data.rooms, 'name').map(room => room.name);
+        const newRooms: Room[] = lodash.sortBy(showTimes.data.rooms, 'name');
         setShowTimeGrouped(grouped);
         setRooms(newRooms);
     }, [showTimes]);
@@ -85,7 +124,7 @@ const ShowTimePage = () => {
     useEffect(() => {
         if (!showTimes) return;
 
-        const uniqueMovies = Array.from(new Set(showTimes.data.showTimes.map(st => st.movieTitle)));
+        const uniqueMovies = Array.from(new Set(showTimes.data.showTimes.map(st => st.movie.title)));
         const newMovieColorMap = uniqueMovies.reduce((acc, movie, index) => {
             acc[movie] = movieColors[index % movieColors.length];
             return acc;
@@ -123,7 +162,7 @@ const ShowTimePage = () => {
         return Object.values(showTimeGrouped)
             .flat()
             .filter(showTime =>
-                showTime.roomName === room &&
+                showTime.room.name === room &&
                 getShowTimesInTimeSlot(showTime.startTime, timeSlot),
             );
     };
@@ -133,13 +172,19 @@ const ShowTimePage = () => {
         return <Loader />;
     }
 
+    const handleModalAddShowTimeClose = () => {
+        setShowModalAddShowTime(false);
+        setDefaultRoomToAdd(undefined);
+        setDefaultStartTime(undefined);
+    };
+
     return (
         <>
             <div className="flex flex-col gap-4">
                 <Card extra={`h-full w-full px-6 py-4`}>
                     <div className="flex items-center justify-end">
                         <div className="flex gap-2 h-9">
-                            <ButtonAction.Add />
+                            <ButtonAction.Add onClick={() => setShowModalAddShowTime(true)} />
                             <ButtonAction.Import />
                         </div>
                     </div>
@@ -180,7 +225,7 @@ const ShowTimePage = () => {
                                                 })),
                                             ]}
                                     />
-                                    <DatePicker name="startDate"/>
+                                    <DatePicker name="startDate" />
                                 </div>
                             </div>
                             <AutoSubmitForm />
@@ -201,7 +246,7 @@ const ShowTimePage = () => {
                                     rooms.map((room) => (
                                         <th key={`${room}-header`}
                                             className="font-medium text-sm px-4 py-2 border-b border-r last-of-type:border-r-0 min-w-72 max-w-72">
-                                            {room}
+                                            {room.name}
                                         </th>
                                     ))
                                 }
@@ -220,26 +265,75 @@ const ShowTimePage = () => {
                                         </td>
                                         {
                                             rooms.map((room) => {
-                                                const showTimesInCell = getShowTimesForCell(room, time);
+                                                const showTimesInCell = getShowTimesForCell(room.name, time);
+                                                const now = dayjs();
+
+                                                const [slotHour, slotMinute] = time.split(':').map(Number);
+                                                const timeSlotDateTime = dayjs(filters.startDate)
+                                                    .hour(slotHour)
+                                                    .minute(slotMinute);
+                                                const isFutureTimeSlot = timeSlotDateTime.isAfter(now);
 
                                                 return (
                                                     <td key={`${room}-${time}`}
                                                         className="border-b border-r last-of-type:border-r-0 px-2 py-3">
-                                                        <div className="flex flex-col gap-2">
+                                                        <div className="flex flex-col gap-2 group/main">
                                                             {
-                                                                showTimesInCell.map(showTime => (
-                                                                    <div key={showTime.id}
-                                                                         className={`p-2 ${movieColorMap[showTime.movieTitle] || 'bg-green-500'} text-white rounded-lg`}>
-                                                                        <div
-                                                                            className="text-sm">{showTime.movieTitle}</div>
-                                                                        <div
-                                                                            className="text-xs flex items-center gap-2">
-                                                                            <div>
-                                                                                {`${formatTime(showTime.startTime)} - ${formatTime(showTime.endTime)}`}
+                                                                !showTimesInCell.length && isFutureTimeSlot && (
+                                                                    <button type="button" onClick={() => {
+                                                                        setDefaultRoomToAdd(room);
+                                                                        setShowModalAddShowTime(true);
+                                                                        setDefaultStartTime(timeSlotDateTime.toDate());
+                                                                    }}
+                                                                            className="px-2 h-12 flex justify-center items-center bg-black/5 text-gray-500 rounded-lg text-center opacity-0 group-hover/main:opacity-100">
+                                                                        <FaPlus size={20} className="text-brand-500" />
+                                                                    </button>
+                                                                )
+                                                            }
+                                                            {
+                                                                showTimesInCell.map(showTime => {
+                                                                    const showDateTime = dayjs(`${showTime} ${showTime.startTime}`);
+                                                                    const isLocked = showDateTime.isAfter(now) || showTime.status === BaseStatus.ACTIVE;
+
+                                                                    return (
+                                                                        <div key={showTime.id}
+                                                                             className={`px-2 flex flex-col justify-center  ${movieColorMap[showTime.movie.title] || 'bg-green-500'} text-white rounded-lg relative group h-12`}>
+                                                                            <div
+                                                                                className="flex justify-between items-center">
+                                                                                <div className="flex-1 flex-col flex gap-1">
+                                                                                    <div
+                                                                                        className="text-xs font-medium">
+                                                                                        {showTime.movie.title}
+                                                                                    </div>
+                                                                                    <div
+                                                                                        className="flex justify-between items-center">
+                                                                                        <div
+                                                                                            className="text-[11px] leading-3 flex items-center gap-1">
+                                                                                            {`${formatTime(showTime.startTime)} - ${formatTime(showTime.endTime)} (${showTime.movie.duration} phút)`}
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div>
+                                                                                    {isLocked ? <FaLock /> :
+                                                                                        <FaLockOpen />}
+                                                                                </div>
                                                                             </div>
+
+
+                                                                            {
+                                                                                !isLocked && (
+                                                                                    <div
+                                                                                        className="absolute rounded-lg inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex justify-center items-center gap-3">
+                                                                                        <ButtonAction.Update
+                                                                                            onClick={() => setShowTimeToUpdate(showTime)} />
+                                                                                        <ButtonAction.Delete
+                                                                                            onClick={() => deleteModal.openDeleteModal(showTime)} />
+                                                                                    </div>
+                                                                                )
+                                                                            }
                                                                         </div>
-                                                                    </div>
-                                                                ))
+                                                                    );
+                                                                })
                                                             }
                                                         </div>
                                                     </td>
@@ -255,9 +349,23 @@ const ShowTimePage = () => {
                     </div>
                 </Card>
             </div>
+
+            <ModalAddShowTime isOpen={showModalAddShowTime} onClose={handleModalAddShowTimeClose}
+                              movies={movies} cinemas={cinemas} rooms={rooms} defaultRoom={defaultRoomToAdd}
+                              defaultStartTime={defaultStartTime}
+                              defaultCinemaId={filters.cinemaId} />
+            <ModalUpdateShowTime showTime={showTimeToUpdate} onClose={() => setShowTimeToUpdate(undefined)} movies={movies} cinemas={cinemas} rooms={rooms}/>
+
+            <ModalDeleteAlert onClose={deleteModal.closeDeleteModal}
+                              onConfirm={deleteModal.handleDelete}
+                              isOpen={deleteModal.showDeleteModal}
+                              title="Xóa suất chiếu?"
+                              content={
+                                  <>Bạn có chắc chắn muốn xóa suất chiếu <HighlightedText>{deleteModal.selectedData?.movie.title} - {deleteModal.selectedData?.startTime && formatTime(deleteModal.selectedData.startTime)}</HighlightedText> không?</>
+                              }
+            />
         </>
-    )
-        ;
+    );
 };
 
 export default ShowTimePage;

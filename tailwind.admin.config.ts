@@ -13,6 +13,7 @@ const config: Config = {
     theme: {
         extend: {
             fontSize: {
+                'xxs': ['0.625rem', '0.875rem'],
                 'tiny': ['0.8125rem', '1.125rem'],
             },
             spacing: {

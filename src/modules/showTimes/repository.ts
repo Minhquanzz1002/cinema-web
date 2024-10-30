@@ -1,8 +1,9 @@
-import { SuccessResponse } from '@/core/repository/interface';
+import { ErrorResponse, SuccessResponse } from '@/core/repository/interface';
 import httpRepository from '@/core/repository/http';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AdminShowTime, AdminShowTimeFilters } from '@/modules/showTimes/interface';
 import { BaseStatus } from '@/modules/base/interface';
+import { toast } from 'react-toastify';
 
 export const SHOW_TIME_QUERY_KEY = 'showTimes';
 
@@ -18,7 +19,7 @@ interface FetchAllShowTimeParams {
 
 interface AdminShowTimeResponse {
     showTimes: AdminShowTime[];
-    rooms: { name: string }[];
+    rooms: { name: string, id: number }[];
 }
 
 const findAllShowTimes = (params: FetchAllShowTimeParams): Promise<SuccessResponse<AdminShowTimeResponse>> => {
@@ -49,5 +50,95 @@ export const useAllShowTimeFilters = () => {
     return useQuery({
         queryKey: [SHOW_TIME_QUERY_KEY, 'filters'],
         queryFn: findAllShowTimeFilters,
+    });
+};
+
+/**
+ * Create show time
+ */
+
+interface CreateShowTimePayload {
+    movieId: number;
+    cinemaId: number;
+    roomId: number;
+    startTime: string;
+    endTime: string;
+    startDate: string;
+    status: BaseStatus;
+}
+
+const createShowTime = (payload: CreateShowTimePayload): Promise<SuccessResponse<void>> => {
+    return httpRepository.post<void, CreateShowTimePayload>('/admin/v1/show-times', payload);
+};
+
+export const useCreateShowTime = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: createShowTime,
+        onSuccess: async (res) => {
+            await queryClient.invalidateQueries({ queryKey: [SHOW_TIME_QUERY_KEY] });
+            toast.success(res.message);
+        },
+        onError: (error: ErrorResponse) => {
+            toast.error(error.message);
+            console.error('Create show time error:', error);
+        },
+    });
+};
+
+/**
+ * Delete show time
+ */
+const deleteShowTime = (id: string): Promise<SuccessResponse<void>> => {
+    return httpRepository.delete<void>(`/admin/v1/show-times/${id}`);
+};
+
+export const useDeleteShowTime = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: deleteShowTime,
+        onSuccess: async (res) => {
+            await queryClient.invalidateQueries({ queryKey: [SHOW_TIME_QUERY_KEY] });
+            toast.success(res.message);
+        },
+        onError: (error: ErrorResponse) => {
+            toast.error(error.message || 'Xóa suất chiếu không thành công. Hãy thử lại sau');
+            console.error('Delete ticket price error:', error);
+        },
+    });
+};
+
+/**
+ * Update show time
+ */
+interface UpdateShowTimePayload {
+    movieId: number;
+    cinemaId: number;
+    roomId: number;
+    startTime: string;
+    endTime: string;
+    startDate: string;
+    status: BaseStatus;
+}
+
+const updateShowTime = ({ id, payload }: {
+    id: string,
+    payload: UpdateShowTimePayload
+}): Promise<SuccessResponse<void>> => {
+    return httpRepository.put<void, UpdateShowTimePayload>(`/admin/v1/show-times/${id}`, payload);
+};
+
+export const useUpdateShowTime = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: updateShowTime,
+        onSuccess: async (res) => {
+            await queryClient.invalidateQueries({ queryKey: [SHOW_TIME_QUERY_KEY] });
+            toast.success(res.message);
+        },
+        onError: (error: ErrorResponse) => {
+            toast.error(error.message || 'Cập nhật suất chiếu không thành công. Hãy thử lại sau');
+            console.error('Update show time error:', error);
+        },
     });
 };

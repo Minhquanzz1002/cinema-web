@@ -1,4 +1,4 @@
-import { SuccessResponse } from '@/core/repository/interface';
+import { ErrorResponse, SuccessResponse } from '@/core/repository/interface';
 import { PageObject } from '@/core/pagination/interface';
 import httpRepository from '@/core/repository/http';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -6,6 +6,7 @@ import { AdminPromotionLineOverview, AdminPromotionOverview, PromotionLineType }
 import useDataFetching from '@/hook/useDataFetching';
 import { BaseStatus } from '@/modules/base/interface';
 import { toast } from 'react-toastify';
+import { SeatType } from '@/modules/seats/interface';
 
 export const PROMOTION_QUERY_KEY = 'promotions';
 
@@ -139,8 +140,8 @@ export const useUpdatePromotion = () => {
             await queryClient.invalidateQueries({ queryKey: [PROMOTION_QUERY_KEY] });
             toast.success(res.message);
         },
-        onError: (error) => {
-            toast.error('Cập nhật khuyến mãi thất bại');
+        onError: (error: ErrorResponse) => {
+            toast.error(error.message || 'Cập nhật khuyến mãi thất bại. Hãy thử lại sau');
             console.error('Update promotion error:', error);
         },
     });
@@ -190,6 +191,12 @@ interface CreatePromotionLinePayload {
         minOrderValue?: number;
         usageLimit?: number;
         maxDiscountValue?: number;
+        requiredSeatType?: SeatType;
+        requiredSeatQuantity?: number;
+        giftSeatType?: SeatType;
+        giftSeatQuantity?: number;
+        giftProduct?: number;
+        giftQuantity?: number;
     }>;
 }
 
@@ -229,4 +236,66 @@ export const usePromotionLineByCode = (code: string) => {
         () => findPromotionLineByCode(code),
         { enabled: !!code },
     );
+};
+
+
+/**
+ * Create promotion line
+ */
+
+interface CreatePromotionDetailPayload {
+    discountValue?: number;
+    minOrderValue?: number;
+    usageLimit?: number;
+    maxDiscountValue?: number;
+    requiredSeatType?: SeatType;
+    requiredSeatQuantity?: number;
+    giftSeatType?: SeatType;
+    giftSeatQuantity?: number;
+    giftProduct?: number;
+    giftQuantity?: number;
+}
+
+const createPromotionDetail = ({ promotionLineId, payload }: {
+    payload: CreatePromotionDetailPayload,
+    promotionLineId: number
+}): Promise<SuccessResponse<void>> => {
+    return httpRepository.post<void, CreatePromotionDetailPayload>(`/admin/v1/promotion-lines/${promotionLineId}/details`, payload);
+};
+
+export const useCreatePromotionDetail = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: createPromotionDetail,
+        onSuccess: async (res) => {
+            await queryClient.invalidateQueries({ queryKey: [PROMOTION_QUERY_KEY] });
+            toast.success(res.message);
+        },
+        onError: error => {
+            toast.error('Thêm chi tiết khuyến mãi không thành công');
+            console.error('Create ticket price line error:', error);
+        },
+    });
+};
+
+/**
+ * Delete promotion line
+ */
+const deletePromotionLine = (id: number): Promise<SuccessResponse<void>> => {
+    return httpRepository.delete<void>(`/admin/v1/promotion-lines/${id}`);
+};
+
+export const useDeletePromotionLine = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: deletePromotionLine,
+        onSuccess: async (res) => {
+            await queryClient.invalidateQueries({ queryKey: [PROMOTION_QUERY_KEY] });
+            toast.success(res.message);
+        },
+        onError: (error: ErrorResponse) => {
+            toast.error(error.message || 'Xóa khuyến mãi không thành công. Hãy thử lại sau');
+            console.error('Delete promotion error:', error);
+        },
+    });
 };

@@ -128,8 +128,8 @@ const NewProductPage = () => {
                                 Hủy bỏ
                             </ButtonIcon>
                         </Link>
-                        <ButtonIcon icon={<FaSave />} type="submit">
-                            Lưu
+                        <ButtonIcon icon={<FaSave />} type="submit" disabled={createProduct.isPending}>
+                            {createProduct.isPending ? 'Đang xử lý...' : 'Lưu'}
                         </ButtonIcon>
                     </div>
                 </Form>

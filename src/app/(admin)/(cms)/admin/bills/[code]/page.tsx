@@ -3,16 +3,16 @@ import React, { useEffect, useState } from 'react';
 import Typography from '@/components/Admin/Typography';
 import Card from '@/components/Admin/Card';
 import { useOrderDetail } from '@/modules/orders/repository';
-import { AdminOrderOverview } from '@/modules/orders/interface';
+import { AdminOrderOverview, OrderStatusVietnamese } from '@/modules/orders/interface';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import { formatDateInOrder, formatTime } from '@/utils/formatDate';
 import { formatNumberToCurrency } from '@/utils/formatNumber';
 import { LuGift } from 'react-icons/lu';
-import { orderStatusLabels, seatTypeLabels } from '@/utils/enumMappings';
 import Loader from '@/components/Admin/Loader';
 import NotFound from '@/components/Admin/NotFound';
 import PrintBill from '@/components/Admin/Pages/Bills/PrintBill';
+import { SeatTypeVietnamese } from '@/modules/seats/interface';
 
 const OrderDetailInfo = ({ label, value }: { label: string, value: string | React.ReactNode }) => (
     <div className="flex justify-between items-center">
@@ -110,7 +110,7 @@ const OrderDetailPage = () => {
                                                     </div>
                                                     <div className="flex flex-col justify-center">
                                                         <div className="font-medium flex gap-4">
-                                                            {seatTypeLabels[orderDetail.seat.type]}
+                                                            {SeatTypeVietnamese[orderDetail.seat.type]}
                                                             {orderDetail.isGift && (
                                                                 <div className="flex justify-center items-center">
                                                                     <LuGift className="text-brand-500" />
@@ -166,7 +166,7 @@ const OrderDetailPage = () => {
                             <OrderDetailInfo label="Giờ chiếu" value={formatTime(order.showTime.startTime)} />
                             <OrderDetailInfo label="Thời lượng" value={`${order.showTime.movie.duration} phút`} />
                             <OrderDetailInfo label="Rạp" value={order.showTime.roomName} />
-                            <OrderDetailInfo label="Thể loại" value={`${order.showTime.movie.age}+`} />
+                            <OrderDetailInfo label="Thể loại" value={`${order.showTime.movie.ageRating}`} />
                         </div>
                     </Card>
 
@@ -174,7 +174,7 @@ const OrderDetailPage = () => {
                         <Typography.Title level={4}>Thông tin đơn hàng</Typography.Title>
                         <div className="flex flex-col gap-3">
                             <OrderDetailInfo label="Ngày đặt" value={formatDateInOrder(order.orderDate)} />
-                            <OrderDetailInfo label="Trạng thái" value={orderStatusLabels[order.status]} />
+                            <OrderDetailInfo label="Trạng thái" value={OrderStatusVietnamese[order.status]} />
                         </div>
 
                     </Card>
