@@ -127,6 +127,7 @@ const History: React.FC = () => {
                 console.log('API response:', response.data);
 
                 setIsModalOpen(false); // Đóng modal sau khi gửi yêu cầu thành công
+                window.location.reload(); // Làm mới trang
             })
             .catch(error => {
                 console.error('Lỗi khi gửi yêu cầu hoàn tiền:', error);
@@ -240,7 +241,7 @@ const History: React.FC = () => {
                                                 />
                                                 {/* Age label at the bottom right of the image */}
                                                 <span className="absolute bottom-2 right-2 rounded-md bg-orange-500 px-3 py-1 text-[14px] font-bold text-white sm:text-sm">
-                                                    T{order.showTime.movie.age}
+                                                    {order.showTime.movie.ageRating}
                                                 </span>
                                             </div>
 
@@ -325,12 +326,12 @@ const History: React.FC = () => {
             {isModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
                     <div className="w-1/3 rounded-lg bg-white p-6 shadow-lg">
-                        <h2 className="mb-4 text-lg font-bold">Lý do hoàn tiền</h2>
+                        <h2 className="mb-4 text-lg font-bold">Lý do hủy đơn</h2>
                         <textarea
                             value={refundReason}
                             onChange={e => setRefundReason(e.target.value)}
                             className="mb-4 h-32 w-full rounded border p-2"
-                            placeholder="Nhập lý do hoàn tiền..."
+                            placeholder="Nhập lý do hủy đơn..."
                         />
                         <div className="flex justify-end space-x-2">
                             <button
