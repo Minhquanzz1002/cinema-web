@@ -5,11 +5,11 @@ import Card from '@/components/Admin/Card';
 import Table from '@/components/Admin/Tables';
 import { exportToExcel } from '@/utils/exportToExcel';
 import { formatDateToLocalDate, formatTime } from '@/utils/formatDate';
-import BaseStatusBadge from '@/components/Admin/Badge/BaseStatusBadge';
 import {
     AdminTicketPriceLineOverview,
     AdminTicketPriceOverview,
     ApplyForDayVietnamese,
+    TicketPriceStatus,
 } from '@/modules/ticketPrices/interface';
 import { useAllTicketPrices, useDeleteTicketPrice, useDeleteTicketPriceLine } from '@/modules/ticketPrices/repository';
 import ButtonAction from '@/components/Admin/ButtonAction';
@@ -33,6 +33,7 @@ import { LuSearch } from 'react-icons/lu';
 import ModalUpdateTicketPriceLine from '@/components/Admin/Pages/TicketPrice/ModalUpdateTicketPriceLine';
 import RangePicker from '@/components/Admin/RangePicker';
 import dayjs from 'dayjs';
+import TicketPriceStatusBadge from '@/components/Admin/Badge/TicketPriceStatusBadge';
 
 interface TicketPriceFilter extends PaginationState {
     name: string;
@@ -86,7 +87,7 @@ const TicketPricePage = () => {
         onSuccess: () => {
             setFilters((prev) => ({ ...prev, page: 1 }));
         },
-        canDelete: (ticketPrice) => ticketPrice.status !== BaseStatus.ACTIVE,
+        canDelete: (ticketPrice) => ticketPrice.status !== TicketPriceStatus.ACTIVE,
         unableDeleteMessage: 'Không thể xóa bảng giá đang hoạt động',
     });
 
@@ -128,7 +129,7 @@ const TicketPricePage = () => {
             },
             {
                 accessorKey: 'status',
-                cell: ({ row }) => <BaseStatusBadge status={row.original.status} />,
+                cell: ({ row }) => <TicketPriceStatusBadge status={row.original.status} />,
                 header: 'Trạng thái',
             },
             {
@@ -170,7 +171,7 @@ const TicketPricePage = () => {
                             <td className="text-tiny font-bold text-gray-800 dark:text-white uppercase border-gray-200 px-4 py-2 first-of-type:pr-0">Giá</td>
                             <td className="text-tiny font-bold text-gray-800 dark:text-white uppercase border-gray-200 px-4 py-2 first-of-type:pr-0">
                                 {
-                                    row.original.status !== BaseStatus.ACTIVE ? (
+                                    row.original.status !== TicketPriceStatus.ACTIVE ? (
                                         <div className="flex justify-end">
                                             <button className="bg-brand-500 text-white px-2 py-1.5 rounded-md"
                                                     onClick={() => setTicketPriceToAddNewLine(row.original)}>
@@ -213,7 +214,7 @@ const TicketPricePage = () => {
                                         </td>
                                         <td className="text-sm dark:text-white px-4 py-2 first-of-type:pr-0">
                                             <div className="flex gap-2 items-center justify-end">
-                                                <ButtonAction.Update onClick={() => {
+                                                <ButtonAction.Update disabled={row.original.status === TicketPriceStatus.ACTIVE} onClick={() => {
                                                     setTicketPriceToUpdateTicketPriceLine(row.original);
                                                     setTicketPriceLineToUpdate(line);
                                                 }} />
@@ -254,7 +255,7 @@ const TicketPricePage = () => {
                                 <Typography.Title level={4}>Bộ lọc</Typography.Title>
                                 <div className="grid grid-cols-3 gap-4">
                                     <Input name="name" placeholder="Tên bảng giá" />
-                                    <RangePicker startName="startDate" endName="endDate"/>
+                                    <RangePicker startName="startDate" endName="endDate" />
                                     <Select name="status"
                                             options={[
                                                 { label: 'Tất cả', value: 'ALL' },
@@ -305,9 +306,9 @@ const TicketPricePage = () => {
             <ModalAddTicketPriceLine onClose={() => setTicketPriceToAddNewLine(null)}
                                      ticketPrice={ticketPriceToAddNewLine} />
             <ModalUpdateTicketPriceLine onClose={() => {
-                                            setTicketPriceToUpdateTicketPriceLine(null);
-                                            setTicketPriceLineToUpdate(null);
-                                        }}
+                setTicketPriceToUpdateTicketPriceLine(null);
+                setTicketPriceLineToUpdate(null);
+            }}
                                         ticketPrice={ticketPriceToUpdateTicketPriceLine}
                                         ticketPriceLine={ticketPriceLineToUpdate}
             />

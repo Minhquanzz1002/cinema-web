@@ -13,7 +13,7 @@ const CardShowTime = ({ showTime } : CardShowTimeProps) => {
         <div className="relative group border rounded-md flex flex-col p-3 gap-2 overflow-hidden">
             <div className="flex items-center justify-between">
                 <div className="text-sm bg-brand-500 text-white rounded-full px-3 py-1">
-                    {showTime.roomName}
+                    {showTime.room.name}
                 </div>
                 <div className="text-xs">
                     {formatDateToLocalDate(showTime.startDate)}

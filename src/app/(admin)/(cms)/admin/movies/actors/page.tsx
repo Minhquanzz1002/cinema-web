@@ -8,12 +8,11 @@ import Table from '@/components/Admin/Tables';
 import { exportToExcel } from '@/utils/exportToExcel';
 import { useAllActors, useDeleteActor } from '@/modules/actors/repository';
 import avatar from '/public/img/avatar/avt.png';
-import BaseStatusBadge from '@/components/Admin/Badge/BaseStatusBadge';
 import ButtonAction from '@/components/Admin/ButtonAction';
 import Modal from '@/components/Admin/Modal';
 import ItemInfo from '@/components/Admin/ItemInfo';
 import { formatDateToLocalDate } from '@/utils/formatDate';
-import { BaseStatus, BaseStatusVietnamese } from '@/modules/base/interface';
+import { BaseStatus, BaseStatusVietnamese, VisibilityStatus } from '@/modules/base/interface';
 import useFilterPagination, { PaginationState } from '@/hook/useFilterPagination';
 import { Form, Formik } from 'formik';
 import Typography from '@/components/Admin/Typography';
@@ -23,6 +22,7 @@ import AutoSubmitForm from '@/components/Admin/AutoSubmitForm';
 import useDeleteModal from '@/hook/useDeleteModal';
 import ModalDeleteAlert from '@/components/Admin/ModalDeleteAlert';
 import HighlightedText from '@/components/Admin/ModalDeleteAlert/HighlightedText';
+import VisibilityStatusBadge from '@/components/Admin/Badge/VisibilityStatusBadge';
 
 interface ActorFilter extends PaginationState {
     search: string;
@@ -71,8 +71,8 @@ const ActorPage = () => {
         onSuccess: () => {
             setFilters((prev) => ({ ...prev, page: 1 }));
         },
-        canDelete: (actor) => actor.status !== BaseStatus.ACTIVE,
-        unableDeleteMessage: 'Không thể xóa diễn viên đang hoạt động',
+        canDelete: (actor) => actor.status !== VisibilityStatus.ACTIVE,
+        unableDeleteMessage: 'Không thể xóa diễn viên hiển thị',
     });
 
     const columns = useMemo<ColumnDef<Actor>[]>(
@@ -107,7 +107,7 @@ const ActorPage = () => {
             },
             {
                 accessorKey: 'status',
-                cell: ({ row }) => <BaseStatusBadge status={row.original.status} />,
+                cell: ({ row }) => <VisibilityStatusBadge status={row.original.status} />,
                 header: 'Trạng thái',
             },
             {

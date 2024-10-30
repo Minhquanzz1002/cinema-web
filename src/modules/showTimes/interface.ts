@@ -1,10 +1,26 @@
 import { BaseStatus } from '@/modules/base/interface';
 
+export interface AdminCinemaInShowTime {
+    id: number;
+    name: string;
+}
+
+export interface AdminMovieInShowTime {
+    id: number;
+    title: string;
+    duration: number;
+}
+
+export interface AdminRoomInShowTime {
+    id: number;
+    name: string;
+}
+
 export interface AdminShowTime {
     id: string;
-    movieTitle: string;
-    cinemaName: string;
-    roomName: string;
+    movie: AdminMovieInShowTime;
+    cinema: AdminCinemaInShowTime;
+    room: AdminRoomInShowTime;
     startTime: string;
     endTime: string;
     startDate: Date;
@@ -12,6 +28,6 @@ export interface AdminShowTime {
 }
 
 export interface AdminShowTimeFilters {
-    cinemas: { id: number; name: string }[];
-    movies: { id: number; title: string }[];
+    cinemas: AdminCinemaInShowTime[];
+    movies: AdminMovieInShowTime[];
 }

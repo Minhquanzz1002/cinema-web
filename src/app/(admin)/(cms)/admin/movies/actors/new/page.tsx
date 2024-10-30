@@ -10,7 +10,7 @@ import { ButtonIcon } from '@/components/Admin/Button';
 import { FaSave } from 'react-icons/fa';
 import { TiArrowBackOutline } from 'react-icons/ti';
 import Link from '@/components/Link';
-import { BaseStatus, BaseStatusVietnamese } from '@/modules/base/interface';
+import { VisibilityStatus, VisibilityStatusVietnamese } from '@/modules/base/interface';
 import TextArea from '@/components/Admin/TextArea';
 import { useCreateActor } from '@/modules/actors/repository';
 import { useRouter } from 'next/navigation';
@@ -50,7 +50,7 @@ interface ActorFormValues {
     bio?: string;
     birthday?: Date;
     country?: string;
-    status: BaseStatus;
+    status: VisibilityStatus;
     image: ImageFile[];
 }
 
@@ -59,7 +59,7 @@ const initialFormValues: ActorFormValues = {
     country: '',
     bio: '',
     code: '',
-    status: BaseStatus.ACTIVE,
+    status: VisibilityStatus.ACTIVE,
     image: [],
 };
 
@@ -71,10 +71,10 @@ const NewActorPage = () => {
         document.title = 'B&Q Cinema - Thêm diễn viên';
     }, []);
 
-    const handleSubmit = async (values: ActorFormValues, { setSubmitting } : FormikHelpers<ActorFormValues>) => {
+    const handleSubmit = async (values: ActorFormValues, { setSubmitting }: FormikHelpers<ActorFormValues>) => {
         console.log('submit:', values);
         try {
-            const uploadedImages : string[] = [];
+            const uploadedImages: string[] = [];
 
             await Promise.all(
                 values.image.map(async (img: ImageFile) => {
@@ -85,7 +85,7 @@ const NewActorPage = () => {
                     } else {
                         uploadedImages.push(img.path);
                     }
-                })
+                }),
             );
             const formattedBirthday = values.birthday instanceof Date ? dayjs(values.birthday).format('YYYY-MM-DD') : undefined;
 
@@ -118,7 +118,8 @@ const NewActorPage = () => {
                                            tooltip="Tạo tự động theo mẫu DV + mã" />
                                     <Input name="name" label="Tên" placeholder="Nhập tên diễn viên" required />
                                     <div className="grid grid-cols-2 gap-x-3 ">
-                                        <DatePicker name="birthday" label="Ngày sinh" maxDate={dayjs().subtract(1, 'day').toDate()}/>
+                                        <DatePicker name="birthday" label="Ngày sinh"
+                                                    maxDate={dayjs().subtract(1, 'day').toDate()} />
                                         <Input name="country" label="Quốc gia" placeholder="Nhập quốc gia" />
                                     </div>
                                 </div>
@@ -129,8 +130,12 @@ const NewActorPage = () => {
                                 <div className="border rounded-[6px] border-[rgb(236, 243, 250)] py-4 px-4.5">
                                     <TextArea name="bio" label="Mô tả" placeholder="Nhập mô tả" />
                                     <Select name="status" label="Trạng thái" options={[
-                                        { label: BaseStatusVietnamese.ACTIVE, value: BaseStatus.ACTIVE },
-                                        { label: BaseStatusVietnamese.INACTIVE, value: BaseStatus.INACTIVE },
+                                        ...Object.keys(VisibilityStatus).map(status => (
+                                            {
+                                                label: VisibilityStatusVietnamese[status as VisibilityStatus],
+                                                value: status,
+                                            }
+                                        )),
                                     ]} />
                                 </div>
                             </Card>

@@ -1,6 +1,6 @@
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import CONFIG from '@/config';
-import { SuccessResponse } from '@/core/repository/interface';
+import { ErrorResponse, SuccessResponse } from '@/core/repository/interface';
 
 export const axiosClient: AxiosInstance = axios.create({
     baseURL: CONFIG.API_BASE_URL,
@@ -28,9 +28,9 @@ class HTTPRepository {
         return response.data;
     };
 
-    private handleError(error: AxiosError): never {
+    private handleError(error: AxiosError<ErrorResponse>): never {
         console.log('API Error:', error.response?.data || error.message);
-        throw error;
+        throw error.response?.data;
     };
 
     private createSearchParams(params: Record<string, unknown>): URLSearchParams {
@@ -51,7 +51,7 @@ class HTTPRepository {
             const response = await axiosClient.request<SuccessResponse<T>>(config);
             return this.handleSuccess(response);
         } catch (error) {
-            return this.handleError(error as AxiosError);
+            return this.handleError(error as AxiosError<ErrorResponse>);
         }
     };
 

@@ -118,7 +118,7 @@ const UpdatePromotionPage = () => {
                                 <div className="border rounded-[6px] border-[rgb(236, 243, 250)] py-4 px-4.5">
                                     <Input name="name" label="Tên khuyến mãi" placeholder="Nhập tên khuyến mãi"
                                            required />
-                                    <Select name="status" label="Trạng thái" readOnly options={[
+                                    <Select name="status" label="Trạng thái" readOnly={promotion.status === BaseStatus.ACTIVE} options={[
                                         ...Object.keys(BaseStatus).map(status => ({
                                             label: BaseStatusVietnamese[status as BaseStatus],
                                             value: status,
@@ -130,7 +130,7 @@ const UpdatePromotionPage = () => {
                             <Card className={`p-[18px] col-span-3`}>
                                 <Typography.Title level={4}>Thời gian</Typography.Title>
                                 <div className="border rounded-[6px] border-[rgb(236, 243, 250)] py-4 px-4.5">
-                                    <DatePicker name="startDate" label="Ngày bắt đầu" minDate={new Date()} />
+                                    <DatePicker name="startDate" label="Ngày bắt đầu" minDate={new Date()} readOnly={promotion.status === BaseStatus.ACTIVE}/>
                                     <DatePicker name="endDate" label="Ngày kết thúc" minDate={new Date()} />
                                 </div>
                             </Card>
@@ -153,8 +153,8 @@ const UpdatePromotionPage = () => {
                                     Hủy bỏ
                                 </ButtonIcon>
                             </Link>
-                            <ButtonIcon icon={<FaSave />} type="submit">
-                                Lưu
+                            <ButtonIcon icon={<FaSave />} type="submit" disabled={updatePromotion.isPending}>
+                                {updatePromotion.isPending ? 'Đang cập nhật...' : 'Cập nhật'}
                             </ButtonIcon>
                         </div>
                     </div>
