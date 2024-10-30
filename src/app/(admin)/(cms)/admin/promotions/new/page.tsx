@@ -147,8 +147,8 @@ const NewPromotionPage = () => {
                                 Hủy bỏ
                             </ButtonIcon>
                         </Link>
-                        <ButtonIcon icon={<FaSave />} type="submit">
-                            Lưu
+                        <ButtonIcon icon={<FaSave />} type="submit" disabled={createPromotion.isPending}>
+                            {createPromotion.isPending ? 'Đang tạo...' : 'Tạo mới'}
                         </ButtonIcon>
                     </div>
                 </div>

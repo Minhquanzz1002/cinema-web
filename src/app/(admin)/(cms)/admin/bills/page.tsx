@@ -151,8 +151,8 @@ const BillPage = () => {
                                                     value: OrderStatus.COMPLETED,
                                                 },
                                                 {
-                                                    label: OrderStatusVietnamese[OrderStatus.PENDING],
-                                                    value: OrderStatus.PENDING,
+                                                    label: OrderStatusVietnamese[OrderStatus.CANCELLED],
+                                                    value: OrderStatus.CANCELLED,
                                                 },
                                             ]}
                                     />

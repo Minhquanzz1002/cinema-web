@@ -11,10 +11,20 @@ export enum BaseStatus {
 }
 
 export const BaseStatusVietnamese: Record<BaseStatus, string> = {
-    [BaseStatus.ACTIVE]: 'Đang hoạt động',
-    [BaseStatus.INACTIVE]: 'Ngưng hoạt động',
+    [BaseStatus.ACTIVE]: 'Đang áp dụng',
+    [BaseStatus.INACTIVE]: 'Ngưng áp dụng',
 };
 
 export interface Pageable {
     page?: number;
 }
+
+export enum VisibilityStatus {
+    ACTIVE = 'ACTIVE',
+    INACTIVE = 'INACTIVE',
+}
+
+export const VisibilityStatusVietnamese: Record<VisibilityStatus, string> = {
+    [VisibilityStatus.ACTIVE]: 'Hiển thị',
+    [VisibilityStatus.INACTIVE]: 'Ẩn',
+};

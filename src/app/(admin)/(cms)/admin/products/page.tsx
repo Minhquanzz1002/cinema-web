@@ -53,7 +53,7 @@ const ProductPage = () => {
             setFilters((prev) => ({ ...prev, page: 1 }));
         },
         canDelete: (product) => product.status !== ProductStatus.ACTIVE,
-        unableDeleteMessage: 'Không thể xóa sản phẩm đang hoạt động',
+        unableDeleteMessage: 'Không thể xóa sản phẩm đang hiển thị',
     });
 
     const {
@@ -148,7 +148,7 @@ const ProductPage = () => {
                         </div>
 
                         <div className="flex gap-2 h-9">
-                            <ButtonAction.Add href={'/admin/products/new'} />
+                            <ButtonAction.Add text="Thêm sản phẩm" href={'/admin/products/new'} />
                             <ButtonAction.Import />
                             <ButtonAction.Export onClick={handleExportExcel} />
                         </div>
