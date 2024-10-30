@@ -9,7 +9,7 @@ import ButtonAction from '@/components/Admin/ButtonAction';
 import { useUpdateTicketPrice } from '@/modules/ticketPrices/repository';
 import Select from '@/components/Admin/Select';
 import { BaseStatus, BaseStatusVietnamese } from '@/modules/base/interface';
-import { AdminTicketPriceOverview } from '@/modules/ticketPrices/interface';
+import { AdminTicketPriceOverview, TicketPriceStatus } from '@/modules/ticketPrices/interface';
 
 type ModalUpdateTicketPriceProps = {
     onClose: () => void;
@@ -20,7 +20,7 @@ interface FormValues {
     name: string;
     startDate: Date;
     endDate: Date;
-    status: BaseStatus;
+    status: TicketPriceStatus;
 }
 
 const validationSchema = Yup.object().shape({
@@ -68,20 +68,20 @@ const ModalUpdateTicketPrice = ({ onClose, ticketPrice }: ModalUpdateTicketPrice
             }
         }, [values.startDate, values.endDate, setFieldValue]);
 
-        const isReadOnly = ticketPrice.status === BaseStatus.ACTIVE;
+        const isReadOnly = ticketPrice.status === TicketPriceStatus.ACTIVE;
 
         return (
             <Form>
                 <Input name="name" label="Tên" placeholder="Nhập tên" required readOnly={isReadOnly}/>
                 <DatePicker name="startDate" label="Ngày bắt đầu" minDate={dayjs().toDate()} required readOnly={isReadOnly}/>
-                <DatePicker name="endDate" label="Ngày kết thúc" minDate={dayjs().toDate()} required />
+                <DatePicker name="endDate" label="Ngày kết thúc" minDate={dayjs(ticketPrice.startDate).toDate()} required />
                 <Select name="status" label="Trạng thái" readOnly={isReadOnly} tooltip="Trạng thái mặc định khi tạo là `Không hoạt động`" options={[
                     { value: BaseStatus.ACTIVE, label: BaseStatusVietnamese[BaseStatus.ACTIVE] },
                     { value: BaseStatus.INACTIVE, label: BaseStatusVietnamese[BaseStatus.INACTIVE] },
                 ]}/>
                 <div className="flex justify-end items-center gap-3">
                     <ButtonAction.Cancel onClick={onClose} />
-                    <ButtonAction.Submit />
+                    <ButtonAction.Submit text="Cập nhật" isLoading={updateTicketPrice.isPending}/>
                 </div>
             </Form>
         );

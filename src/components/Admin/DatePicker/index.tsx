@@ -42,7 +42,40 @@ const DatePicker = ({
     const [inputValue, setInputValue] = useState<string>(field.value ? dayjs(field.value, format).format('DD/MM/YYYY') : '');
     const [showYearList, setShowYearList] = useState<boolean>(false);
     const yearListRef = useRef<HTMLDivElement>(null);
+    const inputRef = useRef<HTMLDivElement>(null);
     useClickOutside(yearListRef, () => setShowYearList(false));
+
+    const calendarPositionRef = useRef<'top' | 'bottom'>('bottom');
+
+    // useEffect(() => {
+    //     if (isOpen && calendarRef.current) {
+    //         const calendar = calendarRef.current;
+    //         const calendarRect = calendar.getBoundingClientRect();
+    //         const viewportHeight = window.innerHeight;
+    //
+    //         if (calendarRect.bottom > viewportHeight) {
+    //             calendarPositionRef.current = 'top';
+    //         }
+    //     }
+    // }, [isOpen]);
+
+    const calculatePosition = () => {
+        if (inputRef.current) {
+            const inputRect = inputRef.current.getBoundingClientRect();
+            const viewportHeight = window.innerHeight;
+            const calendarHeight = 360; // Ước tính chiều cao của calendar
+
+            // Check xem phía dưới có đủ chỗ không
+            const spaceBelow = viewportHeight - inputRect.bottom;
+
+            if (spaceBelow < calendarHeight) {
+                calendarPositionRef.current = 'top';
+            } else {
+                calendarPositionRef.current = 'bottom';
+            }
+        }
+    };
+
 
     useEffect(() => {
         if (field.value instanceof Date && !isNaN(field.value.getTime())) {
@@ -184,6 +217,13 @@ const DatePicker = ({
         );
     };
 
+    const handleToggleCalendar = () => {
+        if (!readOnly) {
+            calculatePosition();
+            setIsOpen(!isOpen);
+        }
+    };
+
     useEffect(() => {
         if (showYearList && yearListRef.current) {
             const selectedYearElement = yearListRef.current.querySelector(`[data-year="${currentDate.year()}"]`);
@@ -207,6 +247,7 @@ const DatePicker = ({
                 )
             }
             <div
+                ref={inputRef}
                 className={`relative border rounded-md h-10 px-3 dark:text-white dark:bg-navy-900 text-[16px] focus-within:border-brand-500 flex items-center`}>
                 <InputMask mask="DD/MM/YYYY"
                            replacement={{ D: /[0-9]/, M: /[0-9]/, Y: /[0-9]/ }}
@@ -219,13 +260,13 @@ const DatePicker = ({
                            name={field.name}
                            readOnly={readOnly}
                 />
-                <button type="button" className="flex items-center justify-between" onClick={() => !readOnly && setIsOpen(!isOpen)}>
+                <button type="button" className="flex items-center justify-between" onClick={handleToggleCalendar}>
                     <LuCalendarDays />
                 </button>
                 {
                     isOpen && (
                         <div ref={calendarRef}
-                             className="absolute z-20 top-full left-0 mt-1 bg-white border rounded shadow-lg p-4">
+                             className={`absolute z-20 ${calendarPositionRef.current === 'top' ? 'bottom-full mb-1' : 'top-full mt-1'} left-0 bg-white border rounded shadow-lg p-4`}>
                             <div className="flex justify-between items-center gap-x-20 relative">
                                 <div className="flex items-center gap-x-2">
                                     <span className="text-nowrap min-w-[85px]">{currentDate.format('MMM YYYY')}</span>

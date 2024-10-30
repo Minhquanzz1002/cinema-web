@@ -1,8 +1,13 @@
-import { SuccessResponse } from '@/core/repository/interface';
+import { ErrorResponse, SuccessResponse } from '@/core/repository/interface';
 import { PageObject } from '@/core/pagination/interface';
 import httpRepository from '@/core/repository/http';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { AdminTicketPriceLineOverview, AdminTicketPriceOverview, ApplyForDay } from '@/modules/ticketPrices/interface';
+import {
+    AdminTicketPriceLineOverview,
+    AdminTicketPriceOverview,
+    ApplyForDay,
+    TicketPriceStatus,
+} from '@/modules/ticketPrices/interface';
 import { toast } from 'react-toastify';
 import { BaseStatus } from '@/modules/base/interface';
 
@@ -25,7 +30,7 @@ const fetchAllTicketPrices = (params: FetchAllTicketPriceParams): Promise<Succes
         name: params.name,
         startDate: params.startDate,
         endDate: params.endDate,
-        status: params.status
+        status: params.status,
     });
 };
 
@@ -57,9 +62,13 @@ export const useCreateTicketPrice = () => {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: createTicketPrice,
-        onSuccess: async () => {
+        onSuccess: async (res) => {
             await queryClient.invalidateQueries({ queryKey: [TICKET_PRICES_QUERY_KEY] });
-            toast.success('Thêm khuyến mãi thành công');
+            toast.success(res.message);
+        },
+        onError: (error: ErrorResponse) => {
+            toast.error(error.message);
+            console.error('Create ticket price error:', error);
         },
     });
 };
@@ -72,7 +81,7 @@ interface UpdateTicketPriceData {
     name: string;
     startDate: string;
     endDate: string;
-    status: BaseStatus;
+    status: TicketPriceStatus;
 }
 
 const updateTicketPrice = ({ id, data }: {
@@ -86,14 +95,12 @@ export const useUpdateTicketPrice = () => {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: updateTicketPrice,
-        onSuccess: async () => {
+        onSuccess: async (res) => {
             await queryClient.invalidateQueries({ queryKey: [TICKET_PRICES_QUERY_KEY] });
-            toast.success('Cập nhật giá vé thành công');
+            toast.success(res.message);
         },
-        onError: (error) => {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-expect-error
-            toast.error(error.response?.data?.message || 'Có lỗi xảy ra');
+        onError: (error: ErrorResponse) => {
+            toast.error(error.message || 'Đã có lỗi xảy ra. Hãy thử lại sau');
             console.error('Create ticket price line error:', error);
         },
     });
@@ -148,14 +155,12 @@ export const useCreateTicketPriceLine = () => {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: createTicketPriceLine,
-        onSuccess: async () => {
+        onSuccess: async (res) => {
             await queryClient.invalidateQueries({ queryKey: [TICKET_PRICES_QUERY_KEY] });
-            toast.success('Thêm thành công');
+            toast.success(res.message);
         },
-        onError: error => {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-expect-error
-            toast.error(error.response?.data?.message || 'Có lỗi xảy ra');
+        onError: (error: ErrorResponse) => {
+            toast.error(error.message || 'Đã có lỗi xảy ra. Hãy thử lại sau');
             console.error('Create ticket price line error:', error);
         },
     });
@@ -193,11 +198,9 @@ export const useUpdateTicketPriceLine = () => {
             await queryClient.invalidateQueries({ queryKey: [TICKET_PRICES_QUERY_KEY] });
             toast.success(res.message);
         },
-        onError: error => {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-expect-error
-            toast.error(error.response?.data?.message || 'Có lỗi xảy ra');
-            console.error('Create ticket price line error:', error);
+        onError: (error: ErrorResponse) => {
+            toast.error(error.message || 'Có lỗi xảy ra. Hãy thử lại sau');
+            console.error('Update ticket price line error:', error);
         },
     });
 };
@@ -218,8 +221,8 @@ export const useDeleteTicketPriceLine = () => {
             await queryClient.invalidateQueries({ queryKey: [TICKET_PRICES_QUERY_KEY] });
             toast.success(res.message);
         },
-        onError: (error) => {
-            toast.error('Xóa giá vé không thành công');
+        onError: (error: ErrorResponse) => {
+            toast.error(error.message || 'Xóa không thành công. Hãy thử lại sau');
             console.error('Delete ticket price error:', error);
         },
     });

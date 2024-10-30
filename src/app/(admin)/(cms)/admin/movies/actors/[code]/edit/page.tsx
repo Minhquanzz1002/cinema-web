@@ -8,7 +8,7 @@ import DatePicker from '@/components/Admin/DatePicker';
 import dayjs from 'dayjs';
 import TextArea from '@/components/Admin/TextArea';
 import Select from '@/components/Admin/Select';
-import { BaseStatus, BaseStatusVietnamese } from '@/modules/base/interface';
+import { VisibilityStatus, VisibilityStatusVietnamese } from '@/modules/base/interface';
 import UploadImage, { ImageFile } from '@/components/Admin/UploadImage';
 import Link from '@/components/Link';
 import { ButtonIcon } from '@/components/Admin/Button';
@@ -46,7 +46,7 @@ interface ActorFormValues {
     bio?: string;
     birthday?: Date;
     country?: string;
-    status: BaseStatus;
+    status: VisibilityStatus;
     image: ImageFile[];
 }
 
@@ -143,8 +143,10 @@ const UpdateActorPage = () => {
                                 <div className="border rounded-[6px] border-[rgb(236, 243, 250)] py-4 px-4.5">
                                     <TextArea name="bio" label="Mô tả" placeholder="Nhập mô tả" />
                                     <Select name="status" label="Trạng thái" options={[
-                                        { label: BaseStatusVietnamese.ACTIVE, value: BaseStatus.ACTIVE },
-                                        { label: BaseStatusVietnamese.INACTIVE, value: BaseStatus.INACTIVE },
+                                        ...Object.keys(VisibilityStatus).map(status => ({
+                                            label: VisibilityStatusVietnamese[status as VisibilityStatus],
+                                            value: status,
+                                        })),
                                     ]} />
                                 </div>
                             </Card>

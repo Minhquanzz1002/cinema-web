@@ -103,13 +103,19 @@ const UploadImage = ({
 
     return (
         <div className="space-y-4">
-            <div className="flex gap-3 justify-center">
-                <button type="button" onClick={() => setShowUrlInput(false)} className={`border-b-4 text-gray-800 ${!showUrlInput ? 'border-brand-500' : 'border-transparent'}`}>
-                    Upload từ máy
-                </button>
-                <button type="button" onClick={() => setShowUrlInput(true)} className={`border-b-4 text-gray-800 ${showUrlInput ? 'border-brand-500' : 'border-transparent'}`}>
-                    Thêm từ URL
-                </button>
+            <div>
+                <div className="flex gap-3 justify-center">
+                    <div className="bg-gray-100 flex justify-center items-center rounded overflow-hidden">
+                        <button type="button" onClick={() => setShowUrlInput(false)}
+                                className={`text-gray-800 h-9 px-4 rounded ${!showUrlInput ? 'bg-brand-500 text-white' : ''}`}>
+                            Upload từ máy
+                        </button>
+                        <button type="button" onClick={() => setShowUrlInput(true)}
+                                className={`text-gray-800 h-9 px-4 rounded ${showUrlInput ? 'bg-brand-500 text-white' : ''}`}>
+                            Thêm từ URL
+                        </button>
+                    </div>
+                </div>
             </div>
             {
                 showUrlInput ? (
@@ -119,7 +125,8 @@ const UploadImage = ({
                                placeholder="Nhập URL ảnh"
                                className="flex-1 border text-[15px] px-4 py-2 h-10 rounded-md focus:border-brand-500"
                         />
-                        <button type="button" onClick={handleUrlSubmit} className="border bg-brand-500 text-white rounded h-10 px-4 text-sm">
+                        <button type="button" onClick={handleUrlSubmit}
+                                className="border bg-brand-500 text-white rounded h-10 px-4 text-sm">
                             Thêm
                         </button>
                     </div>

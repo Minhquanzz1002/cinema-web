@@ -1,5 +1,11 @@
-import { SuccessResponse } from '@/core/repository/interface';
-import { BaseProduct, BaseProductWithPrice, ProductPriceHistory, ProductStatus } from '@/modules/products/interface';
+import { ErrorResponse, SuccessResponse } from '@/core/repository/interface';
+import {
+    BaseProduct,
+    BaseProductWithPrice,
+    ProductPriceHistory,
+    ProductPriceStatus,
+    ProductStatus,
+} from '@/modules/products/interface';
 import httpRepository from '@/core/repository/http';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PageObject } from '@/core/pagination/interface';
@@ -86,6 +92,19 @@ export const useAllProductPriceHistories = (params: FetchAllProductPriceHistorie
         enabled: !!params.code,
     });
 };
+/**
+ * Get all active products
+ */
+const findAllProductActive = (): Promise<SuccessResponse<BaseProductWithPrice[]>> => {
+    return httpRepository.get<BaseProductWithPrice[]>(`/admin/v1/products/all-active`);
+};
+
+export const useAllProductActive = () => {
+    return useDataFetching(
+        [PRODUCT_QUERY_KEY],
+        () => findAllProductActive()
+    );
+};
 
 /**
  * Create product
@@ -161,12 +180,12 @@ export const useUpdateProduct = () => {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: updateProduct,
-        onSuccess: async () => {
+        onSuccess: async (res) => {
             await queryClient.invalidateQueries({ queryKey: [PRODUCT_QUERY_KEY] });
-            toast.success('Cập nhật sản phẩm thành công');
+            toast.success(res.message);
         },
-        onError: (error) => {
-            toast.error('Cập nhật sản phẩm thất bại');
+        onError: (error: ErrorResponse) => {
+            toast.error(error.message);
             console.error('Delete ticket price error:', error);
         },
     });
@@ -235,7 +254,7 @@ interface UpdateProductPriceData {
     startDate: string;
     endDate: string;
     price: number;
-    status: BaseStatus;
+    status: ProductPriceStatus;
 }
 
 const updateProductPrice = ({ code, data, id }: {

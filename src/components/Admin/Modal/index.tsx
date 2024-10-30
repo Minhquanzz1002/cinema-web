@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {MdOutlineClose} from "react-icons/md";
 import useClickOutside from '@/hook/useClickOutside';
 import Typography from '@/components/Admin/Typography';
@@ -14,6 +14,18 @@ function Modal(props: ModalProps) {
     const {children, title, onClose, open} = props;
     const ref = useRef<HTMLDivElement>(null);
     useClickOutside(ref, onClose);
+
+    useEffect(() => {
+        if (open) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'auto';
+        }
+
+        return () => {
+            document.body.style.overflow = 'auto';
+        };
+    }, [open]);
 
     if (!open) return null;
 

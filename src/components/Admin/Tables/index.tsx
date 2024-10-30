@@ -2,7 +2,8 @@ import React, { useMemo, useState } from 'react';
 import { ColumnDef, ExpandedState, getCoreRowModel, getExpandedRowModel, Row } from '@tanstack/table-core';
 import { flexRender, useReactTable } from '@tanstack/react-table';
 import Pagination from '@/components/Admin/Pagination';
-import { LuChevronDown, LuSearch } from 'react-icons/lu';
+import { LuChevronDown } from 'react-icons/lu';
+import EmptyState from '@/components/Admin/Tables/EmptyState';
 
 const TableSkeleton = ({ columnCount }: { columnCount: number }) => {
     return (
@@ -123,16 +124,9 @@ const Table = <T, >({
                     <tbody>
                     {
                         isLoading ? (
-                            <TableSkeleton columnCount={expandableColumns.length}/>
+                            <TableSkeleton columnCount={expandableColumns.length} />
                         ) : table.getRowModel().rows.length === 0 ? (
-                            <tr>
-                                <td colSpan={expandableColumns.length} className="text-center py-4">
-                                    <div className="flex flex-col justify-center items-center gap-4">
-                                        <LuSearch size={50} className="text-gray-600" />
-                                        <span className="text-sm font-normal">Không có dữ liệu nào được tìm thấy</span>
-                                    </div>
-                                </td>
-                            </tr>
+                            <EmptyState colSpan={expandableColumns.length} />
                         ) : (
                             table.getRowModel().rows.map(row => {
                                 return (

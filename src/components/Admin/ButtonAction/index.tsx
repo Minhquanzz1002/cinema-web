@@ -6,12 +6,14 @@ import { FaFileImport, FaPlus } from 'react-icons/fa6';
 import { RiFileExcel2Line } from 'react-icons/ri';
 
 type DeleteButtonProps = {
-    onClick?: MouseEventHandler<HTMLButtonElement>
+    onClick?: MouseEventHandler<HTMLButtonElement>;
+    disabled?: boolean;
 }
 
 type UpdateButtonProps = {
     href?: string;
     onClick?: MouseEventHandler<HTMLButtonElement>;
+    disabled?: boolean;
 }
 
 type ViewButtonProps = {
@@ -36,6 +38,7 @@ type ExportButtonProps = {
 type SubmitButtonProps = {
     onClick?: MouseEventHandler<HTMLButtonElement>;
     text?: string;
+    isLoading?: boolean;
 }
 
 type SubmitDeleteButtonProps = {
@@ -51,17 +54,17 @@ type ConfirmButtonProps = {
 }
 
 const ButtonAction = {
-    Delete: ({ onClick }: DeleteButtonProps) => {
+    Delete: ({ onClick, disabled }: DeleteButtonProps) => {
         return (
-            <button type="button" onClick={onClick} className="text-red-400 hover:text-red-600" title="Xóa">
+            <button type="button" disabled={disabled} onClick={onClick} className="text-red-400 hover:text-red-600" title="Xóa">
                 <LuTrash size={18} />
             </button>
         );
     },
-    Update: ({ href = '#', onClick }: UpdateButtonProps) => {
+    Update: ({ href = '#', onClick, disabled }: UpdateButtonProps) => {
         if (onClick) {
             return (
-                <button type="button" onClick={onClick} className="text-blue-400 hover:text-blue-600" title="Chỉnh sửa">
+                <button type="button" onClick={onClick} disabled={disabled} className="text-blue-400 hover:text-blue-600" title="Chỉnh sửa">
                     <FaEdit size={18} />
                 </button>
             );
@@ -120,12 +123,13 @@ const ButtonAction = {
             </button>
         );
     },
-    Submit: ({ onClick, text = "Xác nhận" }: SubmitButtonProps) => {
+    Submit: ({ onClick, text = "Xác nhận", isLoading = false }: SubmitButtonProps) => {
         return (
             <button
                 className="bg-brand-500 py-1.5 px-2 rounded flex items-center justify-center text-white gap-x-2 text-sm"
+                disabled={isLoading}
                 onClick={onClick} type="submit">
-                {text}
+                {isLoading ? 'Đang xử lý...' : text}
             </button>
         );
     },

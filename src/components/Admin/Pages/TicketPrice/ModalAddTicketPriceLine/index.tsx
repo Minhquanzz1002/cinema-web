@@ -27,21 +27,21 @@ interface FormValues {
     triplePrice: number;
 }
 
-const getCurrentTimeOnBaseDate = (): Date => {
-    const now = dayjs();
-    return dayjs('2000-01-01')
-        .hour(now.hour())
-        .minute(now.minute())
-        .second(0)
-        .millisecond(0)
-        .toDate();
-};
-
 const initialValues: FormValues = {
     applyForDays: [],
-    startTime: getCurrentTimeOnBaseDate(),
-    endTime: getCurrentTimeOnBaseDate(),
-    status: BaseStatus.INACTIVE,
+    startTime: dayjs('2000-01-01')
+        .hour(0)
+        .minute(0)
+        .second(0)
+        .millisecond(0)
+        .toDate(),
+    endTime: dayjs('2000-01-01')
+        .hour(23)
+        .minute(59)
+        .second(0)
+        .millisecond(0)
+        .toDate(),
+    status: BaseStatus.ACTIVE,
     normalPrice: 0,
     vipPrice: 0,
     couplePrice: 0,
@@ -96,13 +96,10 @@ const ModalAddTicketPriceLine = ({ onClose, ticketPrice }: ModalAddTicketPriceLi
         return (
             <Form>
                 <Select name="applyForDays" label="Ngày áp dụng" multiple options={[
-                    { value: ApplyForDay.MONDAY, label: ApplyForDayVietnamese[ApplyForDay.MONDAY] },
-                    { value: ApplyForDay.TUESDAY, label: ApplyForDayVietnamese[ApplyForDay.TUESDAY] },
-                    { value: ApplyForDay.WEDNESDAY, label: ApplyForDayVietnamese[ApplyForDay.WEDNESDAY] },
-                    { value: ApplyForDay.THURSDAY, label: ApplyForDayVietnamese[ApplyForDay.THURSDAY] },
-                    { value: ApplyForDay.FRIDAY, label: ApplyForDayVietnamese[ApplyForDay.FRIDAY] },
-                    { value: ApplyForDay.SATURDAY, label: ApplyForDayVietnamese[ApplyForDay.SATURDAY] },
-                    { value: ApplyForDay.SUNDAY, label: ApplyForDayVietnamese[ApplyForDay.SUNDAY] },
+                    ...Object.keys(ApplyForDay).map(day => ({
+                        label: ApplyForDayVietnamese[day as ApplyForDay],
+                        value: day,
+                    })),
                 ]} />
                 <div className="grid grid-cols-2 gap-3">
                     <div>
@@ -114,14 +111,14 @@ const ModalAddTicketPriceLine = ({ onClose, ticketPrice }: ModalAddTicketPriceLi
                     </div>
                 </div>
 
-                <InputCurrency min={0} max={10000000} name="normalPrice" label="Giá ghế thường" unit="VND"/>
-                <InputCurrency min={0} name="vipPrice" label="Giá VIP" unit="VND"/>
-                <InputCurrency min={0} name="couplePrice" label="Giá ghế đôi" unit="VND"/>
-                <InputCurrency min={0} name="triplePrice" label="Giá ghế ba" unit="VND"/>
+                <InputCurrency min={0} max={10000000} name="normalPrice" label="Giá ghế thường" unit="VND" />
+                <InputCurrency min={0} name="vipPrice" label="Giá VIP" unit="VND" />
+                <InputCurrency min={0} name="couplePrice" label="Giá ghế đôi" unit="VND" />
+                <InputCurrency min={0} name="triplePrice" label="Giá ghế ba" unit="VND" />
 
                 <div className="flex justify-end items-center gap-3">
                     <ButtonAction.Cancel onClick={onClose} />
-                    <ButtonAction.Submit />
+                    <ButtonAction.Submit isLoading={saveTicketPriceLine.isPending} />
                 </div>
             </Form>
         );

@@ -116,7 +116,7 @@ const ModalUpdateTicketPriceLine = ({ onClose, ticketPrice, ticketPriceLine }: M
 
                 <div className="flex justify-end items-center gap-3">
                     <ButtonAction.Cancel onClick={onClose} />
-                    <ButtonAction.Submit text="Cập nhật" />
+                    <ButtonAction.Submit text="Cập nhật" isLoading={updateTicketPriceLine.isPending} />
                 </div>
             </Form>
         );

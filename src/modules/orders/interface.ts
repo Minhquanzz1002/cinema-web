@@ -1,16 +1,19 @@
 import { BaseEntity } from '@/modules/base/interface';
 import { BaseProduct } from '@/modules/products/interface';
+import { AgeRating } from '@/modules/movies/interface';
 
 export enum OrderStatus {
     PENDING = 'PENDING',
     PAID = 'PAID',
     COMPLETED = 'COMPLETED',
+    CANCELLED = 'CANCELLED',
 }
 
 export const OrderStatusVietnamese = {
     [OrderStatus.PENDING]: 'Chờ xử lý',
     [OrderStatus.PAID]: 'Đã thanh toán',
     [OrderStatus.COMPLETED]: 'Hoàn thành',
+    [OrderStatus.CANCELLED]: 'Đã hủy',
 };
 
 export enum SeatType {
@@ -74,7 +77,7 @@ export interface AdminOrderOverview {
             title: string;
             slug: string;
             imagePortrait: string;
-            age: number;
+            ageRating: AgeRating;
             duration: number;
         }
     },
