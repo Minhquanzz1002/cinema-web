@@ -11,10 +11,9 @@ export interface AdminPromotionOverview {
     description: string;
     imagePortrait?: string;
     status: BaseStatus;
-    promotionLines: AdminPromotionLineOverview[];
 }
 
-enum PromotionLineType {
+export enum PromotionLineType {
     BUY_PRODUCTS_GET_PRODUCTS = 'BUY_PRODUCTS_GET_PRODUCTS',
     BUY_TICKETS_GET_TICKETS = 'BUY_TICKETS_GET_TICKETS',
     BUY_PRODUCTS_GET_TICKETS = 'BUY_PRODUCTS_GET_TICKETS',

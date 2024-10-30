@@ -49,7 +49,7 @@ const initialFormValues: FormValues = {
     image: [],
 };
 
-const NewMoviePage = () => {
+const NewProductPage = () => {
     const createProduct = useCreateProduct();
     const router = useRouter();
 
@@ -138,4 +138,4 @@ const NewMoviePage = () => {
     );
 };
 
-export default NewMoviePage;
+export default NewProductPage;

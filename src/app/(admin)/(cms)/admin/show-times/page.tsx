@@ -13,11 +13,13 @@ import { AdminShowTime } from '@/modules/showTimes/interface';
 import Loader from '@/components/Admin/Loader';
 import { formatTime } from '@/utils/formatDate';
 import dayjs from 'dayjs';
+import DatePicker from '@/components/Admin/DatePicker';
 
 interface ShowTimeFilter {
     status: 'ALL' | BaseStatus;
     cinemaId: number;
-    movieId?: number;
+    movieId?: number | 'ALL';
+    startDate?: Date;
 }
 
 interface ShowTimeGrouped {
@@ -26,7 +28,9 @@ interface ShowTimeGrouped {
 
 const DEFAULT_FILTER: ShowTimeFilter = {
     status: 'ALL',
+    movieId: 'ALL',
     cinemaId: 0,
+    startDate: new Date(),
 };
 
 const timeSlots: string[] = [
@@ -41,15 +45,15 @@ const timeSlots: string[] = [
 ];
 
 const movieColors = [
-    "bg-blue-500",
-    "bg-green-500",
-    "bg-yellow-500",
-    "bg-brand-500",
+    'bg-blue-500',
+    'bg-green-500',
+    'bg-yellow-500',
+    'bg-brand-500',
 ];
 
 const ShowTimePage = () => {
     const [showTimeGrouped, setShowTimeGrouped] = useState<ShowTimeGrouped>({});
-    const [rooms, setRooms] = useState<string[]>(["Rạp 1", "Rạp 2", "Rạp 3", "Rạp 4"]);
+    const [rooms, setRooms] = useState<string[]>(['Rạp 1', 'Rạp 2', 'Rạp 3', 'Rạp 4']);
     const [movieColorMap, setMovieColorMap] = useState<{ [key: string]: string }>({});
 
     const { data: filterOptions, isLoading: isLoadingFilters } = useAllShowTimeFilters();
@@ -60,9 +64,10 @@ const ShowTimePage = () => {
 
     const { data: showTimes, isLoading: isLoadingShowTimes } = useAllShowTimes({
         cinemaId: filters.cinemaId,
-        movieId: filters.movieId,
+        movieId: filters.movieId === 'ALL' ? undefined : filters.movieId,
+        status: filters.status === 'ALL' ? undefined : filters.status,
+        startDate: filters.startDate ? dayjs(filters.startDate).format('YYYY-MM-DD') : undefined,
     });
-
 
     useEffect(() => {
         document.title = 'B&Q Cinema - Lịch chiếu';
@@ -119,7 +124,7 @@ const ShowTimePage = () => {
             .flat()
             .filter(showTime =>
                 showTime.roomName === room &&
-                getShowTimesInTimeSlot(showTime.startTime, timeSlot)
+                getShowTimesInTimeSlot(showTime.startTime, timeSlot),
             );
     };
 
@@ -145,7 +150,7 @@ const ShowTimePage = () => {
                         <Form>
                             <div className="px-4">
                                 <Typography.Title level={4}>Bộ lọc</Typography.Title>
-                                <div className="grid grid-cols-3 gap-4">
+                                <div className="grid grid-cols-4 gap-4">
                                     <Select name="cinemaId"
                                             placeholder="Lọc theo rạp"
                                             options={
@@ -157,12 +162,13 @@ const ShowTimePage = () => {
                                     />
                                     <Select name="movieId"
                                             placeholder="Lọc theo phim"
-                                            options={
-                                                movies.map(movie => ({
+                                            options={[
+                                                { label: 'Tất cả phim', value: 'ALL' },
+                                                ...movies.map(movie => ({
                                                     label: movie.title,
                                                     value: movie.id,
-                                                }))
-                                            }
+                                                })),
+                                            ]}
                                     />
                                     <Select name="status"
                                             placeholder="Lọc theo trạng thái"
@@ -174,27 +180,13 @@ const ShowTimePage = () => {
                                                 })),
                                             ]}
                                     />
+                                    <DatePicker name="startDate"/>
                                 </div>
                             </div>
                             <AutoSubmitForm />
                         </Form>
                     </Formik>
                 </Card>
-
-                {/*{*/}
-                {/*    Object.entries(showTimeGrouped).map(([key, value]) => (*/}
-                {/*        <Card key={key} className="p-4">*/}
-                {/*            <Typography.Title level={4}>{key}</Typography.Title>*/}
-                {/*            <div className="grid grid-cols-6 gap-4">*/}
-                {/*                {*/}
-                {/*                    value.map((showTime) => (*/}
-                {/*                        <CardShowTime showTime={showTime} key={showTime.id} />*/}
-                {/*                    ))*/}
-                {/*                }*/}
-                {/*            </div>*/}
-                {/*        </Card>*/}
-                {/*    ))*/}
-                {/*}*/}
 
                 <Card className="p-4">
                     <Typography.Title level={4}>Bảng lịch chiếu</Typography.Title>
@@ -222,7 +214,8 @@ const ShowTimePage = () => {
                                         <td className="border-b border-r sticky left-0 z-10 bg-white text-center text-sm min-h-14 h-14">
                                             <div className="flex flex-col justify-between h-full py-2">
                                                 <div className="font-medium">{time}</div>
-                                                <div className="text-xs font-normal text-gray-600">{dayjs(time, "HH:mm").add(2, "hour").format("HH:mm")}</div>
+                                                <div
+                                                    className="text-xs font-normal text-gray-600">{dayjs(time, 'HH:mm').add(2, 'hour').format('HH:mm')}</div>
                                             </div>
                                         </td>
                                         {
@@ -230,15 +223,20 @@ const ShowTimePage = () => {
                                                 const showTimesInCell = getShowTimesForCell(room, time);
 
                                                 return (
-                                                    <td key={`${room}-${time}`} className="border-b border-r last-of-type:border-r-0 px-2 py-3">
+                                                    <td key={`${room}-${time}`}
+                                                        className="border-b border-r last-of-type:border-r-0 px-2 py-3">
                                                         <div className="flex flex-col gap-2">
                                                             {
                                                                 showTimesInCell.map(showTime => (
                                                                     <div key={showTime.id}
                                                                          className={`p-2 ${movieColorMap[showTime.movieTitle] || 'bg-green-500'} text-white rounded-lg`}>
-                                                                        <div className="text-sm">{showTime.movieTitle}</div>
-                                                                        <div className="text-xs">
-                                                                            {`${formatTime(showTime.startTime)} - ${formatTime(showTime.endTime)}`}
+                                                                        <div
+                                                                            className="text-sm">{showTime.movieTitle}</div>
+                                                                        <div
+                                                                            className="text-xs flex items-center gap-2">
+                                                                            <div>
+                                                                                {`${formatTime(showTime.startTime)} - ${formatTime(showTime.endTime)}`}
+                                                                            </div>
                                                                         </div>
                                                                     </div>
                                                                 ))

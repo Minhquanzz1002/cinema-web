@@ -36,6 +36,11 @@ export const useAllProducts = (params: FetchAllProductParams) => {
     });
 };
 
+/**
+ * Fetch product by code
+ * @param code product code
+ */
+
 const findProductByCode = (code: string): Promise<SuccessResponse<BaseProductWithPrice>> => {
     return httpRepository.get<BaseProductWithPrice>(`/admin/v1/products/${code}`);
 };
@@ -55,16 +60,22 @@ interface FetchAllProductPriceHistoriesParams {
     code: string;
     page?: number;
     status?: BaseStatus;
+    startDate?: string;
+    endDate?: string;
 }
 
 const findAllProductPriceHistories = ({
                                           code,
                                           page = 0,
                                           status,
+                                          startDate,
+                                          endDate,
                                       }: FetchAllProductPriceHistoriesParams): Promise<SuccessResponse<PageObject<ProductPriceHistory>>> => {
     return httpRepository.get<PageObject<ProductPriceHistory>>(`/admin/v1/products/${code}/price-histories`, {
         page,
-        status
+        status,
+        startDate,
+        endDate,
     });
 };
 

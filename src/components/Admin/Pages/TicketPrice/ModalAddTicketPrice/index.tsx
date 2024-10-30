@@ -12,7 +12,6 @@ import { BaseStatus, BaseStatusVietnamese } from '@/modules/base/interface';
 
 type ModalAddTicketPriceProps = {
     onClose: () => void;
-    onSuccess: () => void;
 }
 
 interface FormValues {

@@ -13,8 +13,7 @@ import { AdminTicketPriceOverview } from '@/modules/ticketPrices/interface';
 
 type ModalUpdateTicketPriceProps = {
     onClose: () => void;
-    onSuccess: () => void;
-    ticketPrice: AdminTicketPriceOverview;
+    ticketPrice: AdminTicketPriceOverview | null;
 }
 
 interface FormValues {
@@ -32,10 +31,10 @@ const validationSchema = Yup.object().shape({
         .min(Yup.ref('startDate'), 'Ngày kết thúc phải sau ngày bắt đầu'),
 });
 
-const ModalUpdateTicketPrice = ({ onClose, ticketPrice, onSuccess }: ModalUpdateTicketPriceProps) => {
+const ModalUpdateTicketPrice = ({ onClose, ticketPrice }: ModalUpdateTicketPriceProps) => {
     const updateTicketPrice = useUpdateTicketPrice();
-    // const [showConfirmModal, setShowConfirmModal] = useState(false);
-    // const [formValues, setFormValues] = useState<FormValues | null>(null);
+
+    if (!ticketPrice) return null;
 
     const initialValues: FormValues = {
         name: ticketPrice.name,
@@ -55,33 +54,11 @@ const ModalUpdateTicketPrice = ({ onClose, ticketPrice, onSuccess }: ModalUpdate
                     status: values.status,
                 },
             });
-            onSuccess();
             onClose();
         } catch (error) {
             console.log(error);
         }
     };
-
-    // const handleConfirmSubmit = async () => {
-    //     if (formValues) {
-    //         try {
-    //             await updateTicketPrice.mutateAsync({
-    //                 id: ticketPrice.id,
-    //                 data: {
-    //                     name: formValues.name,
-    //                     startDate: dayjs(formValues.startDate).format('YYYY-MM-DD'),
-    //                     endDate: dayjs(formValues.endDate).format('YYYY-MM-DD'),
-    //                     status: formValues.status,
-    //                 },
-    //             });
-    //             onSuccess();
-    //             onClose();
-    //         } catch (error) {
-    //             console.log(error);
-    //         }
-    //     }
-    //     setShowConfirmModal(false);
-    // };
 
     const FormikContent = () => {
         const { values, setFieldValue } = useFormikContext<FormValues>();
@@ -117,24 +94,6 @@ const ModalUpdateTicketPrice = ({ onClose, ticketPrice, onSuccess }: ModalUpdate
                     <FormikContent />
                 </Formik>
             </Modal>
-            {/*{*/}
-            {/*    showConfirmModal && (*/}
-            {/*        <div onClick={(e) => e.stopPropagation()}>*/}
-            {/*            <ModalAlert onClose={() => setShowConfirmModal(false)}*/}
-            {/*                        title="Xác nhận cập nhật"*/}
-            {/*                        content={`Bạn có chắc chắn muốn cập nhật giá vé này không?`}*/}
-            {/*                        type="warning"*/}
-            {/*                        footer={*/}
-            {/*                            <div className="flex justify-center items-center gap-3 mt-4">*/}
-            {/*                                <ButtonAction.Cancel onClick={() => setShowConfirmModal(false)} />*/}
-            {/*                                <ButtonAction.Confirm*/}
-            {/*                                    onClick={handleConfirmSubmit} />*/}
-            {/*                            </div>*/}
-            {/*                        }*/}
-            {/*            />*/}
-            {/*        </div>*/}
-            {/*    )*/}
-            {/*}*/}
         </>
     );
 };

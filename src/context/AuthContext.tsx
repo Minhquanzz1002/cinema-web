@@ -30,15 +30,18 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
     const [user, setUser] = useState<User>();
 
     useEffect(() => {
-        const storedAccessToken = Cookies.get('accessToken');
-        const storedRefreshToken = Cookies.get('refreshToken');
+        const storedAccessToken = Cookies.get('accessTokenAdmin');
+        const storedRefreshToken = Cookies.get('refreshTokenAdmin');
         if (storedRefreshToken) setRefreshToken(storedRefreshToken);
         if (storedAccessToken) {
             setAccessToken(storedAccessToken);
-            setAccessTokenForAxios(storedAccessToken);
         }
         setIsLoading(false);
     }, []);
+
+    useEffect(() => {
+        setAccessTokenForAxios(accessToken);
+    }, [accessToken]);
 
     const { data: fetchedUser } = useGetUser({
         enabled: !!accessToken && !user,
@@ -62,8 +65,8 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
         setRefreshToken(refreshToken);
         setUser(user);
 
-        Cookies.set('accessToken', newAccessToken, { expires: 1 });
-        Cookies.set('refreshToken', newRefreshToken, { expires: 14 });
+        Cookies.set('accessTokenAdmin', newAccessToken, { expires: 1 });
+        Cookies.set('refreshTokenAdmin', newRefreshToken, { expires: 14 });
     };
 
     const logout = () => {
@@ -71,8 +74,8 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
         setRefreshToken('');
         setUser(undefined);
 
-        Cookies.remove('accessToken');
-        Cookies.remove('refreshToken');
+        Cookies.remove('accessTokenAdmin');
+        Cookies.remove('refreshTokenAdmin');
 
         queryClient.clear();
         router.push('/admin/auth/login');

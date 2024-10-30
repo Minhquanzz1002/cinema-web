@@ -18,10 +18,14 @@ import Typography from '@/components/Admin/Typography';
 import Input from '@/components/Admin/Filters/Input';
 import Select from '@/components/Admin/Filters/Select';
 import AutoSubmitForm from '@/components/Admin/AutoSubmitForm';
+import RangePicker from '@/components/Admin/RangePicker';
+import dayjs from 'dayjs';
 
 interface BillFilter extends PaginationState{
     code: string;
     status: 'ALL' | OrderStatus;
+    fromDate?: Date;
+    toDate?: Date;
 }
 
 const BillPage = () => {
@@ -35,6 +39,8 @@ const BillPage = () => {
         page: filters.page - 1,
         code: filters.code,
         status: filters.status === 'ALL' ? undefined : filters.status,
+        fromDate: filters.fromDate ? dayjs(filters.fromDate).format('YYYY-MM-DD') : undefined,
+        toDate: filters.toDate ? dayjs(filters.toDate).format('YYYY-MM-DD') : undefined,
     });
 
     const {
@@ -136,12 +142,17 @@ const BillPage = () => {
                                 <Typography.Title level={4}>Bộ lọc</Typography.Title>
                                 <div className="grid grid-cols-3 gap-4">
                                     <Input name="code" placeholder="Mã đơn hàng" />
+                                    <RangePicker startName="fromDate" endName="toDate" />
                                     <Select name="status"
                                             options={[
                                                 { label: 'Tất cả', value: 'ALL' },
                                                 {
                                                     label: OrderStatusVietnamese[OrderStatus.COMPLETED],
                                                     value: OrderStatus.COMPLETED,
+                                                },
+                                                {
+                                                    label: OrderStatusVietnamese[OrderStatus.PENDING],
+                                                    value: OrderStatus.PENDING,
                                                 },
                                             ]}
                                     />

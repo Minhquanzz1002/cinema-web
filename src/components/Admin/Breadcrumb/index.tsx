@@ -12,6 +12,22 @@ const Breadcrumb = () => {
         return regex.test(pathname);
     };
 
+    const replacePathParams = (link: string) : string => {
+        if (!link.includes('[code]')) {
+            return link;
+        }
+
+        const pathParts = pathname.split('/');
+        const linkParts = link.split('/');
+
+        return linkParts.map((part, index) => {
+            if (part.includes('[code]')) {
+                return pathParts[index];
+            }
+            return part;
+        }).join('/');
+    };
+
     const matchedBreadcrumb = breadcrumbs.find(breadcrumb => isMath(breadcrumb.link));
 
     return (
@@ -24,7 +40,7 @@ const Breadcrumb = () => {
                             {index === matchedBreadcrumb?.breadcrumbTrail.length - 1 ? (
                                 <div className="text-brand-500 text-sm font-nunito dark:text-white">{trail.label}</div>
                             ) : trail.link ? (
-                                <Link href={trail.link}
+                                <Link href={replacePathParams(trail.link)}
                                       className="text-sm font-nunito text-navy-700 hover:underline dark:text-white">
                                     {trail.label}
                                 </Link>

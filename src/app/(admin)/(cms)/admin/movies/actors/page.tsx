@@ -6,7 +6,7 @@ import { Actor } from '@/modules/actors/interface';
 import Card from '@/components/Admin/Card';
 import Table from '@/components/Admin/Tables';
 import { exportToExcel } from '@/utils/exportToExcel';
-import { useAllActors } from '@/modules/actors/repository';
+import { useAllActors, useDeleteActor } from '@/modules/actors/repository';
 import avatar from '/public/img/avatar/avt.png';
 import BaseStatusBadge from '@/components/Admin/Badge/BaseStatusBadge';
 import ButtonAction from '@/components/Admin/ButtonAction';
@@ -20,6 +20,9 @@ import Typography from '@/components/Admin/Typography';
 import Input from '@/components/Admin/Filters/Input';
 import Select from '@/components/Admin/Filters/Select';
 import AutoSubmitForm from '@/components/Admin/AutoSubmitForm';
+import useDeleteModal from '@/hook/useDeleteModal';
+import ModalDeleteAlert from '@/components/Admin/ModalDeleteAlert';
+import HighlightedText from '@/components/Admin/ModalDeleteAlert/HighlightedText';
 
 interface ActorFilter extends PaginationState {
     search: string;
@@ -29,6 +32,7 @@ interface ActorFilter extends PaginationState {
 
 const ActorPage = () => {
     const [actorDetail, setActorDetail] = useState<Actor | null>(null);
+    const deleteMutation = useDeleteActor();
     const [filters, setFilters] = useState<ActorFilter>({
         page: 1,
         search: '',
@@ -59,6 +63,17 @@ const ActorPage = () => {
     useEffect(() => {
         document.title = 'B&Q Cinema - Diễn viên';
     }, []);
+
+    const deleteModal = useDeleteModal<Actor>({
+        onDelete: async (actor: Actor) => {
+            await deleteMutation.mutateAsync(actor.id);
+        },
+        onSuccess: () => {
+            setFilters((prev) => ({ ...prev, page: 1 }));
+        },
+        canDelete: (actor) => actor.status !== BaseStatus.ACTIVE,
+        unableDeleteMessage: 'Không thể xóa diễn viên đang hoạt động',
+    });
 
     const columns = useMemo<ColumnDef<Actor>[]>(
         () => [
@@ -99,15 +114,15 @@ const ActorPage = () => {
                 id: 'actions',
                 header: '',
                 cell: ({ row }) => (
-                    <div className="inline-flex gap-2 items-center">
+                    <div className="flex gap-2 items-center justify-end">
                         <ButtonAction.View onClick={() => setActorDetail(row.original)} />
-                        <ButtonAction.Update href={`/admin/movies/actors/${row.original.code}/update`} />
-                        <ButtonAction.Delete />
+                        <ButtonAction.Update href={`/admin/movies/actors/${row.original.code}/edit`} />
+                        <ButtonAction.Delete onClick={() => deleteModal.openDeleteModal(row.original)} />
                     </div>
                 ),
             },
         ],
-        [],
+        [deleteModal],
     );
 
     const handleExportExcel = useCallback(async () => {
@@ -142,7 +157,7 @@ const ActorPage = () => {
                                                 ...Object.values(BaseStatus).map(value => ({
                                                     label: BaseStatusVietnamese[value],
                                                     value,
-                                                }))
+                                                })),
                                             ]}
                                     />
                                 </div>
@@ -181,6 +196,16 @@ const ActorPage = () => {
                     </Modal>
                 )
             }
+            <ModalDeleteAlert onConfirm={deleteModal.handleDelete}
+                              onClose={deleteModal.closeDeleteModal}
+                              isOpen={deleteModal.showDeleteModal}
+                              title="Xác nhận xóa?"
+                              content={
+                                    <>
+                                        Bạn có chắc chắn muốn xóa diễn viên <HighlightedText>{deleteModal.selectedData?.name}</HighlightedText> không?
+                                    </>
+                              }
+            />
         </>
     );
 };
