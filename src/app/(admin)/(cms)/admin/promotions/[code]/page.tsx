@@ -16,7 +16,12 @@ import { Form, Formik } from 'formik';
 import Select from '@/components/Admin/Filters/Select';
 import AutoSubmitForm from '@/components/Admin/AutoSubmitForm';
 import { BaseStatus, BaseStatusVietnamese } from '@/modules/base/interface';
-import { useAllPromotionLines, useDeletePromotionLine, usePromotionByCode } from '@/modules/promotions/repository';
+import {
+    useAllPromotionLines,
+    useDeletePromotionDetail,
+    useDeletePromotionLine,
+    usePromotionByCode,
+} from '@/modules/promotions/repository';
 import HTMLContent from '@/components/Admin/HTMLContent';
 import {
     AdminPromotionDetailOverview,
@@ -86,6 +91,7 @@ const ViewPromotionPage = () => {
         });
 
         const deletePromotionLine = useDeletePromotionLine();
+        const deletePrmotionDetail = useDeletePromotionDetail();
 
         const {
             data: histories,
@@ -100,16 +106,27 @@ const ViewPromotionPage = () => {
             onFilterChange: setFilters,
         });
 
-    const deleteModal = useDeleteModal<AdminPromotionLineOverview>({
-        onDelete: async (line: AdminPromotionLineOverview) => {
-            await deletePromotionLine.mutateAsync(line.id);
-        },
-        onSuccess: () => {
-            setFilters((prev) => ({ ...prev, page: 1 }));
-        },
-        canDelete: (line) => line.status !== BaseStatus.ACTIVE,
-        unableDeleteMessage: 'Không thể xóa khuyến mãi đang áp dụng',
-    });
+        const deleteModal = useDeleteModal<AdminPromotionLineOverview>({
+            onDelete: async (line: AdminPromotionLineOverview) => {
+                await deletePromotionLine.mutateAsync(line.id);
+            },
+            onSuccess: () => {
+                setFilters((prev) => ({ ...prev, page: 1 }));
+            },
+            canDelete: (line) => line.status !== BaseStatus.ACTIVE,
+            unableDeleteMessage: 'Không thể xóa khuyến mãi đang áp dụng',
+        });
+
+        const deleteModalPromotionDetail = useDeleteModal<AdminPromotionDetailOverview>({
+            onDelete: async (detail: AdminPromotionDetailOverview) => {
+                await deletePrmotionDetail.mutateAsync(detail.id);
+            },
+            onSuccess: () => {
+                setFilters((prev) => ({ ...prev, page: 1 }));
+            },
+            canDelete: (detail) => detail.status !== BaseStatus.ACTIVE,
+            unableDeleteMessage: 'Không thể chi tiết khuyến mãi đang áp dụng',
+        });
 
 
         useEffect(() => {
@@ -150,14 +167,14 @@ const ViewPromotionPage = () => {
                     id: 'actions',
                     cell: ({ row }) => (
                         <div className="flex gap-2 items-center justify-end">
-                            <ButtonAction.Update onClick={() => setPromotionLineToUpdate(row.original)}/>
-                            <ButtonAction.Delete onClick={() => deleteModal.openDeleteModal(row.original)}/>
+                            <ButtonAction.Update onClick={() => setPromotionLineToUpdate(row.original)} />
+                            <ButtonAction.Delete onClick={() => deleteModal.openDeleteModal(row.original)} />
                         </div>
                     ),
                     header: '',
                 },
             ],
-            [code],
+            [deleteModal],
         );
 
         const CashRebateHeaders = ({ row }: { row: Row<AdminPromotionLineOverview> }) => (
@@ -203,7 +220,7 @@ const ViewPromotionPage = () => {
                 <TableCell>
                     <div className="flex justify-end items-center gap-2">
                         <ButtonAction.Update />
-                        <ButtonAction.Delete />
+                        <ButtonAction.Delete onClick={() => deleteModalPromotionDetail.openDeleteModal(detail)}/>
                     </div>
                 </TableCell>
             </>
@@ -255,7 +272,7 @@ const ViewPromotionPage = () => {
                 <TableCell>
                     <div className="flex justify-end items-center gap-2">
                         <ButtonAction.Update />
-                        <ButtonAction.Delete />
+                        <ButtonAction.Delete onClick={() => deleteModalPromotionDetail.openDeleteModal(detail)}/>
                     </div>
                 </TableCell>
             </>
@@ -267,6 +284,8 @@ const ViewPromotionPage = () => {
                     <TableHeaderCell colSpan={2}>Vé yêu cầu</TableHeaderCell>
                     <TableHeaderCell colSpan={2}>Vé tặng</TableHeaderCell>
                     <TableHeaderCell colSpan={2}>Sử dụng</TableHeaderCell>
+                    <TableHeaderCell></TableHeaderCell>
+                    <TableHeaderCell></TableHeaderCell>
                 </tr>
                 <tr className="h-10 border-t">
                     <SubHeaderCell dashed>Loại vé</SubHeaderCell>
@@ -275,6 +294,8 @@ const ViewPromotionPage = () => {
                     <SubHeaderCell>Số lượng</SubHeaderCell>
                     <SubHeaderCell dashed>Giới hạn</SubHeaderCell>
                     <SubHeaderCell>Đã dùng</SubHeaderCell>
+                    <SubHeaderCell>Trạng thái</SubHeaderCell>
+                    <SubHeaderCell></SubHeaderCell>
                 </tr>
             </>
         );
@@ -295,6 +316,15 @@ const ViewPromotionPage = () => {
                 </TableCell>
                 <TableCell dashed>{detail.usageLimit}</TableCell>
                 <TableCell>{detail.currentUsageCount}</TableCell>
+                <TableCell>
+                    <BaseStatusBadge status={detail.status} />
+                </TableCell>
+                <TableCell>
+                    <div className="flex justify-end items-center gap-2">
+                        <ButtonAction.Update />
+                        <ButtonAction.Delete onClick={() => deleteModalPromotionDetail.openDeleteModal(detail)}/>
+                    </div>
+                </TableCell>
             </>
         );
 
@@ -304,6 +334,8 @@ const ViewPromotionPage = () => {
                     <TableHeaderCell colSpan={2}>Vé yêu cầu</TableHeaderCell>
                     <TableHeaderCell colSpan={2}>Sản phẩm tặng</TableHeaderCell>
                     <TableHeaderCell colSpan={2}>Sử dụng</TableHeaderCell>
+                    <TableHeaderCell></TableHeaderCell>
+                    <TableHeaderCell></TableHeaderCell>
                 </tr>
                 <tr className="h-10 border-t">
                     <SubHeaderCell dashed>Loại vé</SubHeaderCell>
@@ -312,6 +344,8 @@ const ViewPromotionPage = () => {
                     <SubHeaderCell>Số lượng</SubHeaderCell>
                     <SubHeaderCell dashed>Giới hạn</SubHeaderCell>
                     <SubHeaderCell>Đã dùng</SubHeaderCell>
+                    <SubHeaderCell>Trạng thái</SubHeaderCell>
+                    <SubHeaderCell></SubHeaderCell>
                 </tr>
             </>
         );
@@ -418,11 +452,12 @@ const ViewPromotionPage = () => {
                     <Card className="py-4">
                         <div className="flex justify-between items-center px-4 pb-3">
                             <Typography.Title level={4}>Danh sách chương trình</Typography.Title>
-                            {
-                                promotion.status !== BaseStatus.ACTIVE && (
-                                    <ButtonAction.Add text="Thêm chương trình" href={`/admin/promotions/${code}/lines/new`} />
-                                )
-                            }
+                            {/*{*/}
+                            {/*    promotion.status !== BaseStatus.ACTIVE && (*/}
+                            {/*        <ButtonAction.Add text="Thêm chương trình" href={`/admin/promotions/${code}/lines/new`} />*/}
+                            {/*    )*/}
+                            {/*}*/}
+                            <ButtonAction.Add text="Thêm chương trình" href={`/admin/promotions/${code}/lines/new`} />
                         </div>
                         <Formik initialValues={filters} onSubmit={onFilterChange} enableReinitialize>
                             <Form>
@@ -460,12 +495,23 @@ const ViewPromotionPage = () => {
                                   isOpen={deleteModal.showDeleteModal}
                                   title="Xóa chương trình khuyến mãi?"
                                   content={
-                                      <>Bạn có chắc chắn muốn xóa chương trình khuyến mãi <HighlightedText>{deleteModal.selectedData?.name}</HighlightedText> không?</>
+                                      <>Bạn có chắc chắn muốn xóa chương trình khuyến
+                                          mãi <HighlightedText>{deleteModal.selectedData?.name}</HighlightedText> không?</>
+                                  }
+                />
+                <ModalDeleteAlert onClose={deleteModalPromotionDetail.closeDeleteModal}
+                                  onConfirm={deleteModalPromotionDetail.handleDelete}
+                                  isOpen={deleteModalPromotionDetail.showDeleteModal}
+                                  title="Xóa chi tiết chương trình khuyến mãi?"
+                                  content={
+                                      <>Bạn có chắc chắn muốn xóa chi tiết chương trình khuyến
+                                          mãi <HighlightedText>{deleteModalPromotionDetail.selectedData?.id}</HighlightedText> không?</>
                                   }
                 />
                 <ModalAddPromotionDetail onClose={() => setPromotionLineToAddPromotionDetail(null)}
                                          promotionLine={promotionLineToAddPromotionDetail} />
-                <ModalUpdatePromotionLine onClose={() => setPromotionLineToUpdate(null)} promotionLine={promotionLineToUpdate} promotion={promotion}/>
+                <ModalUpdatePromotionLine onClose={() => setPromotionLineToUpdate(null)}
+                                          promotionLine={promotionLineToUpdate} promotion={promotion} />
             </>
         );
     }

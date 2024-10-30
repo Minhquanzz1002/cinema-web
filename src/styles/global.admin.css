@@ -17,7 +17,7 @@
     }
 
     input {
-        @apply outline-none min-w-28;
+        @apply outline-none min-w-20;
     }
 }
 

@@ -14,6 +14,7 @@ import {
     PromotionLineTypeVietnamese,
 } from '@/modules/promotions/interface';
 import Input from '@/components/Admin/Input';
+import { useUpdatePromotionLine } from '@/modules/promotions/repository';
 
 type ModalAddPromotionLineProps = {
     onClose: () => void;
@@ -38,6 +39,8 @@ const validationSchema = Yup.object().shape({
 });
 
 const ModalAddPromotionLine = ({onClose, promotionLine, promotion} : ModalAddPromotionLineProps) => {
+    const updatePromotionLine = useUpdatePromotionLine();
+
     if (!promotionLine) {
         return null;
     }
@@ -54,7 +57,14 @@ const ModalAddPromotionLine = ({onClose, promotionLine, promotion} : ModalAddPro
     const handleSubmit = async (values: FormValues) => {
         console.log(values);
         try {
-
+            await updatePromotionLine.mutateAsync({
+                id: promotionLine.id,
+                payload: {
+                    ...values,
+                    startDate: dayjs(values.startDate).format("YYYY-MM-DD"),
+                    endDate: dayjs(values.endDate).format("YYYY-MM-DD"),
+                }
+            });
             onClose();
         } catch (error) {
             console.log(error);
@@ -89,7 +99,7 @@ const ModalAddPromotionLine = ({onClose, promotionLine, promotion} : ModalAddPro
                 ]}/>
                 <div className="flex justify-end items-center gap-3">
                     <ButtonAction.Cancel onClick={onClose} />
-                    <ButtonAction.Submit />
+                    <ButtonAction.Submit isLoading={updatePromotionLine.isPending}/>
                 </div>
             </Form>
         );

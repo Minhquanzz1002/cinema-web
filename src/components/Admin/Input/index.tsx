@@ -14,15 +14,34 @@ type InputProps = {
     max?: number;
     required?: boolean;
     readOnly?: boolean;
+    uppercase?: boolean;
 };
 
-const Input = ({ name, label, placeholder = '', tooltip, type = 'text', unit, autoFocus = false, min, max, required = false, readOnly = false }: InputProps) => {
+const Input = ({
+                   name,
+                   label,
+                   placeholder = '',
+                   tooltip,
+                   type = 'text',
+                   unit,
+                   autoFocus = false,
+                   min,
+                   max,
+                   required = false,
+                   readOnly = false,
+                   uppercase = false,
+               }: InputProps) => {
     const id = useId();
-    const [field] = useField(name);
+    const [field, , helper] = useField(name);
     const inputRef = React.useRef<HTMLInputElement>(null);
 
     const handleContainerClick = () => {
         inputRef.current?.focus();
+    };
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        helper.setValue(uppercase ? value.toUpperCase() : value);
     };
 
     return (
@@ -49,8 +68,11 @@ const Input = ({ name, label, placeholder = '', tooltip, type = 'text', unit, au
                        autoFocus={autoFocus}
                        min={min}
                        max={max}
+                       onChange={handleChange}
                        readOnly={readOnly}
-                       {...field}
+                       name={field.name}
+                       value={field.value}
+                       onBlur={field.onBlur}
                 />
 
                 {unit && <span className="text-gray-400 uppercase text-xs">{unit}</span>}
