@@ -12,7 +12,7 @@ interface PaymentDetails {
   date: string;
   selectedSeats: string[];
   totalPrice: number;
-  age?: string;
+  ageRating?: string;
   seatFullName?: string;
   roomName?: string;
   dayOfWeek?: string;
@@ -297,6 +297,14 @@ function PayMentInformation() {
         localStorage.removeItem("timeLeft");
         // Xóa đếm ngược thời gian
         setTimeLeft(0);
+        // Xóa giá trị tất cả các totalPriceBooking và totalPrice
+        localStorage.removeItem("totalPriceBooking");
+        localStorage.removeItem("totalPrice");
+        // Xóa giá trị tất cả các totalPriceCombo
+        localStorage.removeItem("totalPriceCombo");
+       
+        
+
         router.push("/"); // Điều hướng đến trang thanh toán thành công (tùy chọn)
       } else {
         // Xử lý khi có lỗi xảy ra
@@ -461,7 +469,7 @@ function PayMentInformation() {
                 </span>{" "}
                 {paymentDetails.format} -{" "}
                 <span className="bg-orange-500 text-white px-2 py-1 rounded font-bold">
-                  T{paymentDetails.age}
+                  {paymentDetails.ageRating}
                 </span>
               </p>
             </div>
