@@ -41,7 +41,7 @@ const initialValues: FormValues = {
         .second(0)
         .millisecond(0)
         .toDate(),
-    status: BaseStatus.INACTIVE,
+    status: BaseStatus.ACTIVE,
     normalPrice: 0,
     vipPrice: 0,
     couplePrice: 0,

@@ -353,6 +353,7 @@ const ShowTimePage = () => {
             <ModalAddShowTime isOpen={showModalAddShowTime} onClose={handleModalAddShowTimeClose}
                               movies={movies} cinemas={cinemas} rooms={rooms} defaultRoom={defaultRoomToAdd}
                               defaultStartTime={defaultStartTime}
+                              defaultStartDate={filters.startDate}
                               defaultCinemaId={filters.cinemaId} />
             <ModalUpdateShowTime showTime={showTimeToUpdate} onClose={() => setShowTimeToUpdate(undefined)} movies={movies} cinemas={cinemas} rooms={rooms}/>
 
