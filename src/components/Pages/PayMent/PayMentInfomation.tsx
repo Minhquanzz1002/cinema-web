@@ -267,6 +267,9 @@ function PayMentInformation() {
     }
   };
 
+  const [isPaymentSuccessModalOpen, setIsPaymentSuccessModalOpen] = useState(false);
+
+
   // Thanh toán
   const handlePaymentClick = async () => {
     try {
@@ -305,7 +308,14 @@ function PayMentInformation() {
        
         
 
-        router.push("/"); // Điều hướng đến trang thanh toán thành công (tùy chọn)
+         // Hiển thị modal thành công
+         setIsPaymentSuccessModalOpen(true);
+
+         // Đặt thời gian đóng modal và điều hướng
+         setTimeout(() => {
+           setIsPaymentSuccessModalOpen(false);
+           router.push('/history'); // Điều hướng sau khi đóng modal
+         }, 2000); // Thời gian hiển thị modal trước khi chuyển trang
       } else {
         // Xử lý khi có lỗi xảy ra
         const errorData = await response.json();
@@ -570,6 +580,17 @@ function PayMentInformation() {
         onClose={handleClose}
         onConfirm={handleConfirm}
       />
+
+      {/* Modal thông báo thanh toán thành công */}
+      {isPaymentSuccessModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <h2 className="text-lg font-bold text-green-600">Thanh Toán Thành Công!</h2>
+            <p className="mt-2 text-sm text-gray-600">Đang chuyển hướng sang lịch sử giao dịch...</p>
+          </div>
+        </div>
+      )}
+      
     </div>
   );
 }
