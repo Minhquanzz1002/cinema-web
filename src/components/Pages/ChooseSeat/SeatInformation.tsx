@@ -42,6 +42,7 @@ interface Seat {
     type: 'VIP' | 'NORMAL' | 'COUPLE';
     status: 'ACTIVE' | 'INACTIVE'; // Trạng thái ghế
     booked: boolean; // Đã được đặt chỗ chưa
+    price: number | null; // Giá tiền cho ghế
 }
 
 interface GroupSeat {
@@ -107,8 +108,9 @@ const SeatInformation: React.FC<LayoutSeatProps> = ({
     }, [showtime?.showtimeId]);
 
     const renderSeat = (seat: Seat | null, index: number, array: (Seat | null)[]) => {
-        if (!seat) {
-          return <div key={`empty-${index}`} className="w-[22px] h-[22px]" />;
+        // Check if seat is null or has no price
+        if (!seat || seat.price === null) {
+          return <div key={`empty-${index}`} className="w-[22px] h-[22px]" />; // Empty spot for unavailable seats
         }
       
         const seatId = `${seat.rowIndex}-${seat.columnIndex}`;
@@ -123,29 +125,29 @@ const SeatInformation: React.FC<LayoutSeatProps> = ({
           seatClass = 'bg-white border border-gray-400'; // Available seat
         }
       
-         // Handle double seat (couple seat)
-  if (seat.area === 2) {
-    const nextSeat = array[index + 1];
-    if (nextSeat) array.splice(index + 1, 1); // Remove the next seat from array
-
-    return (
-      <div className="flex items-center "> {/* Center double seats */}
-        <button
-          key={seat.id}
-          className={`flex w-[46px] h-[22px] items-center justify-between rounded p-2 mx-1 ${seatClass}`}
-          onClick={() =>
-            seat.booked ? null : handleSeatClick(seat.rowIndex, seat.columnIndex)
-          }
-          disabled={seat.booked}
-        >
-          <div className="text-[8px] font-bold">{seat.name}</div>
-          <div className="text-[8px] font-bold">{nextSeat?.name}</div>
-        </button>
-      </div>
-    );
-  }
-
+        // Handle double seat (couple seat)
+        if (seat.area === 2) {
+          const nextSeat = array[index + 1];
+          if (nextSeat) array.splice(index + 1, 1); // Remove the next seat from array
       
+          return (
+            <div className="flex items-center"> {/* Center double seats */}
+              <button
+                key={seat.id}
+                className={`flex w-[46px] h-[22px] items-center justify-between rounded p-2 mx-1 ${seatClass}`}
+                onClick={() =>
+                  seat.booked ? null : handleSeatClick(seat.rowIndex, seat.columnIndex)
+                }
+                disabled={seat.booked}
+              >
+                <div className="text-[8px] font-bold">{seat.name}</div>
+                <div className="text-[8px] font-bold">{nextSeat?.name}</div>
+              </button>
+            </div>
+          );
+        }
+      
+        // Render normal seat
         return (
           <div className="flex items-center mx-1"> {/* Added margin for spacing */}
             <button
@@ -409,7 +411,7 @@ const SeatInformation: React.FC<LayoutSeatProps> = ({
                                         <div className="w-[15px] text-center text-sm font-semibold text-gray-600">
                                             {row.name}
                                         </div>
-                                        <div className="flex flex-1 justify-end mr-40 gap-x-1">
+                                        <div className="flex  justify-between  gap-x-10">
                                             {renderRow(row)}
                                         </div>
                                         <div className="w-[15px] text-center text-sm font-semibold text-gray-600">

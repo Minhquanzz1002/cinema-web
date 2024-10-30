@@ -99,35 +99,32 @@ const MovieInformation: React.FC = () => {
 
         fetchMovieDetails();
     }, []);
-   // Get cinemas
-   useEffect(() => {
-    const fetchCinemas = async () => {
-      setLoading(true); // Bật trạng thái loading
-      try {
-        const response = await axios.get(
-          "http://localhost:8080/api/v1/cinemas"
-        );
-        const cinemasData = response.data;
+    // Get cinemas
+    useEffect(() => {
+        const fetchCinemas = async () => {
+            setLoading(true); // Bật trạng thái loading
+            try {
+                const response = await axios.get('http://localhost:8080/api/v1/cinemas');
+                const cinemasData = response.data;
 
-        console.log("Full API response:", cinemasData); // In toàn bộ dữ liệu phản hồi
+                console.log('Full API response:', cinemasData); // In toàn bộ dữ liệu phản hồi
 
-        if (cinemasData && cinemasData.data) {
-          setCinemas(cinemasData.data); // Lưu trữ danh sách rạp chiếu phim từ API
-          localStorage.setItem("cinemas", JSON.stringify(cinemasData.data));
-        } else {
-          console.error("Data structure not as expected:", cinemasData);
-          setCinemas([]); // Nếu không có dữ liệu, để rỗng
-        }
-      } catch (error) {
-        console.error("Error fetching cinemas:", error);
-      } finally {
-        setLoading(false); // Tắt trạng thái loading
-      }
-    };
+                if (cinemasData && cinemasData.data) {
+                    setCinemas(cinemasData.data); // Lưu trữ danh sách rạp chiếu phim từ API
+                    localStorage.setItem('cinemas', JSON.stringify(cinemasData.data));
+                } else {
+                    console.error('Data structure not as expected:', cinemasData);
+                    setCinemas([]); // Nếu không có dữ liệu, để rỗng
+                }
+            } catch (error) {
+                console.error('Error fetching cinemas:', error);
+            } finally {
+                setLoading(false); // Tắt trạng thái loading
+            }
+        };
 
-    fetchCinemas();
-  }, []);
-
+        fetchCinemas();
+    }, []);
 
     useEffect(() => {
         // Lấy danh sách khu vực từ dữ liệu cinemas
@@ -137,75 +134,82 @@ const MovieInformation: React.FC = () => {
 
     useEffect(() => {
         // Lấy danh sách khu vực từ dữ liệu cinemas
-        const uniqueRegions = Array.from(
-          new Set(cinemas.map((cinema) => cinema.city.name))
-        );
+        const uniqueRegions = Array.from(new Set(cinemas.map(cinema => cinema.city.name)));
         setRegions(uniqueRegions);
-      }, [cinemas]);
-    
-      useEffect(() => {
+    }, [cinemas]);
+
+    useEffect(() => {
         // Cập nhật danh sách rạp khi khu vực thay đổi
         if (selectedRegion) {
-          const filteredTheaters = cinemas.filter(
-            (cinema) => cinema.city.name === selectedRegion
-          );
-          setTheaters(filteredTheaters);
-          setSelectedTheater(""); // Đặt lại giá trị rạp đã chọn
-          setSelectedTheaterId(null); // Đặt lại ID của rạp đã chọn
+            const filteredTheaters = cinemas.filter(cinema => cinema.city.name === selectedRegion);
+            setTheaters(filteredTheaters);
+            setSelectedTheater(''); // Đặt lại giá trị rạp đã chọn
+            setSelectedTheaterId(null); // Đặt lại ID của rạp đã chọn
         } else {
-          setTheaters(cinemas); // Hiển thị tất cả rạp nếu không chọn khu vực
+            setTheaters(cinemas); // Hiển thị tất cả rạp nếu không chọn khu vực
         }
-      }, [selectedRegion, cinemas]);
-    
+    }, [selectedRegion, cinemas]);
 
-  // Hiển thị id rạp đã chọn
-  console.log("Rạp đã chọn:", selectedTheater);
-  console.log("ID rạp đã chọn:", selectedTheaterId);
-  // Hiển thị ngày đã chọn
-  console.log("Ngày đã chọn:", selectedDate.format("DD/MM/YYYY"));
-  // Hiển thị movie id
-  console.log("ID phim:", movie?.id);
-
-  //handleRegionChange
-  const handleRegionChange = (region: string) => {
-    setSelectedRegion(region);
-  };
-
-
-    // API showtime
-     // API showtime
-  useEffect(() => {
-    const fetchShowTimes = async () => {
-      if (movie?.id) {
-        const movieId = movie.id;
-        const date = selectedDate ? selectedDate.format("YYYY-MM-DD") : null;
-        const cinemaId = selectedTheaterId;
-
-        try {
-          let response;
-          if (date && cinemaId) {
-            // Gọi API khi đã chọn date và cinemaId
-            response = await axios.get(
-              `http://localhost:8080/api/v1/show-times?movieId=${movieId}&date=${date}&cinemaId=${cinemaId}`
-            );
-          } else {
-            // Gọi API chỉ với movieId khi chưa chọn date và cinemaId
-            response = await axios.get(
-              `http://localhost:8080/api/v1/show-times?movieId=${movieId}`
-            );
-          }
-
-          setShowtimes(response.data.data); // Giả sử dữ liệu cần nằm trong response.data.data
-        } catch (error) {
-          console.error("Error fetching showtimes:", error);
+    // Hiển thị rạp đã chọn
+    useEffect(() => {
+        if (selectedTheater) {
+            const selectedTheaterData = theaters.find(theater => theater.name === selectedTheater);
+            // luu id rạp đã chọn vào state
+            setSelectedTheaterId(selectedTheaterData?.id || null);
         }
-      }
+    }, [selectedTheater, theaters]);
+
+    // Hiển thị id rạp đã chọn
+    console.log('Rạp đã chọn:', selectedTheater);
+    console.log('ID rạp đã chọn:', selectedTheaterId);
+    // Hiển thị ngày đã chọn
+    console.log('Ngày đã chọn:', selectedDate.format('DD/MM/YYYY'));
+    // Hiển thị movie id
+    console.log('ID phim:', movie?.id);
+
+    //handleRegionChange
+    const handleRegionChange = (region: string) => {
+        setSelectedRegion(region);
     };
 
-    fetchShowTimes();
-  }, [movie, selectedDate, selectedTheaterId]);
+    // API showtime
+    // Đảm bảo fetch chỉ gọi khi cần thiết
+    useEffect(() => {
+        const fetchShowTimes = async () => {
+            if (!movie?.id) return;
 
+            const movieId = movie.id;
+            const date = selectedDate
+                ? selectedDate.format('YYYY-MM-DD')
+                : moment().format('YYYY-MM-DD');
+            const cinemaId = selectedTheaterId;
 
+            try {
+                const response = await axios.get(
+                    `http://localhost:8080/api/v1/show-times?movieId=${movieId}&date=${date}${
+                        cinemaId ? `&cinemaId=${cinemaId}` : ''
+                    }`,
+                );
+                const data = response.data.data;
+
+                if (data && data.length) {
+                    setShowtimes(data);
+                } else {
+                    console.warn('Không có suất chiếu cho ngày và rạp đã chọn.');
+                    setShowtimes([]); // Đặt showtimes trống khi không có kết quả
+                }
+            } catch (error) {
+                console.error('Lỗi khi lấy dữ liệu suất chiếu:', error);
+            }
+        };
+
+        fetchShowTimes();
+    }, [movie, selectedDate, selectedTheaterId]);
+
+    // Khi nút ngày được nhấn
+    const handleDateClick = (dayMoment: Moment) => {
+        setSelectedDate(dayMoment);
+    };
 
     // Hiển thị showtimes dữ liệu từ API startTime, cinemaName, room
     console.log(
@@ -218,25 +222,27 @@ const MovieInformation: React.FC = () => {
 
     // Hiển thị showtimes  "id": "e3b257d1-aa0e-4df2-8f18-69dae6620cd4", showtime.id đã chọn
 
-    const groupedShowtimes = showtimes.reduce((acc, showtime) => {
-        const { cinemaName, room, id, startTime } = showtime;
-    
-        // Nếu cinema chưa tồn tại trong acc, tạo mới
-        if (!acc[cinemaName]) {
-          acc[cinemaName] = {};
-        }
-    
-        // Nếu room chưa tồn tại trong cinema, tạo mới
-        if (!acc[cinemaName][room.name]) {
-          acc[cinemaName][room.name] = [];
-        }
-    
-        // Thêm đối tượng chứa giờ chiếu và id vào room
-        acc[cinemaName][room.name].push({ id, startTime });
-    
-        return acc;
-      }, {} as Record<string, Record<string, { id: string; startTime: string }[]>>);
-    
+    const groupedShowtimes = showtimes.reduce(
+        (acc, showtime) => {
+            const { cinemaName, room, id, startTime } = showtime;
+
+            // Nếu cinema chưa tồn tại trong acc, tạo mới
+            if (!acc[cinemaName]) {
+                acc[cinemaName] = {};
+            }
+
+            // Nếu room chưa tồn tại trong cinema, tạo mới
+            if (!acc[cinemaName][room.name]) {
+                acc[cinemaName][room.name] = [];
+            }
+
+            // Thêm đối tượng chứa giờ chiếu và id vào room
+            acc[cinemaName][room.name].push({ id, startTime });
+
+            return acc;
+        },
+        {} as Record<string, Record<string, { id: string; startTime: string }[]>>,
+    );
 
     // Lấy giá trị của accessToken từ localStorage
     const [accessToken, setAccessToken] = useState('');
@@ -249,65 +255,60 @@ const MovieInformation: React.FC = () => {
     console.log('accessToken:', accessToken);
 
     // Hàm xử lý khi người dùng nhấp vào giờ chiếu
-  const handleTimeClick = async (theater: Cinema, showtimeId: string) => {
-    // Hiển thị showtimeId
-    console.log("ID suất chiếu đã chọn:", showtimeId);
-  
-    // Tìm kiếm thông tin về suất chiếu dựa trên showtimeId
-    let selectedShowtime: { id: string; startTime: string } | undefined;
-    let roomName: string | undefined; // Biến để lưu tên phòng
-  
-    // Duyệt qua groupedShowtimes để tìm suất chiếu đã chọn
-    for (const cinemaName in groupedShowtimes) {
-      for (const room in groupedShowtimes[cinemaName]) {
-        const showtimes = groupedShowtimes[cinemaName][room];
-        selectedShowtime = showtimes.find(showtime => showtime.id === showtimeId);
-  
-        if (selectedShowtime) {
-          roomName = room; // Lưu tên phòng nếu tìm thấy
-          break; // Nếu đã tìm thấy, dừng vòng lặp
-        }
-      }
-      if (selectedShowtime) {
-        break; // Dừng vòng lặp bên ngoài nếu đã tìm thấy
-      }
-    }
-  
-    console.log(
-      "Cấu trúc groupedShowtimes:",
-      JSON.stringify(groupedShowtimes, null, 2)
-    ); // Kiểm tra cấu trúc
-  
-    if (selectedShowtime) {
-      // Tạo thông tin truyền qua trang choose-seat
-      const infomationtransfer = {
-        image: movie?.imagePortrait,
-        movieTitle: movie?.title,
-        ageRating: movie?.ageRating,
-        cinemaName: theater.name,
-        roomName: roomName || "Không tìm thấy rạp", // Lưu tên phòng đã chọn
-        time: selectedShowtime.startTime, // Lấy startTime từ suất chiếu đã chọn
-        date: selectedDate.format("DD/MM/YYYY"),
-        roomId: selectedTheaterId,
-        showtimeId: selectedShowtime.id, // Lấy id của suất chiếu đã chọn
-       
-  
-        // Truyền thứ đã chọn
-        dayOfWeek: selectedDate.format("dddd").charAt(0).toUpperCase() + selectedDate.format("dddd").slice(1),
-      };
-  
-      console.log("Thông tin truyền qua trang choose-seat:", infomationtransfer);
-  
-      // Lưu thông tin vào localStorage
-      localStorage.setItem("showtime", JSON.stringify(infomationtransfer)); 
-      router.push("/choose-seat");
-      
-    } else {
-      console.error("Không tìm thấy suất chiếu với ID:", showtimeId);
-    }
-  };
-  
+    const handleTimeClick = async (theater: Cinema, showtimeId: string) => {
+        // Hiển thị showtimeId
+        console.log('ID suất chiếu đã chọn:', showtimeId);
 
+        // Tìm kiếm thông tin về suất chiếu dựa trên showtimeId
+        let selectedShowtime: { id: string; startTime: string } | undefined;
+        let roomName: string | undefined; // Biến để lưu tên phòng
+
+        // Duyệt qua groupedShowtimes để tìm suất chiếu đã chọn
+        for (const cinemaName in groupedShowtimes) {
+            for (const room in groupedShowtimes[cinemaName]) {
+                const showtimes = groupedShowtimes[cinemaName][room];
+                selectedShowtime = showtimes.find(showtime => showtime.id === showtimeId);
+
+                if (selectedShowtime) {
+                    roomName = room; // Lưu tên phòng nếu tìm thấy
+                    break; // Nếu đã tìm thấy, dừng vòng lặp
+                }
+            }
+            if (selectedShowtime) {
+                break; // Dừng vòng lặp bên ngoài nếu đã tìm thấy
+            }
+        }
+
+        console.log('Cấu trúc groupedShowtimes:', JSON.stringify(groupedShowtimes, null, 2)); // Kiểm tra cấu trúc
+
+        if (selectedShowtime) {
+            // Tạo thông tin truyền qua trang choose-seat
+            const infomationtransfer = {
+                image: movie?.imagePortrait,
+                movieTitle: movie?.title,
+                ageRating: movie?.ageRating,
+                cinemaName: theater.name,
+                roomName: roomName || 'Không tìm thấy rạp', // Lưu tên phòng đã chọn
+                time: selectedShowtime.startTime, // Lấy startTime từ suất chiếu đã chọn
+                date: selectedDate.format('DD/MM/YYYY'),
+                roomId: selectedTheaterId,
+                showtimeId: selectedShowtime.id, // Lấy id của suất chiếu đã chọn
+
+                // Truyền thứ đã chọn
+                dayOfWeek:
+                    selectedDate.format('dddd').charAt(0).toUpperCase() +
+                    selectedDate.format('dddd').slice(1),
+            };
+
+            console.log('Thông tin truyền qua trang choose-seat:', infomationtransfer);
+
+            // Lưu thông tin vào localStorage
+            localStorage.setItem('showtime', JSON.stringify(infomationtransfer));
+            router.push('/choose-seat');
+        } else {
+            console.error('Không tìm thấy suất chiếu với ID:', showtimeId);
+        }
+    };
 
     return (
         <div>
@@ -520,7 +521,7 @@ const MovieInformation: React.FC = () => {
                                         ? 'bg-blue-700 text-white'
                                         : 'bg-gray-100'
                                 }`}
-                                onClick={() => setSelectedDate(day.dayMoment)}
+                                onClick={() => handleDateClick(day.dayMoment)}
                             >
                                 <div className="text-sm font-bold">{day.dayOfWeek}</div>
                                 <div className="text-xs">{day.date}</div>
