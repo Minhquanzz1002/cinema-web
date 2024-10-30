@@ -48,6 +48,14 @@ const DetailFields = ({ index }: { index: number }) => {
                         <Input name={`promotionDetails.${index}.usageLimit`}
                                placeholder="Nhập số lượng áp dụng tối đa" required />
                     </Table.Cell>
+                    <Table.Cell>
+                        <Select name={`promotionDetails.${index}.status`} options={[
+                            ...Object.keys(BaseStatus).map((status) => ({
+                                label: BaseStatusVietnamese[status as BaseStatus],
+                                value: status,
+                            })),
+                        ]} />
+                    </Table.Cell>
                 </>
             );
         case PromotionLineType.PRICE_DISCOUNT:
@@ -67,7 +75,15 @@ const DetailFields = ({ index }: { index: number }) => {
                     </Table.Cell>
                     <Table.Cell>
                         <InputCurrency name={`promotionDetails.${index}.usageLimit`}
-                               placeholder="Nhập số lượng áp dụng tối đa" required />
+                                       placeholder="Nhập số lượng áp dụng tối đa" required />
+                    </Table.Cell>
+                    <Table.Cell>
+                        <Select name={`promotionDetails.${index}.status`} options={[
+                            ...Object.keys(BaseStatus).map((status) => ({
+                                label: BaseStatusVietnamese[status as BaseStatus],
+                                value: status,
+                            })),
+                        ]} />
                     </Table.Cell>
                 </>
             );
@@ -82,29 +98,29 @@ const DetailFields = ({ index }: { index: number }) => {
                             })),
                         ]} />
                     </Table.Cell>
-                    <Table.Cell>
-                        <div className="max-w-32">
-                            <Input name={`promotionDetails.${index}.requiredSeatQuantity`} />
-                        </div>
+                    <Table.Cell className="max-w-32">
+                        <Input name={`promotionDetails.${index}.requiredSeatQuantity`} />
+                    </Table.Cell>
+                    <Table.Cell className="min-w-96">
+                        <Select name={`promotionDetails.${index}.giftProduct`}
+                                options={products?.map(product => ({
+                                    label: `#${product.code} - ${product.name}`,
+                                    value: product.id,
+                                })) ?? []} />
+                    </Table.Cell>
+                    <Table.Cell className="max-w-32">
+                        <Input name={`promotionDetails.${index}.giftQuantity`} />
+                    </Table.Cell>
+                    <Table.Cell className="max-w-32">
+                        <Input name={`promotionDetails.${index}.usageLimit`} required />
                     </Table.Cell>
                     <Table.Cell>
-                        <div className="min-w-60">
-                            <Select name={`promotionDetails.${index}.giftProduct`}
-                                    options={products?.map(product => ({
-                                        label: `#${product.code} - ${product.name}`,
-                                        value: product.id,
-                                    })) ?? []} />
-                        </div>
-                    </Table.Cell>
-                    <Table.Cell>
-                        <div className="max-w-32">
-                            <Input name={`promotionDetails.${index}.giftQuantity`} />
-                        </div>
-                    </Table.Cell>
-                    <Table.Cell>
-                        <div className="max-w-32">
-                            <Input name={`promotionDetails.${index}.usageLimit`} required />
-                        </div>
+                        <Select name={`promotionDetails.${index}.status`} options={[
+                            ...Object.keys(BaseStatus).map((status) => ({
+                                label: BaseStatusVietnamese[status as BaseStatus],
+                                value: status,
+                            })),
+                        ]} />
                     </Table.Cell>
                 </>
             );
@@ -136,9 +152,15 @@ const DetailFields = ({ index }: { index: number }) => {
                                placeholder="Nhập số lượng vé tặng" />
                     </Table.Cell>
                     <Table.Cell>
-                        <div className="max-w-32">
-                            <Input name={`promotionDetails.${index}.usageLimit`} required />
-                        </div>
+                        <Input name={`promotionDetails.${index}.usageLimit`} required />
+                    </Table.Cell>
+                    <Table.Cell>
+                        <Select name={`promotionDetails.${index}.status`} options={[
+                            ...Object.keys(BaseStatus).map((status) => ({
+                                label: BaseStatusVietnamese[status as BaseStatus],
+                                value: status,
+                            })),
+                        ]} />
                     </Table.Cell>
                 </>
             );
@@ -156,40 +178,44 @@ const DetailHeaders = () => {
             return (
                 <tr>
                     <Table.CellHeader>Số tiền giảm</Table.CellHeader>
-                    <Table.CellHeader>Tổng tiền đơn tối thiểu</Table.CellHeader>
-                    <Table.CellHeader>Số lượng áp dụng tối đa</Table.CellHeader>
+                    <Table.CellHeader>Giá trị đơn hàng tối thiểu</Table.CellHeader>
+                    <Table.CellHeader>Giới hạn số lần sử dụng</Table.CellHeader>
+                    <Table.CellHeader>Trạng thái</Table.CellHeader>
                     <Table.CellHeader></Table.CellHeader>
                 </tr>
             );
         case PromotionLineType.PRICE_DISCOUNT:
             return (
                 <tr>
-                    <Table.CellHeader>Phần trăm giảm</Table.CellHeader>
-                    <Table.CellHeader>Số tiền tối đa</Table.CellHeader>
-                    <Table.CellHeader>Tổng tiền đơn tối thiểu</Table.CellHeader>
-                    <Table.CellHeader>Số lượng áp dụng tối đa</Table.CellHeader>
+                    <Table.CellHeader>Tỷ lệ giảm</Table.CellHeader>
+                    <Table.CellHeader>Giới hạn số tiền giảm</Table.CellHeader>
+                    <Table.CellHeader>Giá trị đơn hàng tối thiểu</Table.CellHeader>
+                    <Table.CellHeader>Giới hạn số lần sử dụng</Table.CellHeader>
+                    <Table.CellHeader>Trạng thái</Table.CellHeader>
                     <Table.CellHeader></Table.CellHeader>
                 </tr>
             );
         case PromotionLineType.BUY_TICKETS_GET_TICKETS:
             return (
                 <tr>
-                    <Table.CellHeader>Vé yêu cầu</Table.CellHeader>
-                    <Table.CellHeader>Số vé yêu cầu</Table.CellHeader>
+                    <Table.CellHeader>Loại vé điều kiện</Table.CellHeader>
+                    <Table.CellHeader>SL vé điều kiện</Table.CellHeader>
                     <Table.CellHeader>Vé tặng</Table.CellHeader>
                     <Table.CellHeader>Số vé tặng</Table.CellHeader>
-                    <Table.CellHeader>Số lượng áp dụng tối đa</Table.CellHeader>
+                    <Table.CellHeader>Giới hạn số lần sử dụng</Table.CellHeader>
+                    <Table.CellHeader>Trạng thái</Table.CellHeader>
                     <Table.CellHeader></Table.CellHeader>
                 </tr>
             );
         case PromotionLineType.BUY_TICKETS_GET_PRODUCTS:
             return (
                 <tr>
-                    <Table.CellHeader>Loại vé yêu cầu</Table.CellHeader>
-                    <Table.CellHeader>SL vé yêu cầu</Table.CellHeader>
+                    <Table.CellHeader>Loại vé điều kiện</Table.CellHeader>
+                    <Table.CellHeader>SL vé điều kiện</Table.CellHeader>
                     <Table.CellHeader>Sản phẩm tặng</Table.CellHeader>
-                    <Table.CellHeader>SL tặng</Table.CellHeader>
-                    <Table.CellHeader>SL áp dụng tối đa</Table.CellHeader>
+                    <Table.CellHeader>SL quà tặng</Table.CellHeader>
+                    <Table.CellHeader>GH số lần sử dụng</Table.CellHeader>
+                    <Table.CellHeader>Trạng thái</Table.CellHeader>
                     <Table.CellHeader></Table.CellHeader>
                 </tr>
             );
@@ -208,14 +234,16 @@ const DynamicDetailsList = () => {
                     return [{
                         discountValue: 0,
                         usageLimit: 1,
-                        minOrderValue: 0
+                        minOrderValue: 0,
+                        status: BaseStatus.INACTIVE,
                     }];
                 case PromotionLineType.PRICE_DISCOUNT:
                     return [{
                         discountValue: 0,
                         usageLimit: 1,
                         minOrderValue: 0,
-                        maxDiscountValue: undefined
+                        maxDiscountValue: undefined,
+                        status: BaseStatus.INACTIVE,
                     }];
                 case PromotionLineType.BUY_TICKETS_GET_TICKETS:
                     return [{
@@ -223,7 +251,8 @@ const DynamicDetailsList = () => {
                         requiredSeatQuantity: undefined,
                         giftSeatType: undefined,
                         giftSeatQuantity: undefined,
-                        usageLimit: 1
+                        usageLimit: 1,
+                        status: BaseStatus.INACTIVE,
                     }];
                 case PromotionLineType.BUY_TICKETS_GET_PRODUCTS:
                     return [{
@@ -231,7 +260,8 @@ const DynamicDetailsList = () => {
                         requiredSeatQuantity: undefined,
                         giftProduct: undefined,
                         giftQuantity: undefined,
-                        usageLimit: 1
+                        usageLimit: 1,
+                        status: BaseStatus.INACTIVE,
                     }];
                 default:
                     return [];
@@ -247,10 +277,10 @@ const DynamicDetailsList = () => {
         const type = values.type;
         switch (type) {
             case PromotionLineType.CASH_REBATE:
-                arrayHelper.push({ discountValue: 0, usageLimit: 1, minOrderValue: 0 });
+                arrayHelper.push({ discountValue: 0, usageLimit: 1, minOrderValue: 0, status: BaseStatus.INACTIVE });
                 break;
             case PromotionLineType.PRICE_DISCOUNT:
-                arrayHelper.push({ discountValue: 0, usageLimit: 1, minOrderValue: 0, maxDiscountValue: undefined });
+                arrayHelper.push({ discountValue: 0, usageLimit: 1, minOrderValue: 0, maxDiscountValue: undefined, status: BaseStatus.INACTIVE });
                 break;
             default:
                 arrayHelper.push({});
@@ -287,7 +317,8 @@ const DynamicDetailsList = () => {
                                 }
                                 <tr>
                                     <Table.Cell>
-                                        <ButtonAction.Add onClick={() => handleAddDetail(arrayHelper)} text="Thêm chi tiết" />
+                                        <ButtonAction.Add onClick={() => handleAddDetail(arrayHelper)}
+                                                          text="Thêm chi tiết" />
                                     </Table.Cell>
                                 </tr>
                             </>
@@ -300,7 +331,8 @@ const DynamicDetailsList = () => {
 };
 
 const basePromotionLineSchema = object({
-    code: string().required('Mã chương trình là bắt buộc'),
+    code: string().required('Mã chương trình là bắt buộc')
+        .min(4, 'Mã chương trình phải có ít nhất 4 ký tự'),
     name: string().required('Tên chương trình là bắt buộc'),
     type: string().required('Loại chương trình là bắt buộc').oneOf(
         Object.values(PromotionLineType),
@@ -376,7 +408,11 @@ interface BuyTicketsGetProductsDetail {
     usageLimit?: number;
 }
 
-type PromotionDetail = CashRebateDetail | PriceDiscountDetail | BuyTicketsGetTicketsDetail | BuyTicketsGetProductsDetail;
+type PromotionDetail =
+    CashRebateDetail
+    | PriceDiscountDetail
+    | BuyTicketsGetTicketsDetail
+    | BuyTicketsGetProductsDetail;
 
 interface FormValues {
     code: string;
@@ -451,7 +487,7 @@ const NewPromotionLinePage = () => {
                             <Card className="p-4">
                                 <Typography.Title level={4}>Thông tin chung</Typography.Title>
                                 <Input name="code" label="Mã chương trình" placeholder="Nhập mã chương trình"
-                                       required />
+                                       required uppercase />
                                 <Input name="name" label="Tên" placeholder="Nhập tên chương trình" required />
                                 <Select name="type" label="Loại" placeholder="Chọn loại" options={[
                                     {
@@ -499,8 +535,8 @@ const NewPromotionLinePage = () => {
                                         onClick={() => router.back()}>
                                 Hủy bỏ
                             </ButtonIcon>
-                            <ButtonIcon icon={<FaSave />} type="submit">
-                                Lưu
+                            <ButtonIcon icon={<FaSave />} type="submit" disabled={createPromotionLine.isPending}>
+                                {createPromotionLine.isPending ? 'Đang tạo...' : 'Tạo mới'}
                             </ButtonIcon>
                         </div>
 

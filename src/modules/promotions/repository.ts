@@ -84,8 +84,8 @@ export const useCreatePromotion = () => {
             await queryClient.invalidateQueries({ queryKey: [PROMOTION_QUERY_KEY] });
             toast.success(res.message);
         },
-        onError: error => {
-            toast.error('Thêm khuyến mãi không thành công');
+        onError: (error: ErrorResponse) => {
+            toast.error(error.message || 'Thêm khuyến mãi không thành công');
             console.error('Create ticket price line error:', error);
         },
     });
@@ -106,8 +106,8 @@ export const useDeletePromotion = () => {
             await queryClient.invalidateQueries({ queryKey: [PROMOTION_QUERY_KEY] });
             toast.success(res.message);
         },
-        onError: (error) => {
-            toast.error('Xóa khuyến mãi thất bại');
+        onError: (error: ErrorResponse) => {
+            toast.error(error.message || 'Xóa khuyến mãi thất bại');
             console.error('Delete promotion error:', error);
         },
     });
@@ -215,8 +215,8 @@ export const useCreatePromotionLine = () => {
             await queryClient.invalidateQueries({ queryKey: [PROMOTION_QUERY_KEY] });
             toast.success(res.message);
         },
-        onError: error => {
-            toast.error('Thêm chương trình khuyến mãi không thành công');
+        onError: (error: ErrorResponse) => {
+            toast.error(error.message || 'Thêm chương trình khuyến mãi không thành công');
             console.error('Create ticket price line error:', error);
         },
     });
@@ -295,6 +295,60 @@ export const useDeletePromotionLine = () => {
         },
         onError: (error: ErrorResponse) => {
             toast.error(error.message || 'Xóa khuyến mãi không thành công. Hãy thử lại sau');
+            console.error('Delete promotion error:', error);
+        },
+    });
+};
+
+/**
+ * Update promotion
+ */
+interface UpdatePromotionLinePayload {
+    name: string;
+    status: BaseStatus;
+    startDate: string;
+    endDate: string;
+}
+
+const updatePromotionLine = ({ id, payload }: {
+    id: number,
+    payload: UpdatePromotionLinePayload
+}): Promise<SuccessResponse<void>> => {
+    return httpRepository.put<void, UpdatePromotionLinePayload>(`/admin/v1/promotion-lines/${id}`, payload);
+};
+
+export const useUpdatePromotionLine = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: updatePromotionLine,
+        onSuccess: async (res) => {
+            await queryClient.invalidateQueries({ queryKey: [PROMOTION_QUERY_KEY] });
+            toast.success(res.message);
+        },
+        onError: (error: ErrorResponse) => {
+            toast.error(error.message || 'Cập nhật chương trình khuyến mãi không thành công. Hãy thử lại sau');
+            console.error('Update promotion error:', error);
+        },
+    });
+};
+
+/**
+ * Delete promotion detail
+ */
+const deletePromotionDetail = (id: number): Promise<SuccessResponse<void>> => {
+    return httpRepository.delete<void>(`/admin/v1/promotion-details/${id}`);
+};
+
+export const useDeletePromotionDetail = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: deletePromotionDetail,
+        onSuccess: async (res) => {
+            await queryClient.invalidateQueries({ queryKey: [PROMOTION_QUERY_KEY] });
+            toast.success(res.message);
+        },
+        onError: (error: ErrorResponse) => {
+            toast.error(error.message || 'Xóa chi tiết khuyến mãi không thành công. Hãy thử lại sau');
             console.error('Delete promotion error:', error);
         },
     });

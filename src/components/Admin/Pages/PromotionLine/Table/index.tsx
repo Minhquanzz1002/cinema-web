@@ -3,12 +3,12 @@ import React from 'react';
 const Table = {
     CellHeader: ({ children }: { children?: React.ReactNode }) => {
         return (
-            <th className="text-tiny text-gray-800 dark:text-white uppercase text-start px-4 py-2 first-of-type:pl-0">{children}</th>
+            <th className="text-tiny text-gray-800 dark:text-white uppercase text-start px-2 py-1 first-of-type:pl-0">{children}</th>
         );
     },
-    Cell: ({ children }: { children?: React.ReactNode }) => {
+    Cell: ({ children, className = '' }: { children?: React.ReactNode; className?: string }) => {
         return (
-            <td className="px-4 py-2 first-of-type:pl-0">
+            <td className={`px-2 py-1 first-of-type:pl-0 ${className}`}>
                 {children}
             </td>
         );
