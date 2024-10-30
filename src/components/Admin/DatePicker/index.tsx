@@ -259,6 +259,7 @@ const DatePicker = ({
                            onBlur={handleInputBlur}
                            name={field.name}
                            readOnly={readOnly}
+                           onClick={handleToggleCalendar}
                 />
                 <button type="button" className="flex items-center justify-between" onClick={handleToggleCalendar}>
                     <LuCalendarDays />

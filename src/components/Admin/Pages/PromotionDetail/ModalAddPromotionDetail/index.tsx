@@ -43,8 +43,8 @@ const CashRebateForm = ({onClose} : {onClose: () => void}) => {
 const PriceDiscountForm = ({onClose} : {onClose: () => void}) => {
     return (
         <Form>
-            <InputCurrency name="discountValue" label="Số tiền giảm" placeholder="Nhập số tiền giảm" required unit="VND"/>
-            <InputCurrency name="maxDiscountValue" label="Giảm tối đa" placeholder="Nhập số tiền giảm" unit="VND"/>
+            <InputCurrency name="discountValue" label="Tỷ lệ giảm" placeholder="Nhập tỷ lệ giảm" required unit="%"/>
+            <InputCurrency name="maxDiscountValue" label="Giới hạn số tiền giảm" placeholder="Nhập giới hạn số tiền giảm" unit="VND"/>
             <InputCurrency name="minOrderValue" label="Giá trị đơn hàng tối thiểu" placeholder="Nhập giá trị đơn hàng tối thiểu" unit="VND"/>
             <InputCurrency name="usageLimit" label="Số lượng áp dụng tối đa" placeholder="Nhập số lượng áp dụng tối đa" required/>
             <Select name="status" label="Trạng thái" readOnly tooltip="Trạng thái mặc định khi tạo là `Ngưng kích hoạt`" options={[

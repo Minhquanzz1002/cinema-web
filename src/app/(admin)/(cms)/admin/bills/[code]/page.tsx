@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import Typography from '@/components/Admin/Typography';
 import Card from '@/components/Admin/Card';
 import { useOrderDetail } from '@/modules/orders/repository';
-import { AdminOrderOverview, OrderStatusVietnamese } from '@/modules/orders/interface';
+import { AdminOrderOverview, OrderStatus, OrderStatusVietnamese } from '@/modules/orders/interface';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import { formatDateInOrder, formatTime } from '@/utils/formatDate';
@@ -11,8 +11,8 @@ import { formatNumberToCurrency } from '@/utils/formatNumber';
 import { LuGift } from 'react-icons/lu';
 import Loader from '@/components/Admin/Loader';
 import NotFound from '@/components/Admin/NotFound';
-import PrintBill from '@/components/Admin/Pages/Bills/PrintBill';
 import { SeatTypeVietnamese } from '@/modules/seats/interface';
+import PrintBill from '@/components/Admin/Pages/Bills/PrintBill';
 
 const OrderDetailInfo = ({ label, value }: { label: string, value: string | React.ReactNode }) => (
     <div className="flex justify-between items-center">
@@ -54,7 +54,11 @@ const OrderDetailPage = () => {
                         <div className="text-brand-500">#{order.code}</div>
                     </div>
 
-                    <PrintBill bill={order} />
+                    {
+                        order.status === OrderStatus.COMPLETED && (
+                            <PrintBill bill={order} />
+                        )
+                    }
                 </div>
             </Card>
             <div className="grid grid-cols-3 gap-4 mt-4">
