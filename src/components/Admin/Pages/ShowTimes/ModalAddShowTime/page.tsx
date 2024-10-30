@@ -28,6 +28,7 @@ type ModalAddShowTimeProps = {
     rooms: { id: number, name: string } [];
     defaultRoom?: Room;
     defaultCinemaId?: number;
+    defaultStartDate?: Date;
     defaultStartTime?: Date;
 }
 
@@ -54,6 +55,7 @@ const ModalAddShowTime = ({
                               defaultRoom,
                               defaultCinemaId,
                               defaultStartTime,
+                              defaultStartDate,
                           }: ModalAddShowTimeProps) => {
     const createShowTime = useCreateShowTime();
     if (!isOpen) return null;
@@ -77,7 +79,7 @@ const ModalAddShowTime = ({
     };
 
     const initialValues: FormValues = {
-        startDate: new Date(),
+        startDate: defaultStartDate || new Date(),
         startTime: defaultStartTime,
         room: defaultRoom?.id,
         cinema: defaultCinemaId,
