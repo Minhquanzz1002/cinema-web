@@ -35,11 +35,11 @@ import RangePicker from '@/components/Admin/RangePicker';
 import EmptyState from '@/components/Admin/Tables/EmptyState';
 import { SeatType, SeatTypeVietnamese } from '@/modules/seats/interface';
 import { FaPlus } from 'react-icons/fa6';
-import ModalAddPromotionDetail from '@/components/Admin/Pages/PromotionDetail/ModalAddPromotionDetail';
 import ModalUpdatePromotionLine from '@/components/Admin/Pages/PromotionLine/ModalUpdatePromotionLine';
 import useDeleteModal from '@/hook/useDeleteModal';
 import ModalDeleteAlert from '@/components/Admin/ModalDeleteAlert';
 import HighlightedText from '@/components/Admin/ModalDeleteAlert/HighlightedText';
+import ModalAddPromotionDetail from '@/components/Admin/Pages/PromotionDetail/ModalAddPromotionDetail';
 
 const TableCell: React.FC<{ children?: React.ReactNode; dashed?: boolean }> = ({ children, dashed }) => (
     <td className={`text-tiny dark:text-white px-4 py-2 border-r ${dashed ? 'border-dashed' : ''}`}>
