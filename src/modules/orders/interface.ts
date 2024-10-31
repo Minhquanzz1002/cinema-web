@@ -56,6 +56,16 @@ interface OrderDetail {
     isGift: boolean;
 }
 
+export enum RefundStatus {
+    PENDING = 'PENDING',
+    COMPLETED = 'COMPLETED',
+}
+
+export const RefundStatusVietnamese: Record<RefundStatus, string> = {
+    [RefundStatus.PENDING]: 'Chờ xử lý',
+    [RefundStatus.COMPLETED]: 'Hoàn thành',
+};
+
 export interface AdminOrderOverview {
     id: string;
     code: string;
@@ -65,6 +75,10 @@ export interface AdminOrderOverview {
     orderDate: Date;
     status: OrderStatus;
     orderDetails: OrderDetail[];
+    cancelReason: string;
+    refundAmount: number;
+    refundDate: Date;
+    refundStatus: RefundStatus;
     showTime: {
         id: string;
         cinemaName: string;
