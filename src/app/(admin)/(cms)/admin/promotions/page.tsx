@@ -1,11 +1,9 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { ColumnDef } from '@tanstack/table-core';
-import Image from 'next/image';
 import Card from '@/components/Admin/Card';
 import Table from '@/components/Admin/Tables';
 import { exportToExcel } from '@/utils/exportToExcel';
-import avatar from '/public/img/avatar/avt.png';
 import { AdminPromotionOverview } from '@/modules/promotions/interface';
 import { formatDateToLocalDate } from '@/utils/formatDate';
 import { useAllPromotions, useDeletePromotion } from '@/modules/promotions/repository';
@@ -23,6 +21,8 @@ import HighlightedText from '@/components/Admin/ModalDeleteAlert/HighlightedText
 import ModalDeleteAlert from '@/components/Admin/ModalDeleteAlert';
 import RangePicker from '@/components/Admin/RangePicker';
 import dayjs from 'dayjs';
+import ModalUpdatePromotion from '@/components/Admin/Pages/Promotions/ModalUpdatePromotion';
+import ModalAddPromotion from '@/components/Admin/Pages/Promotions/ModelAddPromotion';
 
 
 interface PromotionFilter extends PaginationState {
@@ -73,6 +73,9 @@ const PromotionPage = () => {
         unableDeleteMessage: 'Không thể khuyến mãi đang hoạt động',
     });
 
+    const [promotionToUpdate, setPromotionToUpdate] = useState<AdminPromotionOverview | null>(null);
+    const [showModalAdd, setShowModalAdd] = useState<boolean>(false);
+
     useEffect(() => {
         document.title = 'B&Q Cinema - Khuyến mãi';
     }, []);
@@ -82,19 +85,6 @@ const PromotionPage = () => {
             {
                 accessorKey: 'code',
                 header: 'Mã khuyến mãi',
-            },
-            {
-                accessorKey: 'imagePortrait',
-                cell: ({ row }) => {
-                    return (
-                        <div className="w-24 h-32 relative rounded shadow overflow-hidden">
-                            <Image src={row.original.imagePortrait || avatar} alt={row.original.name} fill
-                                   className="object-cover"
-                                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" priority />
-                        </div>
-                    );
-                },
-                header: 'Ảnh',
             },
             {
                 accessorKey: 'name',
@@ -120,8 +110,8 @@ const PromotionPage = () => {
                 header: () => '',
                 cell: ({ row }) => (
                     <div className="flex gap-2 items-center justify-end">
-                        <ButtonAction.View href={`/admin/promotions/${row.original.code}`} />
-                        <ButtonAction.Update href={`/admin/promotions/${row.original.code}/edit`} />
+                        <ButtonAction.View  href={`/admin/promotions/${row.original.code}`}/>
+                        <ButtonAction.Update onClick={ () => setPromotionToUpdate(row.original)} />
                         <ButtonAction.Delete onClick={() => deleteModal.openDeleteModal(row.original)} />
                     </div>
                 ),
@@ -129,6 +119,7 @@ const PromotionPage = () => {
         ],
         [deleteModal],
     );
+    
 
     const handleExportExcel = async () => {
         await exportToExcel<AdminPromotionOverview>(promotions, 'promotions.xlsx');
@@ -141,7 +132,7 @@ const PromotionPage = () => {
                     <div className="flex items-center justify-end">
 
                         <div className="flex gap-2 h-9">
-                            <ButtonAction.Add href="/admin/promotions/new" />
+                            <ButtonAction.Add onClick={ () => setShowModalAdd(true)} />
                             <ButtonAction.Import />
                             <ButtonAction.Export onClick={handleExportExcel} />
                         </div>
@@ -184,6 +175,12 @@ const PromotionPage = () => {
                               content={<>Bạn có chắc chắn muốn xóa khuyến
                                   mãi <HighlightedText>{deleteModal.selectedData?.name}</HighlightedText> không?</>}
             />
+
+            <ModalUpdatePromotion onClose={() => setPromotionToUpdate(null)}
+                                    promotion={promotionToUpdate} />
+
+            <ModalAddPromotion isOpen={showModalAdd} onClose={() => setShowModalAdd(false)}/>
+
         </>
     );
 };

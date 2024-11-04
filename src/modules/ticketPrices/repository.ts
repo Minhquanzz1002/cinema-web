@@ -140,7 +140,6 @@ interface CreateTicketPriceLineParams {
     normalPrice: number;
     vipPrice: number;
     couplePrice: number;
-    triplePrice: number;
 }
 
 const createTicketPriceLine = ({ ticketPriceId, data }: {

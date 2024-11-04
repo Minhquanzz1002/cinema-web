@@ -411,7 +411,8 @@ const SeatInformation: React.FC<LayoutSeatProps> = ({
                                         <div className="w-[15px] text-center text-sm font-semibold text-gray-600">
                                             {row.name}
                                         </div>
-                                        <div className="flex  justify-between  gap-x-10">
+                                        <div className="flex flex-1 justify-end mr-40 gap-x-1">
+
                                             {renderRow(row)}
                                         </div>
                                         <div className="w-[15px] text-center text-sm font-semibold text-gray-600">

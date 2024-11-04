@@ -98,7 +98,6 @@ const TicketPricePage = () => {
         onSuccess: () => {
             setFilters((prev) => ({ ...prev, page: 1 }));
         },
-        canDelete: (ticketPriceLine) => ticketPriceLine.status !== BaseStatus.ACTIVE,
         unableDeleteMessage: 'Không thể xóa giá vé đang hoạt động',
     });
 
