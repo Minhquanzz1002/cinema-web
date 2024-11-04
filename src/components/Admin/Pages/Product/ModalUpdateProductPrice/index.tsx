@@ -9,12 +9,11 @@ import ButtonAction from '@/components/Admin/ButtonAction';
 import * as Yup from 'yup';
 import InputCurrency from '@/components/Admin/InputCurrency';
 import { useUpdateProductPrice } from '@/modules/products/repository';
-import { ProductPriceHistory } from '@/modules/products/interface';
+import { AdminProductPriceOverview } from '@/modules/productPrices/interface';
 
 type ModalAddProductPriceProps = {
     onClose: () => void;
-    productCode: string;
-    productPrice: ProductPriceHistory;
+    productPrice: AdminProductPriceOverview | null;
 }
 
 interface FormValues {
@@ -31,15 +30,20 @@ const validationSchema = Yup.object().shape({
         .min(Yup.ref('startDate'), 'Ngày kết thúc phải sau ngày bắt đầu'),
 });
 
-const ModalAddProductPrice = ({onClose, productCode, productPrice} : ModalAddProductPriceProps) => {
+const ModalUpdateProductPrice = ({onClose, productPrice} : ModalAddProductPriceProps) => {
+    /**
+     * React query
+     */
+    const updateProductPrice = useUpdateProductPrice();
+
+    if (!productPrice) return null;
+
     const initialValues: FormValues = {
         startDate: dayjs(productPrice.startDate).toDate(),
         endDate: dayjs(productPrice.endDate).toDate(),
         status: productPrice.status,
         price: productPrice.price,
     };
-
-    const updateProductPrice = useUpdateProductPrice();
 
     const handleSubmit = async (values: FormValues) => {
         console.log(values);
@@ -51,7 +55,6 @@ const ModalAddProductPrice = ({onClose, productCode, productPrice} : ModalAddPro
                     status: values.status,
                     price: values.price,
                 },
-                code: productCode,
                 id: productPrice.id,
             });
             onClose();
@@ -95,4 +98,4 @@ const ModalAddProductPrice = ({onClose, productCode, productPrice} : ModalAddPro
     );
 };
 
-export default ModalAddProductPrice;
+export default ModalUpdateProductPrice;

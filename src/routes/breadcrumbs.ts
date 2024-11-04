@@ -30,6 +30,22 @@ export const breadcrumbs: IBreadcrumb[] = [
         ],
     },
     {
+        label: 'Danh số bán hàng theo ngày',
+        link: '^/admin/reports/daily-sales$',
+        breadcrumbTrail: [
+            { label: 'Báo cáo' },
+            { label: 'Danh số bán hàng theo ngày' },
+        ],
+    },
+    {
+        label: 'Danh số bán hàng theo ngày',
+        link: '^/admin/reports/employee-sales$',
+        breadcrumbTrail: [
+            { label: 'Báo cáo' },
+            { label: 'Danh số bán hàng theo NVBH' },
+        ],
+    },
+    {
         label: 'Quản lý diễn viên',
         link: '^/admin/movies/actors$',
         breadcrumbTrail: [
