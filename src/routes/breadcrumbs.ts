@@ -178,6 +178,14 @@ export const breadcrumbs: IBreadcrumb[] = [
         ],
     },
     {
+        label: 'Bảng giá sản phẩm',
+        link: '^/admin/products/prices$',
+        breadcrumbTrail: [
+            { label: 'Sản phẩm' },
+            { label: 'Bảng giá' },
+        ],
+    },
+    {
         label: 'Thêm sản phẩm',
         link: '^/admin/products/new$',
         breadcrumbTrail: [
@@ -202,6 +210,40 @@ export const breadcrumbs: IBreadcrumb[] = [
             { label: 'Sản phẩm' },
             { label: 'Danh sách sản phẩm', link: '/admin/products' },
             { label: 'Cập nhật' },
+        ],
+    },
+    {
+        label: 'Bán hàng',
+        link: '^/admin/sales$',
+        breadcrumbTrail: [
+            { label: 'Bán hàng' },
+        ],
+    },
+    {
+        label: 'Chọn ghế',
+        link: '^/admin/sales/choose-seat$',
+        breadcrumbTrail: [
+            { label: 'Bán hàng', link: "/admin/sales" },
+            { label: 'Chọn ghế' },
+        ],
+    },
+    {
+        label: 'Chọn ghế',
+        link: '^/admin/sales/choose-combo$',
+        breadcrumbTrail: [
+            { label: 'Bán hàng', link: "/admin/sales" },
+            { label: 'Chọn ghế', link: "/admin/sales/choose-seat" },
+            { label: 'Chọn combo' },
+        ],
+    },
+    {
+        label: 'Chọn ghế',
+        link: '^/admin/sales/payment$',
+        breadcrumbTrail: [
+            { label: 'Bán hàng', link: "/admin/sales" },
+            { label: 'Chọn ghế', link: "/admin/sales/choose-seat" },
+            { label: 'Chọn combo', link: "/admin/sales/choose-combo" },
+            { label: 'Thanh toán' },
         ],
     },
 ];

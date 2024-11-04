@@ -1,4 +1,4 @@
-import { BaseEntity, VisibilityStatus } from '@/modules/base/interface';
+import { BaseEntity, BaseStatus } from '@/modules/base/interface';
 
 export interface ActorFilter {
     id: number;
@@ -16,7 +16,7 @@ export interface Actor extends BaseEntity {
     birthday?: Date;
     country?: string;
     bio?: string;
-    status: VisibilityStatus;
+    status: BaseStatus;
 }
 
 export interface ActorInsertPayload {
@@ -25,7 +25,7 @@ export interface ActorInsertPayload {
     bio?: string;
     birthday?: string;
     country?: string;
-    status: VisibilityStatus;
+    status: BaseStatus;
     image: string;
 }
 
@@ -34,6 +34,6 @@ export interface ActorUpdatePayload {
     bio?: string;
     birthday?: string;
     country?: string;
-    status: VisibilityStatus;
+    status: BaseStatus;
     image: string;
 }

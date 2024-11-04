@@ -25,7 +25,7 @@ import { BaseStatus, BaseStatusVietnamese } from '@/modules/base/interface';
 import NotFound from '@/components/Admin/NotFound';
 import dayjs from 'dayjs';
 import RangePicker from '@/components/Admin/RangePicker';
-import ProductPriceStatusBadge from '@/components/Admin/Badge/ProductPriceStatusBadge';
+import BaseStatusBadge from '@/components/Admin/Badge/BaseStatusBadge';
 
 interface ProductPriceFilter extends PaginationState {
     status: BaseStatus | 'ALL';
@@ -114,7 +114,7 @@ const ProductDetailPage = () => {
             },
             {
                 accessorKey: 'status',
-                cell: ({ row }) => <ProductPriceStatusBadge status={row.original.status} />,
+                cell: ({ row }) => <BaseStatusBadge status={row.original.status} />,
                 header: 'Trạng thái',
             },
             {

@@ -44,21 +44,11 @@ export interface AdminTicketPriceLineOverview {
     ticketPriceDetails: AdminTicketPriceDetailOverview[];
 }
 
-export enum TicketPriceStatus {
-    ACTIVE = 'ACTIVE',
-    INACTIVE = 'INACTIVE',
-}
-
-export const ProductPriceStatusVietnamese = {
-    ACTIVE: 'Đang áp dụng',
-    INACTIVE: 'Ngừng áp dụng',
-};
-
 export interface AdminTicketPriceOverview {
     id: number;
     name: string;
     startDate: Date;
     endDate: Date;
-    status: TicketPriceStatus;
+    status: BaseStatus;
     ticketPriceLines: AdminTicketPriceLineOverview[];
 }

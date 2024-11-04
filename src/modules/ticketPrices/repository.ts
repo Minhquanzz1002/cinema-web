@@ -6,7 +6,6 @@ import {
     AdminTicketPriceLineOverview,
     AdminTicketPriceOverview,
     ApplyForDay,
-    TicketPriceStatus,
 } from '@/modules/ticketPrices/interface';
 import { toast } from 'react-toastify';
 import { BaseStatus } from '@/modules/base/interface';
@@ -81,7 +80,7 @@ interface UpdateTicketPriceData {
     name: string;
     startDate: string;
     endDate: string;
-    status: TicketPriceStatus;
+    status: BaseStatus;
 }
 
 const updateTicketPrice = ({ id, data }: {

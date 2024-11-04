@@ -14,10 +14,14 @@ type InputProps = {
     max?: number;
     required?: boolean;
     readOnly?: boolean;
+    id?: string;
 };
 
-const Input = ({ name, label, placeholder = '', tooltip, type = 'text', unit, autoFocus = false, min, max, required = false, readOnly = false }: InputProps) => {
-    const id = useId();
+const Input = ({ name, label, placeholder = '', tooltip, type = 'text', unit, autoFocus = false, min, max, required = false, readOnly = false, id }: InputProps) => {
+    const internalId = useId();
+    if (!id) {
+        id = internalId;
+    }
     const [field] = useField(name);
     const inputRef = React.useRef<HTMLInputElement>(null);
 

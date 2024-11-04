@@ -48,11 +48,21 @@ const adminRoutes: IAdminRoute[] = [
         name: 'Hóa đơn',
         path: '/admin/bills',
         icon: <RiMoneyDollarCircleLine />,
+
     },
     {
         name: 'Sản phẩm',
         path: '/admin/products',
         icon: <GoPackage />,
+        children: [
+            { name: 'Tất cả sản phẩm', path: '/admin/products' },
+            { name: 'Bảng giá', path: '/admin/products/prices' },
+        ]
+    },
+    {
+        name: 'Bán hàng',
+        path: '/admin/sales',
+        icon: <RiMoneyDollarCircleLine />,
     },
 ];
 

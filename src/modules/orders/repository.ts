@@ -1,8 +1,8 @@
 import { SuccessResponse } from '@/core/repository/interface';
 import { PageObject } from '@/core/pagination/interface';
 import httpRepository from '@/core/repository/http';
-import { useQuery } from '@tanstack/react-query';
-import { AdminOrderOverview, BaseOrder, OrderStatus } from '@/modules/orders/interface';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { AdminOrderOverview, BaseOrder, OrderResponseCreated, OrderStatus } from '@/modules/orders/interface';
 
 export const ORDER_QUERY_KEY = 'orders';
 
@@ -40,4 +40,46 @@ const findOrderByCode = (code: string): Promise<SuccessResponse<AdminOrderOvervi
 
 export const useOrderDetail = (code: string) => {
     return useQuery({ queryKey: ['orders', code], queryFn: () => findOrderByCode(code), enabled: !!code });
+};
+
+/**
+ * Create order by employee
+ */
+interface CreateOrderByEmployeeData {
+    customerId?: string;
+    seatIds: number[];
+    showTimeId: string;
+}
+
+const createOrderByEmployee = (data: CreateOrderByEmployeeData): Promise<SuccessResponse<OrderResponseCreated>> => {
+    return httpRepository.post<OrderResponseCreated>('/admin/v1/orders', data);
+};
+
+export const useCreateOrderByEmployee = () => {
+    return useMutation({
+        mutationFn: createOrderByEmployee,
+    });
+};
+
+/**
+ * Update products in order by employee
+ */
+interface UpdateProductsInOrderData {
+    products: {
+        id: number;
+        quantity: number;
+    }[];
+}
+
+const updateProductInOrderByEmployee = ({ orderId, data }: {
+    orderId: string;
+    data: UpdateProductsInOrderData
+}): Promise<SuccessResponse<OrderResponseCreated>> => {
+    return httpRepository.put<OrderResponseCreated, UpdateProductsInOrderData>(`/admin/v1/orders/${orderId}/products`, data);
+};
+
+export const useUpdateProductInOrderByEmployee = () => {
+    return useMutation({
+        mutationFn: updateProductInOrderByEmployee,
+    });
 };

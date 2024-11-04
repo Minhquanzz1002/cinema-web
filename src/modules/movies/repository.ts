@@ -143,7 +143,7 @@ interface UpdateMoviePayload {
     status: MovieStatus,
 }
 
-const updateMovie = ({id, payload} : {payload: UpdateMoviePayload, id: number}): Promise<SuccessResponse<void>> => {
+const updateMovie = ({ id, payload }: { payload: UpdateMoviePayload, id: number }): Promise<SuccessResponse<void>> => {
     return httpRepository.put<void, CreateMoviePayload>(`/admin/v1/movies/${id}`, payload);
 };
 
@@ -160,4 +160,19 @@ export const useUpdateMovie = () => {
             console.error('Create ticket price line error:', error);
         },
     });
+};
+
+/**
+ * Fetch movie for sales
+ */
+
+const fetchMovieForSales = (): Promise<SuccessResponse<AdminMovie[]>> => {
+    return httpRepository.get('/admin/v1/movies/sales');
+};
+
+export const useAllMoviesForSale = () => {
+    return useDataFetching(
+        [MOVIE_QUERY_KEY, 'sales'],
+        () => fetchMovieForSales(),
+    );
 };

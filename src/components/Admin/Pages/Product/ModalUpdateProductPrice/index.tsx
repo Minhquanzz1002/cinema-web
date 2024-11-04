@@ -9,7 +9,7 @@ import ButtonAction from '@/components/Admin/ButtonAction';
 import * as Yup from 'yup';
 import InputCurrency from '@/components/Admin/InputCurrency';
 import { useUpdateProductPrice } from '@/modules/products/repository';
-import { ProductPriceHistory, ProductPriceStatus } from '@/modules/products/interface';
+import { ProductPriceHistory } from '@/modules/products/interface';
 
 type ModalAddProductPriceProps = {
     onClose: () => void;
@@ -20,7 +20,7 @@ type ModalAddProductPriceProps = {
 interface FormValues {
     startDate: Date;
     endDate: Date;
-    status: ProductPriceStatus;
+    status: BaseStatus;
     price: number;
 }
 
@@ -68,7 +68,7 @@ const ModalAddProductPrice = ({onClose, productCode, productPrice} : ModalAddPro
             }
         }, [values.startDate, values.endDate, setFieldValue]);
 
-        const isReadOnly = productPrice.status === ProductPriceStatus.ACTIVE;
+        const isReadOnly = productPrice.status === BaseStatus.ACTIVE;
 
         return (
             <Form>
