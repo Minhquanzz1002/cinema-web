@@ -19,12 +19,10 @@ import { useCreatePromotion } from '@/modules/promotions/repository';
 import dayjs from 'dayjs';
 
 const PromotionSchema = object({
-    code: string().test('valid-code', 'Mã không hợp lệ', function(value) {
-        if (!value) return true;
-        if (value.length !== 8) return this.createError({ message: 'Mã phải có đúng 8 ký tự' });
-        if (!/^[A-Z0-9]+$/.test(value)) return this.createError({ message: 'Mã phải chỉ chứa chữ in hoa và số' });
-        return true;
-    }),
+    code: string()
+        .required('Mã không được để trống')
+        .min(4, 'Mã phải có ít nhất 4 ký tự')
+        .matches(/^[A-Z0-9]+$/, 'Mã phải chỉ chứa chữ in hoa và số'),
     name: string().required('Tên không được để trống'),
     description: string().nullable(),
     imagePortrait: array().of(
@@ -108,8 +106,8 @@ const NewPromotionPage = () => {
                         <Card className={`p-[18px] col-span-2`}>
                             <Typography.Title level={4}>Thông tin chung</Typography.Title>
                             <div className="border rounded-[6px] border-[rgb(236, 243, 250)] py-4 px-4.5">
-                                <Input name="code" label="Mã khuyến mãi" placeholder="Tạo tự động nếu không nhập"
-                                       tooltip="Nếu không nhập sẽ tạo tự động theo nguyên tắc KM + số thứ tự" />
+                                <Input name="code" label="Mã khuyến mãi" placeholder="Nhập mã khuyến mãi (tối thiểu 4 ký tự)"
+                                       required uppercase />
                                 <Input name="name" label="Tên khuyến mãi" placeholder="Nhập tên khuyến mãi"
                                        required />
                                 <Select name="status" label="Trạng thái" readOnly options={[
@@ -160,7 +158,7 @@ const NewPromotionPage = () => {
         <div className="mt-5">
             <Formik initialValues={initialFormValues} onSubmit={handleSubmit}
                     validationSchema={PromotionSchema}>
-                <FormikContent/>
+                <FormikContent />
             </Formik>
         </div>
     );

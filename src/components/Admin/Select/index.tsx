@@ -103,7 +103,7 @@ const Select = ({ name, label, tooltip, multiple, options, placeholder, readOnly
                                             }
                                         </div>
                                     ) : (
-                                        <div key={option.value}>
+                                        <div key={option.value} className="text-nowrap">
                                             {option.label}
                                         </div>
                                     )
@@ -131,7 +131,7 @@ const Select = ({ name, label, tooltip, multiple, options, placeholder, readOnly
                             {
                                 options.map(option => (
                                     <div key={option.value}
-                                         className={`px-3 py-2 cursor-pointer hover:bg-gray-100 text-sm select-none flex items-center justify-between gap-x-2`}
+                                         className={`px-3 py-2 cursor-pointer hover:bg-gray-100 text-sm select-none flex items-center justify-between gap-x-2 text-nowrap`}
                                          onClick={() => handleSelect(option.value)}
                                     >
                                         {option.label}
