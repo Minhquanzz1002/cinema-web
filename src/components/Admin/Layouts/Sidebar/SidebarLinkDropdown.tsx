@@ -38,7 +38,7 @@ const SidebarLinkDropdown = (props: SidebarLinkDropdownProps) => {
             </div>
 
             <ul
-                className={`relative pl-9 flex flex-col gap-y-1 overflow-hidden duration-300 transition-[max-height] before:w-[3px] before:bg-gray-200 before:h-full before:absolute before:transition-opacity before:duration-[400] before:top-0 before:left-[20px] font-medium text-gray-600 dark:text-white ${props.open ? 'max-h-screen before:opacity-100' : 'max-h-0 before:opacity-0'} `}>
+                className={`relative pl-5 flex flex-col gap-y-1 overflow-hidden duration-300 transition-[max-height] before:w-[3px] before:bg-gray-200 before:h-full before:absolute before:transition-opacity before:duration-[400] before:top-0 before:left-[20px] font-medium text-gray-600 dark:text-white ${props.open ? 'max-h-screen before:opacity-100' : 'max-h-0 before:opacity-0'} `}>
                 {
                     children?.map((r) => (
                         <li key={r.path} className="first-of-type:mt-1">

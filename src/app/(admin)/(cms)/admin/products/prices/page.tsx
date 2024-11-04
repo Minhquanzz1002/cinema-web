@@ -3,8 +3,6 @@ import React, { useEffect, useState } from 'react';
 import { ColumnDef } from '@tanstack/table-core';
 import Card from '@/components/Admin/Card';
 import Table from '@/components/Admin/Tables';
-import { BaseProductWithPrice, ProductStatus } from '@/modules/products/interface';
-import { useDeleteProduct } from '@/modules/products/repository';
 import { formatNumberToCurrency } from '@/utils/formatNumber';
 import ButtonAction from '@/components/Admin/ButtonAction';
 import { Form, Formik } from 'formik';
@@ -13,9 +11,6 @@ import Typography from '@/components/Admin/Typography';
 import AutoSubmitForm from '@/components/Admin/AutoSubmitForm';
 import Select from '@/components/Admin/Filters/Select';
 import useFilterPagination, { PaginationState } from '@/hook/useFilterPagination';
-import useDeleteModal from '@/hook/useDeleteModal';
-import ModalDeleteAlert from '@/components/Admin/ModalDeleteAlert';
-import HighlightedText from '@/components/Admin/ModalDeleteAlert/HighlightedText';
 import { BaseStatus, BaseStatusVietnamese } from '@/modules/base/interface';
 import { useAllProductPrices } from '@/modules/productPrices/repository';
 import { AdminProductPriceOverview } from '@/modules/productPrices/interface';
@@ -24,6 +19,12 @@ import BaseStatusBadge from '@/components/Admin/Badge/BaseStatusBadge';
 import Image from 'next/image';
 import avatar from '/public/img/avatar/avt.png';
 import { DatePickerWithRange } from '@/components/Admin/DatePickerWithRange';
+import ModalAddProductPrice from '@/components/Admin/Pages/ProductPrice/ModalAddProductPrice';
+import { useDeleteProductPrice } from '@/modules/products/repository';
+import useDeleteModal from '@/hook/useDeleteModal';
+import ModalDeleteAlert from '@/components/Admin/ModalDeleteAlert';
+import HighlightedText from '@/components/Admin/ModalDeleteAlert/HighlightedText';
+import ModalUpdateProductPrice from '@/components/Admin/Pages/Product/ModalUpdateProductPrice';
 
 interface ProductPriceFilter extends PaginationState {
     status: BaseStatus | 'ALL';
@@ -31,31 +32,25 @@ interface ProductPriceFilter extends PaginationState {
 }
 
 const ProductPricePage = () => {
-    const deleteProduct = useDeleteProduct();
     const initialFilters: ProductPriceFilter = {
         page: 1,
         status: 'ALL',
-        search: ''
+        search: '',
     };
 
     const [filters, setFilters] = useState<ProductPriceFilter>(initialFilters);
+    const [showModalAddProductPrice, setShowModalAddProductPrice] = useState<boolean>(false);
+    const [productPriceToUpdate, setProductPriceToUpdate] = useState<AdminProductPriceOverview | null>(null);
 
+    /**
+     * React query
+     */
     const productsQuery = useAllProductPrices({
         page: filters.page - 1,
         status: filters.status === 'ALL' ? undefined : filters.status,
         search: filters.search,
     });
-
-    const deleteModal = useDeleteModal<BaseProductWithPrice>({
-        onDelete: async (product: BaseProductWithPrice) => {
-            await deleteProduct.mutateAsync(product.code);
-        },
-        onSuccess: () => {
-            setFilters((prev) => ({ ...prev, page: 1 }));
-        },
-        canDelete: (product) => product.status !== ProductStatus.ACTIVE,
-        unableDeleteMessage: 'Không thể xóa sản phẩm đang hiển thị',
-    });
+    const deleteProductPrice = useDeleteProductPrice();
 
     const {
         data: products,
@@ -70,6 +65,17 @@ const ProductPricePage = () => {
         onFilterChange: setFilters,
     });
 
+    const deleteModal = useDeleteModal<AdminProductPriceOverview>({
+        onDelete: async (price: AdminProductPriceOverview) => {
+            await deleteProductPrice.mutateAsync(price.id);
+        },
+        onSuccess: () => {
+            setFilters((prev) => ({ ...prev, page: 1 }));
+        },
+        canDelete: (price) => price.status !== BaseStatus.ACTIVE,
+        unableDeleteMessage: 'Không thể xóa bảng giá sản phẩm đang hoạt động',
+    });
+
     useEffect(() => {
         document.title = 'B&Q Cinema - Bảng giá sản phẩm';
     }, []);
@@ -78,27 +84,30 @@ const ProductPricePage = () => {
         () => [
             {
                 accessorKey: 'id',
-                header: 'Mã'
+                header: 'Mã',
             },
             {
                 assessorKey: 'startDate',
                 cell: ({ row }) => formatDateToLocalDate(row.original.startDate),
-                header: 'Ngày bắt đầu'
+                header: 'Ngày bắt đầu',
             },
             {
                 assessorKey: 'endDate',
                 cell: ({ row }) => formatDateToLocalDate(row.original.endDate),
-                header: 'Ngày kết thúc'
+                header: 'Ngày kết thúc',
             },
             {
                 accessorKey: 'product',
                 cell: ({ row }) => (
                     <div className="flex gap-2">
                         <div className="relative w-14 h-14 rounded overflow-hidden">
-                            <Image src={row.original.product.image || avatar} alt={`Ảnh của sản phẩm ${row.original.product.name}`} fill className="object-cover"/>
+                            <Image src={row.original.product.image || avatar}
+                                   alt={`Ảnh của sản phẩm ${row.original.product.name}`} fill
+                                   className="object-cover" />
                         </div>
                         <div className="flex flex-col justify-center">
-                            <div className="text-nowrap">#{row.original.product.code} - {row.original.product.name}</div>
+                            <div
+                                className="text-nowrap">#{row.original.product.code} - {row.original.product.name}</div>
                             <div className="text-gray-800 font-normal">{row.original.product.description}</div>
                         </div>
                     </div>
@@ -119,15 +128,15 @@ const ProductPricePage = () => {
             {
                 id: 'actions',
                 header: () => '',
-                cell: ({ }) => (
+                cell: ({ row }) => (
                     <div className="flex gap-2 items-center justify-end">
-                        <ButtonAction.Update />
-                        <ButtonAction.Delete />
+                        <ButtonAction.Update onClick={() => setProductPriceToUpdate(row.original)}/>
+                        <ButtonAction.Delete onClick={() => deleteModal.openDeleteModal(row.original)} />
                     </div>
                 ),
             },
         ],
-        [],
+        [deleteModal],
     );
 
     const handleExportExcel = async () => {
@@ -140,7 +149,7 @@ const ProductPricePage = () => {
                     <div className="flex items-center justify-end">
 
                         <div className="flex gap-2 h-9">
-                            <ButtonAction.Add text="Thêm" />
+                            <ButtonAction.Add onClick={() => setShowModalAddProductPrice(true)} />
                             <ButtonAction.Import />
                             <ButtonAction.Export onClick={handleExportExcel} />
                         </div>
@@ -158,11 +167,11 @@ const ProductPricePage = () => {
                                                 { label: 'Tất cả trạng thái', value: 'ALL' },
                                                 ...Object.keys(BaseStatus).map(status => ({
                                                     label: BaseStatusVietnamese[status as BaseStatus],
-                                                    value: status
-                                                }))
+                                                    value: status,
+                                                })),
                                             ]}
                                     />
-                                    <DatePickerWithRange/>
+                                    <DatePickerWithRange />
                                 </div>
                             </div>
                             <AutoSubmitForm />
@@ -172,19 +181,25 @@ const ProductPricePage = () => {
 
                     </div>
                     <Table<AdminProductPriceOverview> data={products} columns={columns} currentPage={currentPage}
-                                                 isLoading={isLoading}
-                                                 totalPages={totalPages}
-                                                 onChangePage={onPageChange} />
+                                                      isLoading={isLoading}
+                                                      totalPages={totalPages}
+                                                      onChangePage={onPageChange} />
                 </Card>
             </div>
+
+            <ModalAddProductPrice onClose={() => setShowModalAddProductPrice(false)}
+                                  isOpen={showModalAddProductPrice} />
+
+            <ModalUpdateProductPrice onClose={() => setProductPriceToUpdate(null)}
+                                     productPrice={productPriceToUpdate} />
 
             <ModalDeleteAlert onClose={deleteModal.closeDeleteModal}
                               onConfirm={deleteModal.handleDelete}
                               isOpen={deleteModal.showDeleteModal}
-                              title="Xóa sản phẩm?"
+                              title="Xóa giá sản phẩm?"
                               content={
-                                  <>Bạn có chắc chắn muốn xóa sản
-                                      phẩm <HighlightedText>{deleteModal.selectedData?.name}</HighlightedText> không?</>
+                                  <>Bạn có chắc chắn muốn xóa giá sản
+                                      phẩm <HighlightedText>{deleteModal.selectedData?.product.name}</HighlightedText> không?</>
                               }
             />
         </>
