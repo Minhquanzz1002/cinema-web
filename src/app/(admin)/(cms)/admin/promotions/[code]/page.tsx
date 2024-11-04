@@ -2,7 +2,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import Card from '@/components/Admin/Card';
 import Typography from '@/components/Admin/Typography';
-import Image from 'next/image';
+
 import { useParams } from 'next/navigation';
 import Table from '@/components/Admin/Tables';
 import { ColumnDef, Row } from '@tanstack/table-core';
@@ -22,7 +22,6 @@ import {
     useDeletePromotionLine,
     usePromotionByCode,
 } from '@/modules/promotions/repository';
-import HTMLContent from '@/components/Admin/HTMLContent';
 import {
     AdminPromotionDetailOverview,
     AdminPromotionLineOverview,
@@ -425,14 +424,7 @@ const ViewPromotionPage = () => {
                     </Card>
 
                     <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
-                        <Card className="p-[18px]">
-                            <Typography.Title level={4}>Hình ảnh</Typography.Title>
-                            <div className="relative aspect-[4/5] rounded overflow-hidden">
-                                <Image
-                                    src={promotion.imagePortrait || 'https://firebasestorage.googleapis.com/v0/b/cinema-782ef.appspot.com/o/products%2Fmenuboard-coonline-2024-combo1-min_1711699834430.jpg?alt=media'}
-                                    alt={`Hình ảnh của ${promotion.name}`} fill className="object-contain" />
-                            </div>
-                        </Card>
+                        
                         <Card className="p-[18px] lg:col-span-4">
                             <Typography.Title level={4}>Thông tin chung</Typography.Title>
                             <div className="flex flex-col gap-3">
@@ -444,10 +436,7 @@ const ViewPromotionPage = () => {
                         </Card>
                     </div>
 
-                    <Card className="p-[18px] lg:col-span-4">
-                        <Typography.Title level={4}>Mô tả</Typography.Title>
-                        <HTMLContent content={promotion.description || 'Chưa cập nhật'} />
-                    </Card>
+                    
 
                     <Card className="py-4">
                         <div className="flex justify-between items-center px-4 pb-3">

@@ -1,22 +1,22 @@
+// components/Admin/Modal/UpdatePromotionModal.tsx
 'use client';
-import React, { useEffect } from 'react';
-import { Form, Formik, useFormikContext } from 'formik';
-import Input from '@/components/Admin/Input';
-import Card from '@/components/Admin/Card';
+import React from 'react';
+import { Form, Formik } from 'formik';
 import { object, string } from 'yup';
-import Typography from '@/components/Admin/Typography';
+import Modal from '@/components/Admin/Modal';
+import Input from '@/components/Admin/Input';
 import Select from '@/components/Admin/Select';
 import { ButtonIcon } from '@/components/Admin/Button';
 import { FaSave } from 'react-icons/fa';
-import { TiArrowBackOutline } from 'react-icons/ti';
-import Link from '@/components/Link';
-
-import { useRouter } from 'next/navigation';
 import { BaseStatus, BaseStatusVietnamese } from '@/modules/base/interface';
-import Editor from '@/components/Admin/Fields/Editor';
 import DatePicker from '@/components/Admin/DatePicker';
-import { useCreatePromotion } from '@/modules/promotions/repository';
 import dayjs from 'dayjs';
+import { useCreatePromotion } from '@/modules/promotions/repository';
+import Card from '@/components/Admin/Card';
+import Typography from '@/components/Admin/Typography';
+import { Link } from 'lucide-react';
+import { TiArrowBackOutline } from 'react-icons/ti';
+import { useRouter } from 'next/navigation';
 
 const PromotionSchema = object({
     code: string()
@@ -24,8 +24,6 @@ const PromotionSchema = object({
         .min(4, 'Mã phải có ít nhất 4 ký tự')
         .matches(/^[A-Z0-9]+$/, 'Mã phải chỉ chứa chữ in hoa và số'),
     name: string().required('Tên không được để trống'),
-    
-    
 });
 
 interface FormValues {
@@ -37,7 +35,6 @@ interface FormValues {
     startDate: Date;
     endDate: Date;
 }
-
 const initialFormValues: FormValues = {
     code: '',
     name: '',
@@ -46,13 +43,17 @@ const initialFormValues: FormValues = {
     endDate: new Date(),
 };
 
-const NewPromotionPage = () => {
-    const router = useRouter();
-    const createPromotion = useCreatePromotion();
 
-    useEffect(() => {
-        document.title = 'B&Q Cinema - Thêm khuyến mãi';
-    }, []);
+interface UpdatePromotionModalProps {
+    onClose: () => void;
+    isOpen: boolean;
+}
+
+const ModalAddPromotion = ({ onClose, isOpen }: UpdatePromotionModalProps) => {
+    const createPromotion = useCreatePromotion();
+    const router = useRouter();
+
+    if (!isOpen) return null;
 
     const handleSubmit = async (values: FormValues) => {
         console.log(values);
@@ -70,20 +71,25 @@ const NewPromotionPage = () => {
         }
     };
 
-    const FormikContent = () => {
-        const { values, setFieldValue } = useFormikContext<FormValues>();
+    
 
-        useEffect(() => {
-            if (dayjs(values.endDate).isBefore(dayjs(values.startDate))) {
-                setFieldValue('endDate', values.startDate);
-            }
-        }, [values.startDate, values.endDate, setFieldValue]);
+    // const getMinDate = () => {
+    //     const startDate = dayjs(promotion?.startDate);
+    //     const today = dayjs();
+    //     return startDate.isAfter(today) ? startDate.toDate() : today.toDate();
+    // };
 
-        return (
-            <Form>
+    return (
+        <Modal open={true} onClose={onClose} title={`Cập nhật khuyến mãi`}>
+            <Formik
+                initialValues={initialFormValues}
+                onSubmit={handleSubmit}
+                validationSchema={PromotionSchema}
+            >
+                <Form>
                 <div className="flex flex-col gap-5">
-                    <div className="grid grid-cols-5 gap-x-3">
-                        <Card className={`p-[18px] col-span-2`}>
+                    <div className="grid grid-cols-2 gap-x-3">
+                        <Card>
                             <Typography.Title level={4}>Thông tin chung</Typography.Title>
                             <div className="border rounded-[6px] border-[rgb(236, 243, 250)] py-4 px-4.5">
                                 <Input name="code" label="Mã khuyến mãi" placeholder="Nhập mã khuyến mãi (tối thiểu 4 ký tự)"
@@ -99,7 +105,7 @@ const NewPromotionPage = () => {
                             </div>
                         </Card>
 
-                        <Card className={`p-[18px] col-span-3`}>
+                        <Card>
                             <Typography.Title level={4}>Thời gian</Typography.Title>
                             <div className="border rounded-[6px] border-[rgb(236, 243, 250)] py-4 px-4.5">
                                 <DatePicker name="startDate" label="Ngày bắt đầu" minDate={new Date()} />
@@ -108,10 +114,7 @@ const NewPromotionPage = () => {
                         </Card>
                     </div>
                    
-                    <Card className="p-[18px]">
-                        <Typography.Title level={4}>Mô tả</Typography.Title>
-                        <Editor name="description" />
-                    </Card>
+                    
                     <div className="mt-5 mb-10 flex justify-end items-center gap-4">
                         <Link href={'/admin/promotions'}>
                             <ButtonIcon icon={<TiArrowBackOutline />} variant="secondary">
@@ -124,17 +127,9 @@ const NewPromotionPage = () => {
                     </div>
                 </div>
             </Form>
-        );
-    };
-
-    return (
-        <div className="mt-5">
-            <Formik initialValues={initialFormValues} onSubmit={handleSubmit}
-                    validationSchema={PromotionSchema}>
-                <FormikContent />
             </Formik>
-        </div>
+        </Modal>
     );
 };
 
-export default NewPromotionPage;
+export default ModalAddPromotion;

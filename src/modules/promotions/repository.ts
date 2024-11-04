@@ -65,9 +65,7 @@ export const usePromotionByCode = (code: string) => {
 interface CreatePromotionPayload {
     code?: string;
     name: string;
-    description: string;
     status: BaseStatus;
-    imagePortrait: string;
     startDate: string;
     endDate: string;
 }
@@ -118,9 +116,7 @@ export const useDeletePromotion = () => {
  */
 interface UpdatePromotionPayload {
     name: string;
-    description: string;
     status: BaseStatus;
-    imagePortrait: string;
     startDate: string;
     endDate: string;
 }
