@@ -9,7 +9,7 @@ import ButtonAction from '@/components/Admin/ButtonAction';
 import { useUpdateTicketPrice } from '@/modules/ticketPrices/repository';
 import Select from '@/components/Admin/Select';
 import { BaseStatus, BaseStatusVietnamese } from '@/modules/base/interface';
-import { AdminTicketPriceOverview, TicketPriceStatus } from '@/modules/ticketPrices/interface';
+import { AdminTicketPriceOverview } from '@/modules/ticketPrices/interface';
 
 type ModalUpdateTicketPriceProps = {
     onClose: () => void;
@@ -20,7 +20,7 @@ interface FormValues {
     name: string;
     startDate: Date;
     endDate: Date;
-    status: TicketPriceStatus;
+    status: BaseStatus;
 }
 
 const validationSchema = Yup.object().shape({
@@ -68,7 +68,7 @@ const ModalUpdateTicketPrice = ({ onClose, ticketPrice }: ModalUpdateTicketPrice
             }
         }, [values.startDate, values.endDate, setFieldValue]);
 
-        const isReadOnly = ticketPrice.status === TicketPriceStatus.ACTIVE;
+        const isReadOnly = ticketPrice.status === BaseStatus.ACTIVE;
 
         return (
             <Form>

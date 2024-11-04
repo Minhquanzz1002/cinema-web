@@ -1,3 +1,5 @@
+import { BaseStatus } from '@/modules/base/interface';
+
 export enum ProductStatus {
     ACTIVE = 'ACTIVE',
     INACTIVE = 'INACTIVE',
@@ -5,8 +7,8 @@ export enum ProductStatus {
 }
 
 export const ProductStatusVietnamese: Record<ProductStatus, string> = {
-    [ProductStatus.ACTIVE]: 'Hiển thị',
-    [ProductStatus.INACTIVE]: 'Ẩn',
+    [ProductStatus.ACTIVE]: 'Hoạt động',
+    [ProductStatus.INACTIVE]: 'Ngưng hoạt động',
     [ProductStatus.SUSPENDED]: 'Tạm ngưng'
 };
 
@@ -23,16 +25,6 @@ export interface BaseProductWithPrice extends BaseProduct {
     price?: number;
 }
 
-export enum ProductPriceStatus {
-    ACTIVE = 'ACTIVE',
-    INACTIVE = 'INACTIVE'
-}
-
-export const ProductPriceStatusVietnamese: Record<ProductPriceStatus, string> = {
-    [ProductPriceStatus.ACTIVE]: 'Đang áp dụng',
-    [ProductPriceStatus.INACTIVE]: 'Ngưng áp dụng'
-};
-
 export interface ProductPriceHistory {
     id: number;
     price: number;
@@ -40,5 +32,5 @@ export interface ProductPriceHistory {
     updatedAt: Date;
     startDate: Date;
     endDate: Date;
-    status: ProductPriceStatus;
+    status: BaseStatus;
 }

@@ -1,9 +1,10 @@
 import { ErrorResponse, SuccessResponse } from '@/core/repository/interface';
 import httpRepository from '@/core/repository/http';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { AdminShowTime, AdminShowTimeFilters } from '@/modules/showTimes/interface';
+import { AdminShowTime, AdminShowTimeFilters, AdminShowTimeForSale, Layout } from '@/modules/showTimes/interface';
 import { BaseStatus } from '@/modules/base/interface';
 import { toast } from 'react-toastify';
+import useDataFetching from '@/hook/useDataFetching';
 
 export const SHOW_TIME_QUERY_KEY = 'showTimes';
 
@@ -141,4 +142,46 @@ export const useUpdateShowTime = () => {
             console.error('Update show time error:', error);
         },
     });
+};
+
+/**
+ * Fetch show time by for sale
+ */
+interface FetchShowTimeForSaleParams {
+    cinemaId?: number;
+    startDate?: string;
+    movieId?: number;
+}
+
+const findAllShowTimesForSale = (params: FetchShowTimeForSaleParams): Promise<SuccessResponse<AdminShowTimeForSale[]>> => {
+    return httpRepository.get<AdminShowTimeForSale[]>(`/admin/v1/show-times/sales`, {
+        ...params,
+    });
+};
+
+export const useAllShowTimesForSale = (params: FetchShowTimeForSaleParams) => {
+    return useDataFetching(
+        [SHOW_TIME_QUERY_KEY, 'sales', params],
+        () => findAllShowTimesForSale(params),
+        {
+            enabled: !!params.movieId,
+        },
+    );
+};
+
+/**
+ * Fetch layout seat by show time id
+ */
+const findLayoutSeatByShowTimeId = (showTimeId: string): Promise<SuccessResponse<Layout>> => {
+    return httpRepository.get<Layout>(`/v1/show-times/${showTimeId}/seat-layout`);
+};
+
+export const useLayoutSeatByShowTimeId = (showTimeId: string) => {
+    return useDataFetching(
+        [SHOW_TIME_QUERY_KEY, 'seat-layout', showTimeId],
+        () => findLayoutSeatByShowTimeId(showTimeId),
+        {
+            enabled: !!showTimeId,
+        },
+    );
 };

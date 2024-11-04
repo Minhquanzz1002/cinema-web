@@ -18,6 +18,8 @@ function useDataFetching<T>(
     useEffect(() => {
         if (query.data) {
             setData(query.data.data);
+        } else {
+            setData(null);
         }
     }, [query.data]);
 

@@ -1,4 +1,4 @@
-import { BaseEntity } from '@/modules/base/interface';
+import { BaseEntity, BaseStatus } from '@/modules/base/interface';
 import { BaseProduct } from '@/modules/products/interface';
 import { AgeRating } from '@/modules/movies/interface';
 
@@ -41,7 +41,7 @@ export interface BaseOrder extends BaseEntity {
     finalAmount: number;
     orderDate: Date;
     status: OrderStatus;
-    user: UserInOrder;
+    user?: UserInOrder;
 }
 
 interface OrderDetail {
@@ -95,10 +95,42 @@ export interface AdminOrderOverview {
             duration: number;
         }
     },
-    user: {
+    user?: {
         name: string;
         id: string;
         phone?: string;
         email: string;
     };
+}
+
+/**
+ * Order created by employee
+ */
+export interface OrderResponseCreated {
+    id: string;
+    code: string;
+    totalPrice: number;
+    totalDiscount: number;
+    finalAmount: number;
+    orderDate: Date;
+    status: OrderStatus;
+    orderDetails: OrderDetailInOrderCreated[]
+}
+
+export interface OrderDetailInOrderCreated {
+    type: 'PRODUCT' | 'TICKET';
+    quantity: number;
+    price: number;
+    seat?: {
+        id: number;
+        name: string;
+        fullName: string;
+        type: SeatType;
+        area: number;
+        columnIndex: number;
+        rowIndex: number;
+        status: BaseStatus;
+    };
+    product?: BaseProduct;
+    isGift: boolean;
 }

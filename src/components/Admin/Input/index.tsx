@@ -14,24 +14,15 @@ type InputProps = {
     max?: number;
     required?: boolean;
     readOnly?: boolean;
+    id?: string;
     uppercase?: boolean;
 };
 
-const Input = ({
-                   name,
-                   label,
-                   placeholder = '',
-                   tooltip,
-                   type = 'text',
-                   unit,
-                   autoFocus = false,
-                   min,
-                   max,
-                   required = false,
-                   readOnly = false,
-                   uppercase = false,
-               }: InputProps) => {
-    const id = useId();
+const Input = ({ name, label, placeholder = '', tooltip, type = 'text', unit, autoFocus = false, min, max, required = false, readOnly = false, id, uppercase }: InputProps) => {
+    const internalId = useId();
+    if (!id) {
+        id = internalId;
+    }
     const [field, , helper] = useField(name);
     const inputRef = React.useRef<HTMLInputElement>(null);
 

@@ -9,7 +9,6 @@ import {
     AdminTicketPriceLineOverview,
     AdminTicketPriceOverview,
     ApplyForDayVietnamese,
-    TicketPriceStatus,
 } from '@/modules/ticketPrices/interface';
 import { useAllTicketPrices, useDeleteTicketPrice, useDeleteTicketPriceLine } from '@/modules/ticketPrices/repository';
 import ButtonAction from '@/components/Admin/ButtonAction';
@@ -33,7 +32,7 @@ import { LuSearch } from 'react-icons/lu';
 import ModalUpdateTicketPriceLine from '@/components/Admin/Pages/TicketPrice/ModalUpdateTicketPriceLine';
 import RangePicker from '@/components/Admin/RangePicker';
 import dayjs from 'dayjs';
-import TicketPriceStatusBadge from '@/components/Admin/Badge/TicketPriceStatusBadge';
+import BaseStatusBadge from '@/components/Admin/Badge/BaseStatusBadge';
 
 interface TicketPriceFilter extends PaginationState {
     name: string;
@@ -87,7 +86,7 @@ const TicketPricePage = () => {
         onSuccess: () => {
             setFilters((prev) => ({ ...prev, page: 1 }));
         },
-        canDelete: (ticketPrice) => ticketPrice.status !== TicketPriceStatus.ACTIVE,
+        canDelete: (ticketPrice) => ticketPrice.status !== BaseStatus.ACTIVE,
         unableDeleteMessage: 'Không thể xóa bảng giá đang hoạt động',
     });
 
@@ -129,7 +128,7 @@ const TicketPricePage = () => {
             },
             {
                 accessorKey: 'status',
-                cell: ({ row }) => <TicketPriceStatusBadge status={row.original.status} />,
+                cell: ({ row }) => <BaseStatusBadge status={row.original.status} />,
                 header: 'Trạng thái',
             },
             {
@@ -171,7 +170,7 @@ const TicketPricePage = () => {
                             <td className="text-tiny font-bold text-gray-800 dark:text-white uppercase border-gray-200 px-4 py-2 first-of-type:pr-0">Giá</td>
                             <td className="text-tiny font-bold text-gray-800 dark:text-white uppercase border-gray-200 px-4 py-2 first-of-type:pr-0">
                                 {
-                                    row.original.status !== TicketPriceStatus.ACTIVE ? (
+                                    row.original.status !== BaseStatus.ACTIVE ? (
                                         <div className="flex justify-end">
                                             <button className="bg-brand-500 text-white px-2 py-1.5 rounded-md"
                                                     onClick={() => setTicketPriceToAddNewLine(row.original)}>
@@ -214,7 +213,7 @@ const TicketPricePage = () => {
                                         </td>
                                         <td className="text-sm dark:text-white px-4 py-2 first-of-type:pr-0">
                                             <div className="flex gap-2 items-center justify-end">
-                                                <ButtonAction.Update disabled={row.original.status === TicketPriceStatus.ACTIVE} onClick={() => {
+                                                <ButtonAction.Update disabled={row.original.status === BaseStatus.ACTIVE} onClick={() => {
                                                     setTicketPriceToUpdateTicketPriceLine(row.original);
                                                     setTicketPriceLineToUpdate(line);
                                                 }} />
