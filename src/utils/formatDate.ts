@@ -16,9 +16,16 @@ const formatTime = (timeString: string): string => {
     return dayjs(timeString, 'HH:mm:ss').format('HH:mm');
 };
 
+const getDayOfWeek = (date: Date): string => {
+    const days = ['Chủ nhật', 'Thứ hai', 'Thứ ba', 'Thứ tư', 'Thứ năm', 'Thứ sáu', 'Thứ bảy'];
+    const dayNumber = dayjs(date).day();
+    return days[dayNumber];
+};
+
 export {
     formatDateInOrder,
     formatDateToLocalDate,
     timeFromNow,
     formatTime,
+    getDayOfWeek,
 };

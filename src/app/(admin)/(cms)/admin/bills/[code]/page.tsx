@@ -162,9 +162,9 @@ const OrderDetailPage = () => {
                     <Card className="p-[18px]">
                         <Typography.Title level={4}>Thông tin khách hàng</Typography.Title>
                         <div className="flex flex-col gap-3">
-                            <OrderDetailInfo label="Tên" value={order.user.name} />
-                            <OrderDetailInfo label="Điện thoại" value={order.user.phone || 'Chưa rõ'} />
-                            <OrderDetailInfo label="Email" value={order.user.email} />
+                            <OrderDetailInfo label="Tên" value={order.user?.name || 'Khách vãng lai'} />
+                            <OrderDetailInfo label="Điện thoại" value={order.user?.phone || 'Chưa cập nhật'} />
+                            <OrderDetailInfo label="Email" value={order.user?.email || 'Chưa cập nhật'} />
                         </div>
                     </Card>
 

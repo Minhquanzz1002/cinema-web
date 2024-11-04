@@ -71,8 +71,8 @@ const BillPage = () => {
                 header: 'Khách hàng',
                 cell: ({ row }) => (
                     <div className="flex flex-col gap-2">
-                        <div>{row.original.user.name}</div>
-                        <div className="text-xs text-gray-700">{row.original.user.phone}</div>
+                        <div>{row.original.user?.name || 'Khách hàng vãng lai'}</div>
+                        <div className="text-xs text-gray-700">{row.original.user?.phone}</div>
                     </div>
                 ),
             },

@@ -1,11 +1,5 @@
 import { ErrorResponse, SuccessResponse } from '@/core/repository/interface';
-import {
-    BaseProduct,
-    BaseProductWithPrice,
-    ProductPriceHistory,
-    ProductPriceStatus,
-    ProductStatus,
-} from '@/modules/products/interface';
+import { BaseProduct, BaseProductWithPrice, ProductPriceHistory, ProductStatus } from '@/modules/products/interface';
 import httpRepository from '@/core/repository/http';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PageObject } from '@/core/pagination/interface';
@@ -254,7 +248,7 @@ interface UpdateProductPriceData {
     startDate: string;
     endDate: string;
     price: number;
-    status: ProductPriceStatus;
+    status: BaseStatus;
 }
 
 const updateProductPrice = ({ code, data, id }: {
@@ -278,4 +272,18 @@ export const useUpdateProductPrice = () => {
             console.error('Delete ticket price error:', error);
         },
     });
+};
+
+/**
+ * Fetch all product for sale
+ */
+const findAllProductsForSale = (): Promise<SuccessResponse<BaseProductWithPrice[]>> => {
+    return httpRepository.get<BaseProductWithPrice[]>('/v1/products');
+};
+
+export const useAllProductsForSale = () => {
+    return useDataFetching(
+        [PRODUCT_QUERY_KEY, PRODUCT_PRICE_QUERY_KEY, 'sale'],
+        () => findAllProductsForSale()
+    );
 };

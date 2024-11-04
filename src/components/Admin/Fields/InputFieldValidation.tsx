@@ -1,6 +1,5 @@
 'use client';
 import React from 'react';
-import dynamic from 'next/dynamic';
 import { ErrorMessage, Field } from 'formik';
 
 type InputFieldValidationProps = {
@@ -36,4 +35,4 @@ const InputFieldValidation = (props: InputFieldValidationProps) => {
     );
 };
 
-export default dynamic(() => Promise.resolve(InputFieldValidation), { ssr: false });
+export default InputFieldValidation;

@@ -35,13 +35,10 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
         if (storedRefreshToken) setRefreshToken(storedRefreshToken);
         if (storedAccessToken) {
             setAccessToken(storedAccessToken);
+            setAccessTokenForAxios(storedAccessToken);
         }
         setIsLoading(false);
     }, []);
-
-    useEffect(() => {
-        setAccessTokenForAxios(accessToken);
-    }, [accessToken]);
 
     const { data: fetchedUser } = useGetUser({
         enabled: !!accessToken && !user,
@@ -60,9 +57,9 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
 
     const login = (response: LoginResponse) => {
         const { accessToken: newAccessToken, refreshToken: newRefreshToken, ...user } = response;
-        setAccessToken(accessToken);
-        setAccessTokenForAxios(accessToken);
-        setRefreshToken(refreshToken);
+        setAccessToken(newAccessToken);
+        setAccessTokenForAxios(newAccessToken);
+        setRefreshToken(newRefreshToken);
         setUser(user);
 
         Cookies.set('accessTokenAdmin', newAccessToken, { expires: 1 });

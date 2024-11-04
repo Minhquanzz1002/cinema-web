@@ -8,7 +8,6 @@ import DatePicker from '@/components/Admin/DatePicker';
 import dayjs from 'dayjs';
 import TextArea from '@/components/Admin/TextArea';
 import Select from '@/components/Admin/Select';
-import { VisibilityStatus, VisibilityStatusVietnamese } from '@/modules/base/interface';
 import UploadImage, { ImageFile } from '@/components/Admin/UploadImage';
 import Link from '@/components/Link';
 import { ButtonIcon } from '@/components/Admin/Button';
@@ -20,6 +19,7 @@ import { date, object, string } from 'yup';
 import { toast } from 'react-toastify';
 import Loader from '@/components/Admin/Loader';
 import NotFound from '@/components/Admin/NotFound';
+import { BaseStatus, BaseStatusVietnamese } from '@/modules/base/interface';
 
 const ActorSchema = object({
     name: string().required('Tên không được để trống'),
@@ -46,7 +46,7 @@ interface ActorFormValues {
     bio?: string;
     birthday?: Date;
     country?: string;
-    status: VisibilityStatus;
+    status: BaseStatus;
     image: ImageFile[];
 }
 
@@ -143,8 +143,8 @@ const UpdateActorPage = () => {
                                 <div className="border rounded-[6px] border-[rgb(236, 243, 250)] py-4 px-4.5">
                                     <TextArea name="bio" label="Mô tả" placeholder="Nhập mô tả" />
                                     <Select name="status" label="Trạng thái" options={[
-                                        ...Object.keys(VisibilityStatus).map(status => ({
-                                            label: VisibilityStatusVietnamese[status as VisibilityStatus],
+                                        ...Object.keys(BaseStatus).map(status => ({
+                                            label: BaseStatusVietnamese[status as BaseStatus],
                                             value: status,
                                         })),
                                     ]} />

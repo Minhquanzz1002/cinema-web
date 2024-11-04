@@ -12,7 +12,7 @@ const Breadcrumb = () => {
         return regex.test(pathname);
     };
 
-    const replacePathParams = (link: string) : string => {
+    const replacePathParams = (link: string): string => {
         if (!link.includes('[code]')) {
             return link;
         }
@@ -31,31 +31,26 @@ const Breadcrumb = () => {
     const matchedBreadcrumb = breadcrumbs.find(breadcrumb => isMath(breadcrumb.link));
 
     return (
-        <div className="ml-[6px]">
-            <div className="h-6 pt-1 flex items-center gap-x-2">
-                {
-                    matchedBreadcrumb?.breadcrumbTrail.map((trail, index) => (
-                        <React.Fragment key={trail.label + index}>
-                            {index > 0 && <MdNavigateNext className="text-navy-700" />}
-                            {index === matchedBreadcrumb?.breadcrumbTrail.length - 1 ? (
-                                <div className="text-brand-500 text-sm font-nunito dark:text-white">{trail.label}</div>
-                            ) : trail.link ? (
-                                <Link href={replacePathParams(trail.link)}
-                                      className="text-sm font-nunito text-navy-700 hover:underline dark:text-white">
-                                    {trail.label}
-                                </Link>
-                            ) : (
-                                <div className="text-sm font-nunito text-navy-700 dark:text-white">
-                                    {trail.label}
-                                </div>
-                            )}
-                        </React.Fragment>
-                    ))
-                }
-            </div>
-            <p className="shrink text-[33px] font-nunito font-bold text-navy-700 dark:text-white ">
-                {matchedBreadcrumb?.label}
-            </p>
+        <div className="h-6 pt-1 flex items-center gap-x-2">
+            {
+                matchedBreadcrumb?.breadcrumbTrail.map((trail, index) => (
+                    <React.Fragment key={trail.label + index}>
+                        {index > 0 && <MdNavigateNext className="text-navy-700" />}
+                        {index === matchedBreadcrumb?.breadcrumbTrail.length - 1 ? (
+                            <div className="text-brand-500 text-sm font-nunito dark:text-white">{trail.label}</div>
+                        ) : trail.link ? (
+                            <Link href={replacePathParams(trail.link)}
+                                  className="text-sm font-nunito text-navy-700 hover:underline dark:text-white">
+                                {trail.label}
+                            </Link>
+                        ) : (
+                            <div className="text-sm font-nunito text-navy-700 dark:text-white">
+                                {trail.label}
+                            </div>
+                        )}
+                    </React.Fragment>
+                ))
+            }
         </div>
     );
 };

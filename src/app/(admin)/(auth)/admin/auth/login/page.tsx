@@ -1,12 +1,12 @@
 'use client';
 import React from 'react';
-import { InputFieldValidation } from '@/components/Admin/Fields';
 import Image from 'next/image';
 import { Form, Formik } from 'formik';
 import * as Yup from 'yup';
 import { LoginCredentials } from '@/modules/authentication/interface';
 import { useLogin } from '@/modules/authentication/repository';
 import { useRouter } from 'next/navigation';
+import { InputFieldValidation } from '@/components/Admin/Fields';
 
 const LoginSchema = Yup.object().shape({
     email: Yup.string().email('Email không hợp lệ').required('Email không được để trống'),
@@ -69,16 +69,15 @@ const Login = () => {
                     <Formik initialValues={initialValues} onSubmit={handleSubmit} validationSchema={LoginSchema}>
                         <Form>
                             <InputFieldValidation id="email" name="email"
-                                                  label="Email *"
+                                                  label="Email: *"
                                                   type="text" placeholder="mail@gmail.com" extra="mb-5" />
                             <InputFieldValidation id="password" name="password"
-                                                  label="Mật khẩu *"
+                                                  label="Mật khẩu: *"
                                                   type="password" placeholder="Tối thiểu 8 ký tự" extra="mb-5" />
-
                             <button type="submit"
                                     disabled={login.isPending}
                                     className="mt-5 w-full rounded-xl bg-brand-500 py-3 text-base font-medium text-white transition duration-200 hover:bg-brand-600 active:bg-brand-700 dark:bg-brand-400 dark:text-white dark:hover:bg-brand-300 dark:active:bg-brand-200">
-                                Đăng Nhập
+                                {login.isPending ? 'Đang xử lý...' : 'Đăng nhập'}
                             </button>
                         </Form>
                     </Formik>

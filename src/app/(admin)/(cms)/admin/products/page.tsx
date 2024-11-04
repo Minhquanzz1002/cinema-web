@@ -118,7 +118,6 @@ const ProductPage = () => {
                 header: () => '',
                 cell: ({ row }) => (
                     <div className="inline-flex gap-2 items-center">
-                        <ButtonAction.View href={`/admin/products/${row.original.code}`} />
                         <ButtonAction.Update href={`/admin/products/${row.original.code}/edit`} />
                         <ButtonAction.Delete onClick={() => deleteModal.openDeleteModal(row.original)} />
                     </div>

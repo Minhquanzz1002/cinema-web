@@ -10,7 +10,6 @@ import { ButtonIcon } from '@/components/Admin/Button';
 import { FaSave } from 'react-icons/fa';
 import { TiArrowBackOutline } from 'react-icons/ti';
 import Link from '@/components/Link';
-import { VisibilityStatus, VisibilityStatusVietnamese } from '@/modules/base/interface';
 import TextArea from '@/components/Admin/TextArea';
 import { useCreateActor } from '@/modules/actors/repository';
 import { useRouter } from 'next/navigation';
@@ -18,6 +17,7 @@ import UploadImage, { ImageFile } from '@/components/Admin/UploadImage';
 import DatePicker from '@/components/Admin/DatePicker';
 import { toast } from 'react-toastify';
 import dayjs from 'dayjs';
+import { BaseStatus, BaseStatusVietnamese } from '@/modules/base/interface';
 
 const ActorSchema = object({
     name: string().required('Tên không được để trống'),
@@ -50,7 +50,7 @@ interface ActorFormValues {
     bio?: string;
     birthday?: Date;
     country?: string;
-    status: VisibilityStatus;
+    status: BaseStatus;
     image: ImageFile[];
 }
 
@@ -59,7 +59,7 @@ const initialFormValues: ActorFormValues = {
     country: '',
     bio: '',
     code: '',
-    status: VisibilityStatus.ACTIVE,
+    status: BaseStatus.ACTIVE,
     image: [],
 };
 
@@ -130,9 +130,9 @@ const NewActorPage = () => {
                                 <div className="border rounded-[6px] border-[rgb(236, 243, 250)] py-4 px-4.5">
                                     <TextArea name="bio" label="Mô tả" placeholder="Nhập mô tả" />
                                     <Select name="status" label="Trạng thái" options={[
-                                        ...Object.keys(VisibilityStatus).map(status => (
+                                        ...Object.keys(BaseStatus).map(status => (
                                             {
-                                                label: VisibilityStatusVietnamese[status as VisibilityStatus],
+                                                label: BaseStatusVietnamese[status as BaseStatus],
                                                 value: status,
                                             }
                                         )),
