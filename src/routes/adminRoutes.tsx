@@ -20,6 +20,15 @@ const adminRoutes: IAdminRoute[] = [
         icon: <LuLayoutGrid />,
     },
     {
+        name: 'Báo cáo',
+        path: '/admin/reports',
+        icon: <RiMovie2Line />,
+        children: [
+            { name: 'DSBH theo ngày', path: '/admin/reports/daily-sales' },
+            { name: 'DSBH theo NVBH', path: '/admin/reports/employee-sales' },
+        ],
+    },
+    {
         name: 'Phim',
         path: '/admin/movies',
         icon: <RiMovie2Line />,
@@ -48,7 +57,6 @@ const adminRoutes: IAdminRoute[] = [
         name: 'Hóa đơn',
         path: '/admin/bills',
         icon: <RiMoneyDollarCircleLine />,
-
     },
     {
         name: 'Sản phẩm',

@@ -96,7 +96,7 @@ const findAllProductActive = (): Promise<SuccessResponse<BaseProductWithPrice[]>
 export const useAllProductActive = () => {
     return useDataFetching(
         [PRODUCT_QUERY_KEY],
-        () => findAllProductActive()
+        () => findAllProductActive(),
     );
 };
 
@@ -185,6 +185,8 @@ export const useUpdateProduct = () => {
     });
 };
 
+/*==================== PRODUCT PRICE ====================*/
+
 /**
  * Create product price
  */
@@ -222,8 +224,8 @@ export const useCreateProductPrice = () => {
  * Delete product price
  */
 
-const deleteProductPrice = ({ code, id }: { code: string, id: number }): Promise<SuccessResponse<void>> => {
-    return httpRepository.delete<void>(`/admin/v1/products/${code}/prices/${id}`);
+const deleteProductPrice = (id: number): Promise<SuccessResponse<void>> => {
+    return httpRepository.delete<void>(`/admin/v1/product-prices/${id}`);
 };
 
 export const useDeleteProductPrice = () => {
@@ -231,12 +233,12 @@ export const useDeleteProductPrice = () => {
     return useMutation({
         mutationFn: deleteProductPrice,
         onSuccess: async () => {
-            await queryClient.invalidateQueries({ queryKey: [PRODUCT_QUERY_KEY] });
+            await queryClient.invalidateQueries({ queryKey: [PRODUCT_PRICE_QUERY_KEY] });
             toast.success('Xóa bảng giá sản phẩm thành công');
         },
-        onError: (error) => {
-            toast.error('Xóa bảng giá sản phẩm thất bại');
-            console.error('Delete ticket price error:', error);
+        onError: (error: ErrorResponse) => {
+            toast.error(error.message || 'Xóa bảng giá sản phẩm không thành công. Hãy thử lại');
+            console.error('Delete product price error:', error);
         },
     });
 };
@@ -251,12 +253,11 @@ interface UpdateProductPriceData {
     status: BaseStatus;
 }
 
-const updateProductPrice = ({ code, data, id }: {
-    code: string,
+const updateProductPrice = ({ data, id }: {
     id: number
     data: UpdateProductPriceData
 }): Promise<SuccessResponse<ProductPriceHistory>> => {
-    return httpRepository.put<ProductPriceHistory, UpdateProductPriceData>(`/admin/v1/products/${code}/prices/${id}`, data);
+    return httpRepository.put<ProductPriceHistory, UpdateProductPriceData>(`/admin/v1/product-prices/${id}`, data);
 };
 
 export const useUpdateProductPrice = () => {
@@ -284,6 +285,6 @@ const findAllProductsForSale = (): Promise<SuccessResponse<BaseProductWithPrice[
 export const useAllProductsForSale = () => {
     return useDataFetching(
         [PRODUCT_QUERY_KEY, PRODUCT_PRICE_QUERY_KEY, 'sale'],
-        () => findAllProductsForSale()
+        () => findAllProductsForSale(),
     );
 };

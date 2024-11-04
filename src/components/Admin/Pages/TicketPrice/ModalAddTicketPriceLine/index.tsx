@@ -24,7 +24,7 @@ interface FormValues {
     normalPrice: number;
     vipPrice: number;
     couplePrice: number;
-    triplePrice: number;
+    
 }
 
 const initialValues: FormValues = {
@@ -45,7 +45,7 @@ const initialValues: FormValues = {
     normalPrice: 0,
     vipPrice: 0,
     couplePrice: 0,
-    triplePrice: 0,
+    
 };
 
 const validationSchema = Yup.object().shape({
@@ -83,7 +83,6 @@ const ModalAddTicketPriceLine = ({ onClose, ticketPrice }: ModalAddTicketPriceLi
                     normalPrice: values.normalPrice,
                     vipPrice: values.vipPrice,
                     couplePrice: values.couplePrice,
-                    triplePrice: values.triplePrice,
                 },
             });
             onClose();
@@ -114,7 +113,7 @@ const ModalAddTicketPriceLine = ({ onClose, ticketPrice }: ModalAddTicketPriceLi
                 <InputCurrency min={0} max={10000000} name="normalPrice" label="Giá ghế thường" unit="VND" />
                 <InputCurrency min={0} name="vipPrice" label="Giá VIP" unit="VND" />
                 <InputCurrency min={0} name="couplePrice" label="Giá ghế đôi" unit="VND" />
-                <InputCurrency min={0} name="triplePrice" label="Giá ghế ba" unit="VND" />
+               
 
                 <div className="flex justify-end items-center gap-3">
                     <ButtonAction.Cancel onClick={onClose} />
