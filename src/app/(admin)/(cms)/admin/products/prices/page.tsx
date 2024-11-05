@@ -12,7 +12,7 @@ import AutoSubmitForm from '@/components/Admin/AutoSubmitForm';
 import Select from '@/components/Admin/Filters/Select';
 import useFilterPagination, { PaginationState } from '@/hook/useFilterPagination';
 import { BaseStatus, BaseStatusVietnamese } from '@/modules/base/interface';
-import { useAllProductPrices } from '@/modules/productPrices/repository';
+import { useAllProductPrices, useDeleteProductPrice } from '@/modules/productPrices/repository';
 import { AdminProductPriceOverview } from '@/modules/productPrices/interface';
 import { formatDateToLocalDate } from '@/utils/formatDate';
 import BaseStatusBadge from '@/components/Admin/Badge/BaseStatusBadge';
@@ -20,11 +20,10 @@ import Image from 'next/image';
 import avatar from '/public/img/avatar/avt.png';
 import { DatePickerWithRange } from '@/components/Admin/DatePickerWithRange';
 import ModalAddProductPrice from '@/components/Admin/Pages/ProductPrice/ModalAddProductPrice';
-import { useDeleteProductPrice } from '@/modules/products/repository';
 import useDeleteModal from '@/hook/useDeleteModal';
 import ModalDeleteAlert from '@/components/Admin/ModalDeleteAlert';
 import HighlightedText from '@/components/Admin/ModalDeleteAlert/HighlightedText';
-import ModalUpdateProductPrice from '@/components/Admin/Pages/Product/ModalUpdateProductPrice';
+import ModalUpdateProductPrice from '../../../../../../components/Admin/Pages/ProductPrice/ModalUpdateProductPrice';
 
 interface ProductPriceFilter extends PaginationState {
     status: BaseStatus | 'ALL';
