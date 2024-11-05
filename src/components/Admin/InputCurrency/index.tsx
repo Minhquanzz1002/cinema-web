@@ -13,9 +13,22 @@ type InputProps = {
     required?: boolean;
     readOnly?: boolean;
     unit?: string;
+    wrapperClassName?: string;
 };
 
-const InputCurrency = ({ name, label, placeholder = '', tooltip, autoFocus = false, min, max, required = false, readOnly = false, unit }: InputProps) => {
+const InputCurrency = ({
+                           name,
+                           label,
+                           wrapperClassName,
+                           placeholder = '',
+                           tooltip,
+                           autoFocus = false,
+                           min,
+                           max,
+                           required = false,
+                           readOnly = false,
+                           unit,
+                       }: InputProps) => {
     const id = useId();
     const [field, , helpers] = useField(name);
     const inputRef = React.useRef<HTMLInputElement>(null);
@@ -25,24 +38,53 @@ const InputCurrency = ({ name, label, placeholder = '', tooltip, autoFocus = fal
     };
 
     const formatValue = (value: any): string => {
+        if (value === '' || value === null || value === undefined) {
+            return '';
+        }
         if (typeof value !== 'string' && typeof value !== 'number') {
             return '';
         }
         const numericValue = String(value).replace(/\D/g, '');
-        return new Intl.NumberFormat('vi-VN').format(parseInt(numericValue) || 0);
+        return numericValue ? new Intl.NumberFormat('vi-VN').format(parseInt(numericValue)) : '';
     };
 
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const rawValue = event.target.value.replace(/\D/g, '');
-        helpers.setValue(Number(rawValue));
+        await helpers.setValue(rawValue === '' ? '' : Number(rawValue));
     };
 
     const handleBlur = () => {
         field.onBlur(name);
     };
 
+    const handleKeyDown = async (event: React.KeyboardEvent<HTMLInputElement>) => {
+        const currentValue = Number(field.value) || 0;
+
+        switch(event.key) {
+            case 'ArrowUp':
+                event.preventDefault();
+                const increasedValue = currentValue + 1000;
+                if (max && increasedValue > max) {
+                    await helpers.setValue(max);
+                } else {
+                    await helpers.setValue(increasedValue);
+                }
+                break;
+
+            case 'ArrowDown':
+                event.preventDefault();
+                const decreasedValue = currentValue - 1000;
+                if (decreasedValue < (min || 0)) {
+                    await helpers.setValue(min || 0);
+                } else {
+                    await helpers.setValue(decreasedValue);
+                }
+                break;
+        }
+    };
+
     return (
-        <div className="mb-3">
+        <div className={wrapperClassName ? 'mb-3' : wrapperClassName}>
             {
                 label && (
                     <div className="mb-1 inline-flex gap-x-1 h-6">
@@ -69,6 +111,7 @@ const InputCurrency = ({ name, label, placeholder = '', tooltip, autoFocus = fal
                        value={formatValue(field.value)}
                        onChange={handleChange}
                        onBlur={handleBlur}
+                       onKeyDown={handleKeyDown}
                 />
 
                 {unit && <span className="text-gray-400 uppercase text-xs">{unit}</span>}

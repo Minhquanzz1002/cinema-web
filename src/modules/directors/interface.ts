@@ -1,4 +1,4 @@
-import { BaseEntity, VisibilityStatus } from '@/modules/base/interface';
+import { BaseEntity, BaseStatus } from '@/modules/base/interface';
 
 export interface DirectorFilter {
     id: number;
@@ -13,5 +13,5 @@ export interface Director extends BaseEntity {
     birthday?: Date;
     country?: string;
     bio?: string;
-    status: VisibilityStatus;
+    status: BaseStatus;
 }

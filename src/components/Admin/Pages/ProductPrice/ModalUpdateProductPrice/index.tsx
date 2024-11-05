@@ -8,8 +8,8 @@ import { BaseStatus, BaseStatusVietnamese } from '@/modules/base/interface';
 import ButtonAction from '@/components/Admin/ButtonAction';
 import * as Yup from 'yup';
 import InputCurrency from '@/components/Admin/InputCurrency';
-import { useUpdateProductPrice } from '@/modules/products/repository';
 import { AdminProductPriceOverview } from '@/modules/productPrices/interface';
+import { useUpdateProductPrice } from '@/modules/productPrices/repository';
 
 type ModalAddProductPriceProps = {
     onClose: () => void;
