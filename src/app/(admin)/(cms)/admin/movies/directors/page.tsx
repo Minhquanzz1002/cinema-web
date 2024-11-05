@@ -9,18 +9,14 @@ import avatar from '/public/img/avatar/avt.png';
 import { Director } from '@/modules/directors/interface';
 import ButtonAction from '@/components/Admin/ButtonAction';
 import useFilterPagination, { PaginationState } from '@/hook/useFilterPagination';
-import {
-    BaseStatus,
-    VisibilityStatus,
-    VisibilityStatusVietnamese,
-} from '@/modules/base/interface';
+import { BaseStatus, BaseStatusVietnamese } from '@/modules/base/interface';
 import { useAllDirectors } from '@/modules/directors/repository';
 import { Form, Formik } from 'formik';
 import Typography from '@/components/Admin/Typography';
 import Input from '@/components/Admin/Filters/Input';
 import Select from '@/components/Admin/Filters/Select';
 import AutoSubmitForm from '@/components/Admin/AutoSubmitForm';
-import VisibilityStatusBadge from '@/components/Admin/Badge/VisibilityStatusBadge';
+import BaseStatusBadge from '@/components/Admin/Badge/BaseStatusBadge';
 
 interface DirectorFilter extends PaginationState {
     search: string;
@@ -96,7 +92,7 @@ const DirectorPage = () => {
             },
             {
                 accessorKey: 'status',
-                cell: ({ row }) => <VisibilityStatusBadge status={row.original.status} />,
+                cell: ({ row }) => <BaseStatusBadge status={row.original.status} />,
                 header: 'Trạng thái',
             },
             {
@@ -142,8 +138,8 @@ const DirectorPage = () => {
                                             placeholder="Lọc theo trạng thái"
                                             options={[
                                                 { label: 'Tất cả trạng thái', value: 'ALL' },
-                                                ...Object.values(VisibilityStatus).map(value => ({
-                                                    label: VisibilityStatusVietnamese[value],
+                                                ...Object.values(BaseStatus).map(value => ({
+                                                    label: BaseStatusVietnamese[value],
                                                     value,
                                                 }))
                                             ]}

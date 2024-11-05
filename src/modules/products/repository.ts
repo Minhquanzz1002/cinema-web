@@ -10,6 +10,7 @@ import { BaseStatus } from '@/modules/base/interface';
 export const PRODUCT_QUERY_KEY = 'products';
 export const PRODUCT_PRICE_QUERY_KEY = 'product-prices';
 
+/*======================================= Products ====================================*/
 /**
  * Fetch all products
  */
@@ -34,6 +35,23 @@ export const useAllProducts = (params: FetchAllProductParams) => {
         placeholderData: (previousData) => previousData,
         staleTime: 5000,
     });
+};
+
+/**
+ * Fetch list of products (non paginated)
+ */
+
+const findListProducts = (search?: string): Promise<SuccessResponse<BaseProduct[]>> => {
+    return httpRepository.get<BaseProduct[]>('/admin/v1/products/list', {
+        search: search,
+    });
+};
+
+export const useListProducts = (search?: string) => {
+    return useDataFetching(
+        [PRODUCT_QUERY_KEY, 'list', search],
+        () => findListProducts(search),
+    );
 };
 
 /**
@@ -180,96 +198,6 @@ export const useUpdateProduct = () => {
         },
         onError: (error: ErrorResponse) => {
             toast.error(error.message);
-            console.error('Delete ticket price error:', error);
-        },
-    });
-};
-
-/*==================== PRODUCT PRICE ====================*/
-
-/**
- * Create product price
- */
-
-interface CreateProductPriceData {
-    startDate: string;
-    endDate: string;
-    status: BaseStatus;
-    price: number;
-}
-
-const createProductPrice = ({ code, data }: {
-    code: string,
-    data: CreateProductPriceData
-}): Promise<SuccessResponse<ProductPriceHistory>> => {
-    return httpRepository.post<ProductPriceHistory, CreateProductPriceData>(`/admin/v1/products/${code}/prices`, data);
-};
-
-export const useCreateProductPrice = () => {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: createProductPrice,
-        onSuccess: async () => {
-            await queryClient.invalidateQueries({ queryKey: [PRODUCT_QUERY_KEY] });
-            toast.success('Thêm giá sản phẩm thành công');
-        },
-        onError: (error) => {
-            toast.error('Thêm giá sản phẩm thất bại');
-            console.error('Create ticket price error:', error);
-        },
-    });
-};
-
-/**
- * Delete product price
- */
-
-const deleteProductPrice = (id: number): Promise<SuccessResponse<void>> => {
-    return httpRepository.delete<void>(`/admin/v1/product-prices/${id}`);
-};
-
-export const useDeleteProductPrice = () => {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: deleteProductPrice,
-        onSuccess: async () => {
-            await queryClient.invalidateQueries({ queryKey: [PRODUCT_PRICE_QUERY_KEY] });
-            toast.success('Xóa bảng giá sản phẩm thành công');
-        },
-        onError: (error: ErrorResponse) => {
-            toast.error(error.message || 'Xóa bảng giá sản phẩm không thành công. Hãy thử lại');
-            console.error('Delete product price error:', error);
-        },
-    });
-};
-
-/**
- * Update product price
- */
-interface UpdateProductPriceData {
-    startDate: string;
-    endDate: string;
-    price: number;
-    status: BaseStatus;
-}
-
-const updateProductPrice = ({ data, id }: {
-    id: number
-    data: UpdateProductPriceData
-}): Promise<SuccessResponse<ProductPriceHistory>> => {
-    return httpRepository.put<ProductPriceHistory, UpdateProductPriceData>(`/admin/v1/product-prices/${id}`, data);
-};
-
-export const useUpdateProductPrice = () => {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: updateProductPrice,
-        onSuccess: async () => {
-            await queryClient.invalidateQueries({ queryKey: [PRODUCT_QUERY_KEY] });
-            toast.success('Cập nhật bảng giá thành công');
-        },
-        onError: (error) => {
-            toast.error('Cập nhật bảng giá thất bại');
             console.error('Delete ticket price error:', error);
         },
     });
