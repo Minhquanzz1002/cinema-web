@@ -526,7 +526,7 @@ const NewPromotionLinePage = () => {
                         </div>
 
                         <Card className="p-4">
-                            <Typography.Title level={4}>Danh sách chi tiết</Typography.Title>
+                            <Typography.Title level={4}>Chi tiết khuyến mãi</Typography.Title>
                             <DynamicDetailsList />
                         </Card>
 

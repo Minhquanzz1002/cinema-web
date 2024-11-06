@@ -22,6 +22,7 @@ import useFilterPagination, { PaginationState } from '@/hook/useFilterPagination
 import useDeleteModal from '@/hook/useDeleteModal';
 import ModalDeleteAlert from '@/components/Admin/ModalDeleteAlert';
 import HighlightedText from '@/components/Admin/ModalDeleteAlert/HighlightedText';
+import { NOT_FOUND_PRODUCT_IMAGE } from '@/variables/images';
 
 interface ProductFilter extends PaginationState {
     search: string;
@@ -84,7 +85,7 @@ const ProductPage = () => {
                 cell: ({ row }) => {
                     return (
                         <div className="w-20 h-20 relative rounded shadow overflow-hidden">
-                            <Image src={row.original.image} alt={row.original.name} fill
+                            <Image src={row.original.image || NOT_FOUND_PRODUCT_IMAGE} alt={row.original.name} fill
                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                    priority className="rounded-md object-cover w-20 h-20" />
                         </div>

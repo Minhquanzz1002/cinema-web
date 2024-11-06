@@ -36,20 +36,19 @@ export enum AgeRating {
 export interface AdminMovie {
     id: number;
     code: string;
-    country: string;
+    country?: string;
     duration: number;
     title: string;
     status: MovieStatus;
-    summary: string;
+    summary?: string;
     createdAt: Date;
     createdBy: string;
     updatedAt: Date;
     updatedBy: string;
-    imageLandscape: string;
-    imagePortrait: string;
+    imageLandscape?: string;
+    imagePortrait?: string;
     releaseDate: Date;
     slug: string;
-    age: number;
     ageRating: AgeRating;
     rating: number;
     trailer: string;

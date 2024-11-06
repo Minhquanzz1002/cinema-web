@@ -3,7 +3,7 @@ import React, { MouseEventHandler } from 'react';
 import { FaEdit, FaEye } from 'react-icons/fa';
 import Link from 'next/link';
 import { FaFileImport, FaPlus } from 'react-icons/fa6';
-import { RiFileExcel2Line } from 'react-icons/ri';
+import { RiFileExcel2Line, RiRefund2Line } from 'react-icons/ri';
 
 type DeleteButtonProps = {
     onClick?: MouseEventHandler<HTMLButtonElement>;
@@ -18,6 +18,10 @@ type UpdateButtonProps = {
 
 type ViewButtonProps = {
     href?: string;
+    onClick?: MouseEventHandler<HTMLButtonElement>
+}
+
+type RefundButtonProps = {
     onClick?: MouseEventHandler<HTMLButtonElement>
 }
 
@@ -56,7 +60,8 @@ type ConfirmButtonProps = {
 const ButtonAction = {
     Delete: ({ onClick, disabled }: DeleteButtonProps) => {
         return (
-            <button type="button" disabled={disabled} onClick={onClick} className="text-red-400 hover:text-red-600" title="Xóa">
+            <button type="button" disabled={disabled} onClick={onClick} className="text-red-400 hover:text-red-600"
+                    title="Xóa">
                 <LuTrash size={18} />
             </button>
         );
@@ -64,7 +69,8 @@ const ButtonAction = {
     Update: ({ href = '#', onClick, disabled }: UpdateButtonProps) => {
         if (onClick) {
             return (
-                <button type="button" onClick={onClick} disabled={disabled} className="text-blue-400 hover:text-blue-600" title="Chỉnh sửa">
+                <button type="button" onClick={onClick} disabled={disabled}
+                        className="text-blue-400 hover:text-blue-600" title="Chỉnh sửa">
                     <FaEdit size={18} />
                 </button>
             );
@@ -88,6 +94,14 @@ const ButtonAction = {
                 <FaEye size={18} />
             </Link>
         );
+    },
+    Refund: ({ onClick }: RefundButtonProps) => {
+        return (
+            <button type="button" onClick={onClick} className="text-blue-400 hover:text-blue-600" title="Hoàn trả">
+                <RiRefund2Line size={18} />
+            </button>
+        );
+
     },
     Add: ({ href = '#', onClick, text = 'Thêm' }: AddButtonProps) => {
         if (onClick) {
@@ -123,7 +137,7 @@ const ButtonAction = {
             </button>
         );
     },
-    Submit: ({ onClick, text = "Xác nhận", isLoading = false }: SubmitButtonProps) => {
+    Submit: ({ onClick, text = 'Xác nhận', isLoading = false }: SubmitButtonProps) => {
         return (
             <button
                 className="bg-brand-500 py-1.5 px-2 rounded flex items-center justify-center text-white gap-x-2 text-sm"

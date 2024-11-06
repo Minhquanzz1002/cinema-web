@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import { Form, Formik } from 'formik';
 import Input from '@/components/Admin/Input';
 import Card from '@/components/Admin/Card';
-import { array, mixed, object, string } from 'yup';
+import { object, string } from 'yup';
 import Typography from '@/components/Admin/Typography';
 import Select from '@/components/Admin/Select';
 import { ButtonIcon } from '@/components/Admin/Button';
@@ -15,16 +15,12 @@ import TextArea from '@/components/Admin/TextArea';
 import UploadImage, { ImageFile } from '@/components/Admin/UploadImage';
 import { useProductByCode, useUpdateProduct } from '@/modules/products/repository';
 import { useParams, useRouter } from 'next/navigation';
+import NotFound from '@/components/Admin/NotFound';
+import Loader from '@/components/Admin/Loader';
 
 const ProductSchema = object({
     name: string().required('Tên không được để trống'),
     description: string().required('Mô tả không được để trống'),
-    image: array().of(
-        object().shape({
-            path: string().required('Hình ảnh là bắt buộc'),
-            file: mixed().optional(),
-        }),
-    ).min(1, 'Chọn ít nhất 1 ảnh sản phẩm').required('Chọn ít nhất 1 ảnh sản phẩm'),
 });
 
 interface FormValues {
@@ -36,7 +32,7 @@ interface FormValues {
 
 const EditMoviePage = () => {
     const { code } = useParams<{ code: string }>();
-    const { data: product } = useProductByCode(code);
+    const { data: product, isLoading } = useProductByCode(code);
     const updateProduct = useUpdateProduct();
 
     const router = useRouter();
@@ -45,15 +41,17 @@ const EditMoviePage = () => {
         document.title = 'B&Q Cinema - Thêm sản phẩm';
     }, []);
 
-    if (!product) return null;
+    if (isLoading) {
+        return <Loader />;
+    }
+
+    if (!product) return <NotFound />;
 
     const initialFormValues: FormValues = {
         name: product.name,
         description: product.description,
         status: product.status,
-        image: [
-            { path: product.image },
-        ],
+        image: product?.image ? [{ path: product.image }] : [],
     };
 
 
@@ -120,7 +118,7 @@ const EditMoviePage = () => {
                                 Hủy bỏ
                             </ButtonIcon>
                         </Link>
-                        <ButtonIcon icon={<FaSave />} type="submit">
+                        <ButtonIcon icon={<FaSave />} type="submit" disabled={updateProduct.isPending}>
                             Cập nhật
                         </ButtonIcon>
                     </div>

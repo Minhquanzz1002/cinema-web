@@ -170,7 +170,15 @@ export const breadcrumbs: IBreadcrumb[] = [
     },
     {
         label: 'Quản lý hóa đơn',
-        link: '^/admin/bills$',
+        link: '^/admin/bills/completed$',
+        breadcrumbTrail: [
+            { label: 'Hóa đơn' },
+            { label: 'Danh sách hóa đơn' },
+        ],
+    },
+    {
+        label: 'Quản lý hóa đơn',
+        link: '^/admin/bills/refund$',
         breadcrumbTrail: [
             { label: 'Hóa đơn' },
             { label: 'Danh sách hóa đơn' },

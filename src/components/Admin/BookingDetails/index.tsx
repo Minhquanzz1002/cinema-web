@@ -13,6 +13,7 @@ import { Form, Formik } from 'formik';
 import AutoSubmitForm from '@/components/Admin/AutoSubmitForm';
 import { useAllCustomerWithPhone } from '@/modules/customers/repository';
 import useClickOutside from '@/hook/useClickOutside';
+import { NOT_FOUND_MOVIE_IMAGE } from '@/variables/images';
 
 interface GroupedSeat {
     type: SeatType;
@@ -111,7 +112,7 @@ const BookingDetails = ({
             <div className="my-2 border-t border-dashed border-black/50" />
             <div className="flex gap-2">
                 <div className="relative w-20 h-28">
-                    <Image src={movie.imagePortrait || ''} alt={`Ảnh của phim ${movie.title}`} fill
+                    <Image src={movie.imagePortrait || NOT_FOUND_MOVIE_IMAGE} alt={`Ảnh của phim ${movie.title}`} fill
                            className="object-cover" />
                 </div>
                 <div>
