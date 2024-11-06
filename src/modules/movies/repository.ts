@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import httpRepository from '@/core/repository/http';
-import { SuccessResponse } from '@/core/repository/interface';
+import { ErrorResponse, SuccessResponse } from '@/core/repository/interface';
 import { PageObject } from '@/core/pagination/interface';
 import { AdminMovie, AgeRating, Movie, MovieFilter, MovieStatus } from '@/modules/movies/interface';
 import useDataFetching from '@/hook/useDataFetching';
@@ -44,7 +44,7 @@ const fetchMovieByCode = (code: string): Promise<SuccessResponse<Movie>> => {
 
 export const useMovieByCode = (code: string) => {
     return useDataFetching(
-        ['movie', code],
+        [MOVIE_QUERY_KEY, code],
         () => fetchMovieByCode(code),
         { enabled: !!code },
     );
@@ -116,9 +116,9 @@ export const useCreateMovie = () => {
             await queryClient.invalidateQueries({ queryKey: [MOVIE_QUERY_KEY] });
             toast.success(res.message);
         },
-        onError: error => {
-            toast.error('Thêm phim không thành công');
-            console.error('Create ticket price line error:', error);
+        onError: (error : ErrorResponse) => {
+            toast.error(error.message || 'Thêm phim không thành công. Hãy thử lại');
+            console.error('Create movie error:', error);
         },
     });
 };
@@ -133,8 +133,8 @@ interface UpdateMoviePayload {
     duration: number,
     country: string,
     summary: string,
-    imagePortrait: string,
-    imageLandscape: string,
+    imagePortrait?: string,
+    imageLandscape?: string,
     ageRating: AgeRating,
     genres: number[],
     actors: number[],
@@ -143,8 +143,8 @@ interface UpdateMoviePayload {
     status: MovieStatus,
 }
 
-const updateMovie = ({ id, payload }: { payload: UpdateMoviePayload, id: number }): Promise<SuccessResponse<void>> => {
-    return httpRepository.put<void, CreateMoviePayload>(`/admin/v1/movies/${id}`, payload);
+const updateMovie = ({ id, payload }: { payload: UpdateMoviePayload, id: number }): Promise<SuccessResponse<Movie>> => {
+    return httpRepository.put<Movie, UpdateMoviePayload>(`/admin/v1/movies/${id}`, payload);
 };
 
 export const useUpdateMovie = () => {
@@ -155,8 +155,8 @@ export const useUpdateMovie = () => {
             await queryClient.invalidateQueries({ queryKey: [MOVIE_QUERY_KEY] });
             toast.success(res.message);
         },
-        onError: error => {
-            toast.error('Cập nhật phim không thành công');
+        onError: (error: ErrorResponse) => {
+            toast.error(error.message || 'Cập nhật phim không thành công');
             console.error('Create ticket price line error:', error);
         },
     });

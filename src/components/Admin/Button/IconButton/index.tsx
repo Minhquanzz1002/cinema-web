@@ -1,8 +1,10 @@
 import React from 'react';
+import { Loader2 } from 'lucide-react';
 
 type IconButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
     icon: React.ReactNode;
     variant?: 'primary' | 'link' | "secondary";
+    isLoading?: boolean;
 }
 
 const IconButton = ({ icon, variant = 'primary', children, className = '',...props }: IconButtonProps) => {
@@ -14,9 +16,8 @@ const IconButton = ({ icon, variant = 'primary', children, className = '',...pro
     };
 
     return (
-        <button className={`${baseStyle} ${styles[variant]} ${className}`} {...props}>
-            {icon}
-            {children}
+        <button className={`${baseStyle} ${styles[variant]} ${className}`} {...props} disabled={props.disabled}>
+            {props.disabled ? <><Loader2 className="animate-spin h-4 w-4 text-white" /> Đang xử lý</> : <>{icon} {children}</>}
         </button>
     );
 };

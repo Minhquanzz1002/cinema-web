@@ -19,10 +19,10 @@ import { BaseStatus, BaseStatusVietnamese } from '@/modules/base/interface';
 import useDeleteModal from '@/hook/useDeleteModal';
 import HighlightedText from '@/components/Admin/ModalDeleteAlert/HighlightedText';
 import ModalDeleteAlert from '@/components/Admin/ModalDeleteAlert';
-import RangePicker from '@/components/Admin/RangePicker';
 import dayjs from 'dayjs';
 import ModalUpdatePromotion from '@/components/Admin/Pages/Promotions/ModalUpdatePromotion';
 import ModalAddPromotion from '@/components/Admin/Pages/Promotions/ModelAddPromotion';
+import { DatePickerWithRange } from '@/components/Admin/DatePickerWithRange';
 
 
 interface PromotionFilter extends PaginationState {
@@ -145,7 +145,7 @@ const PromotionPage = () => {
                                 <Typography.Title level={4}>Bộ lọc</Typography.Title>
                                 <div className="grid grid-cols-3 gap-4">
                                     <Input name="search" placeholder="Mã hoặc tên khuyến mãi" />
-                                    <RangePicker startName="startDate" endName="endDate" />
+                                    <DatePickerWithRange/>
                                     <Select name="status"
                                             options={[
                                                 { label: 'Tất cả', value: 'ALL' },

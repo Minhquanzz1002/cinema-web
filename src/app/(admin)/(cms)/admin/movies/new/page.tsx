@@ -18,6 +18,7 @@ import { TiArrowBackOutline } from 'react-icons/ti';
 import Link from '@/components/Link';
 import UploadImage, { ImageFile } from '@/components/Admin/UploadImage';
 import { useRouter } from 'next/navigation';
+import { countries } from '@/variables/countries';
 
 const MovieSchema = object({
     title: string().required('Tên không được để trống'),
@@ -167,7 +168,9 @@ const NewMoviePage = () => {
                                         <Input name="duration" label="Thời lượng" placeholder="Nhập thời lượng"
                                                unit="Phút"
                                                type="number" min={1} max={999} required />
-                                        <Input name="country" label="Quốc gia" placeholder="Nhập quốc gia" required />
+                                        <Select name="country" label="Quốc gia" placeholder="Chọn quốc gia" options={[
+                                            ...countries.map(country => ({ label: country, value: country })),
+                                        ]} />
                                     </div>
                                 </div>
                             </Card>
@@ -176,7 +179,7 @@ const NewMoviePage = () => {
                                 <Typography.Title level={4}>Danh mục & Trạng thái</Typography.Title>
                                 <div className="border rounded-[6px] border-[rgb(236, 243, 250)] py-4 px-4.5">
                                     <Select name="genres" label="Thể loại" placeholder="Chọn thể loại" multiple
-                                            options={genreOptions} />
+                                            options={genreOptions} required/>
 
                                     <Select name="directors" label="Đạo diễn" placeholder="Chọn đạo diễn" multiple
                                             options={directorOptions} />
@@ -228,7 +231,7 @@ const NewMoviePage = () => {
                                     Hủy bỏ
                                 </ButtonIcon>
                             </Link>
-                            <ButtonIcon icon={<FaSave />} type="submit">
+                            <ButtonIcon icon={<FaSave />} type="submit" disabled={createMovieMutation.isPending}>
                                 Lưu
                             </ButtonIcon>
                         </div>

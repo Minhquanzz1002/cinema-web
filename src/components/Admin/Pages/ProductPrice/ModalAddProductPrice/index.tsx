@@ -15,6 +15,7 @@ import { BaseProduct } from '@/modules/products/interface';
 import { MdRemoveCircleOutline } from 'react-icons/md';
 import InputCurrency from '@/components/Admin/InputCurrency';
 import { useCreateProductPrice } from '@/modules/productPrices/repository';
+import { NOT_FOUND_PRODUCT_IMAGE } from '@/variables/images';
 
 type ModalAddProductPriceProps = {
     onClose: () => void;
@@ -28,7 +29,7 @@ interface FormValues {
     products: {
         id: number;
         code: string;
-        image: string;
+        image?: string;
         name: string;
         description: string;
         price: number;
@@ -47,10 +48,17 @@ const validationSchema = Yup.object().shape({
     endDate: Yup.date()
         .required('Ngày kết thúc không được để trống')
         .min(Yup.ref('startDate'), 'Ngày kết thúc phải sau ngày bắt đầu'),
+    products: Yup.array().of(
+        Yup.object().shape({
+            price: Yup.number().required('Giá không được để trống')
+                .min(0, 'Giá phải lớn hơn 0')
+                .max(100000000000, 'Giá phải nhỏ hơn 100 tỷ'),
+        })
+    ).min(1, 'Vui lòng chọn ít nhất 1 sản phẩm'),
 });
 
 const FormikContent = ({ onClose }: { onClose: () => void }) => {
-    const { values, setFieldValue } = useFormikContext<FormValues>();
+    const { values, setFieldValue, errors, touched } = useFormikContext<FormValues>();
     const currentDate = dayjs().toDate();
     const [search, setSearch] = useState<string>('');
     const [showListProduct, setShowListProduct] = useState<boolean>(false);
@@ -97,7 +105,12 @@ const FormikContent = ({ onClose }: { onClose: () => void }) => {
                 { value: BaseStatus.ACTIVE, label: BaseStatusVietnamese[BaseStatus.ACTIVE] },
                 { value: BaseStatus.INACTIVE, label: BaseStatusVietnamese[BaseStatus.INACTIVE] },
             ]} />
-            <div className="font-normal text-sm cursor-pointer">Sản phẩm áp dụng:</div>
+            <div className="flex gap-2 items-center">
+                <div className="font-normal text-sm cursor-pointer">Sản phẩm áp dụng:</div>
+                {errors.products && touched.products && typeof errors.products === 'string' && (
+                    <div className="text-red-500 text-sm">{errors.products}</div>
+                )}
+            </div>
             <div className="border p-2 rounded">
                 <div className="flex gap-3">
                     <div className="relative w-96">
@@ -120,7 +133,7 @@ const FormikContent = ({ onClose }: { onClose: () => void }) => {
                                                     <div className="flex gap-3">
                                                         <div
                                                             className="relative w-12 h-12 rounded border overflow-hidden">
-                                                            <Image src={product.image} alt={`Ảnh combo ${product.name}`}
+                                                            <Image src={product.image || NOT_FOUND_PRODUCT_IMAGE} alt={`Ảnh combo ${product.name}`}
                                                                    fill
                                                                    className="object-cover" />
                                                         </div>
@@ -164,7 +177,7 @@ const FormikContent = ({ onClose }: { onClose: () => void }) => {
                                                 {index + 1}
                                             </div>
                                             <div className="relative w-14 h-14 border rounded overflow-hidden">
-                                                <Image src={product.image} alt={`Ảnh của ${product.name}`} fill
+                                                <Image src={product.image || NOT_FOUND_PRODUCT_IMAGE} alt={`Ảnh của ${product.name}`} fill
                                                        className="object-cover" />
                                             </div>
                                             <div className="flex flex-col justify-center">
@@ -208,7 +221,7 @@ const ModalAddProductPrice = ({ onClose, isOpen }: ModalAddProductPriceProps) =>
     if (!isOpen) return null;
 
     const handleSubmit = async (values: FormValues) => {
-        console.log(values);
+        console.table(values);
         try {
             await createProductPrice.mutateAsync({
                 startDate: dayjs(values.startDate).format('YYYY-MM-DD'),

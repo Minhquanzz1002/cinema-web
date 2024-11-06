@@ -17,13 +17,13 @@ import { AdminProductPriceOverview } from '@/modules/productPrices/interface';
 import { formatDateToLocalDate } from '@/utils/formatDate';
 import BaseStatusBadge from '@/components/Admin/Badge/BaseStatusBadge';
 import Image from 'next/image';
-import avatar from '/public/img/avatar/avt.png';
 import { DatePickerWithRange } from '@/components/Admin/DatePickerWithRange';
 import ModalAddProductPrice from '@/components/Admin/Pages/ProductPrice/ModalAddProductPrice';
 import useDeleteModal from '@/hook/useDeleteModal';
 import ModalDeleteAlert from '@/components/Admin/ModalDeleteAlert';
 import HighlightedText from '@/components/Admin/ModalDeleteAlert/HighlightedText';
 import ModalUpdateProductPrice from '../../../../../../components/Admin/Pages/ProductPrice/ModalUpdateProductPrice';
+import { NOT_FOUND_PRODUCT_IMAGE } from '@/variables/images';
 
 interface ProductPriceFilter extends PaginationState {
     status: BaseStatus | 'ALL';
@@ -100,7 +100,7 @@ const ProductPricePage = () => {
                 cell: ({ row }) => (
                     <div className="flex gap-2">
                         <div className="relative w-14 h-14 rounded overflow-hidden">
-                            <Image src={row.original.product.image || avatar}
+                            <Image src={row.original.product.image || NOT_FOUND_PRODUCT_IMAGE}
                                    alt={`Ảnh của sản phẩm ${row.original.product.name}`} fill
                                    className="object-cover" />
                         </div>

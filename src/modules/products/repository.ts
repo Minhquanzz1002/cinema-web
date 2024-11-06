@@ -127,7 +127,7 @@ interface CreateProductData {
     name: string;
     description: string;
     status: ProductStatus;
-    image: string;
+    image?: string;
 }
 
 const createProduct = (data: CreateProductData): Promise<SuccessResponse<BaseProduct>> => {
@@ -138,13 +138,13 @@ export const useCreateProduct = () => {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: createProduct,
-        onSuccess: async () => {
+        onSuccess: async (res) => {
             await queryClient.invalidateQueries({ queryKey: [PRODUCT_QUERY_KEY] });
-            toast.success('Thêm sản phẩm thành công');
+            toast.success(res.message);
         },
-        onError: error => {
-            toast.error('Thêm sản phẩm thất bại');
-            console.error('Create ticket price line error:', error);
+        onError: (error: ErrorResponse) => {
+            toast.error(error.message || 'Thêm sản phẩm không thành công. Hãy thử lại');
+            console.error('Create product error:', error);
         },
     });
 };

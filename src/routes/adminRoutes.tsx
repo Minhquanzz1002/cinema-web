@@ -57,6 +57,10 @@ const adminRoutes: IAdminRoute[] = [
         name: 'Hóa đơn',
         path: '/admin/bills',
         icon: <RiMoneyDollarCircleLine />,
+        children: [
+            { name: 'Hoàn thành', path: '/admin/bills/completed' },
+            { name: 'Hoàn trả', path: '/admin/bills/refund' },
+        ]
     },
     {
         name: 'Sản phẩm',

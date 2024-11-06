@@ -19,9 +19,10 @@ export type SelectProps = {
     multiple?: boolean;
     options: Option[];
     readOnly?: boolean;
+    required?: boolean;
 }
 
-const Select = ({ name, label, tooltip, multiple, options, placeholder, readOnly = false }: SelectProps) => {
+const Select = ({ name, label, tooltip, multiple, options, placeholder, readOnly = false, required = false }: SelectProps) => {
     const id = useId();
     const dropdownRef = React.useRef<HTMLDivElement>(null);
     const selectedOptionsRef = React.useRef<HTMLDivElement>(null);
@@ -67,7 +68,7 @@ const Select = ({ name, label, tooltip, multiple, options, placeholder, readOnly
                         <label className="font-normal text-sm cursor-pointer after:content-[':']"
                                onClick={() => setIsOpen(!isOpen)}
                                htmlFor={id} title={label}>{label}</label>
-                        <span className="text-red-500">*</span>
+                        {required && <span className="text-red-500">*</span>}
 
                         {tooltip && <Tooltip text={tooltip} />}
                     </div>
@@ -103,7 +104,7 @@ const Select = ({ name, label, tooltip, multiple, options, placeholder, readOnly
                                             }
                                         </div>
                                     ) : (
-                                        <div key={option.value} className="text-nowrap">
+                                        <div key={option.value} className="text-nowrap overflow-hidden text-ellipsis whitespace-nowrap">
                                             {option.label}
                                         </div>
                                     )
@@ -127,17 +128,19 @@ const Select = ({ name, label, tooltip, multiple, options, placeholder, readOnly
                 {
                     !readOnly && isOpen && (
                         <div
-                            className="absolute mt-1 left-0 top-full z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+                            className="absolute mt-1 left-0 top-full z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
                             {
                                 options.map(option => (
                                     <div key={option.value}
-                                         className={`px-3 py-2 cursor-pointer hover:bg-gray-100 text-sm select-none flex items-center justify-between gap-x-2 text-nowrap`}
+                                         className={`px-3  py-2 cursor-pointer hover:bg-gray-100 text-sm select-none flex items-center justify-between gap-x-2 text-nowrap`}
                                          onClick={() => handleSelect(option.value)}
                                     >
-                                        {option.label}
+                                        <div className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
+                                            {option.label}
+                                        </div>
                                         {
                                             selectedValues.includes(option.value) && (
-                                                <MdOutlineCheck className="text-brand-500" />
+                                                <MdOutlineCheck className="text-brand-500 flex-shrink-0" />
                                             )
                                         }
                                     </div>

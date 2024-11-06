@@ -1,13 +1,11 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { ColumnDef } from '@tanstack/table-core';
-import Link from 'next/link';
-import { FaEye } from 'react-icons/fa';
 import Card from '@/components/Admin/Card';
 import { RiFileExcel2Line } from 'react-icons/ri';
 import Table from '@/components/Admin/Tables';
 import { exportToExcel } from '@/utils/exportToExcel';
-import { BaseOrder, OrderStatus, OrderStatusVietnamese } from '@/modules/orders/interface';
+import { BaseOrder, OrderStatus } from '@/modules/orders/interface';
 import { useAllOrders } from '@/modules/orders/repository';
 import { formatNumberToCurrency } from '@/utils/formatNumber';
 import { formatDateInOrder, timeFromNow } from '@/utils/formatDate';
@@ -16,14 +14,13 @@ import useFilterPagination, { PaginationState } from '@/hook/useFilterPagination
 import { Form, Formik } from 'formik';
 import Typography from '@/components/Admin/Typography';
 import Input from '@/components/Admin/Filters/Input';
-import Select from '@/components/Admin/Filters/Select';
 import AutoSubmitForm from '@/components/Admin/AutoSubmitForm';
-import RangePicker from '@/components/Admin/RangePicker';
 import dayjs from 'dayjs';
+import { DatePickerWithRange } from '@/components/Admin/DatePickerWithRange';
+import ButtonAction from '@/components/Admin/ButtonAction';
 
 interface BillFilter extends PaginationState{
     code: string;
-    status: 'ALL' | OrderStatus;
     fromDate?: Date;
     toDate?: Date;
 }
@@ -32,13 +29,12 @@ const BillPage = () => {
     const [filters, setFilters] = useState<BillFilter>({
         page: 1,
         code: '',
-        status: OrderStatus.COMPLETED,
     });
 
     const productsQuery = useAllOrders({
         page: filters.page - 1,
         code: filters.code,
-        status: filters.status === 'ALL' ? undefined : filters.status,
+        status: OrderStatus.COMPLETED,
         fromDate: filters.fromDate ? dayjs(filters.fromDate).format('YYYY-MM-DD') : undefined,
         toDate: filters.toDate ? dayjs(filters.toDate).format('YYYY-MM-DD') : undefined,
     });
@@ -57,7 +53,7 @@ const BillPage = () => {
     });
 
     useEffect(() => {
-        document.title = 'B&Q Cinema - Đơn hàng';
+        document.title = 'B&Q Cinema - Hóa đơn đã hoàn thành';
     }, []);
 
     const columns = React.useMemo<ColumnDef<BaseOrder>[]>(
@@ -106,9 +102,8 @@ const BillPage = () => {
                 header: () => '',
                 cell: ({row}) => (
                     <div className="inline-flex gap-2 items-center">
-                        <Link href={`/admin/bills/${row.original.code}`} type="button" title="Chi tiết" className="text-gray-600 hover:text-gray-800">
-                            <FaEye size={18} />
-                        </Link>
+                        <ButtonAction.View href={`/admin/bills/completed/${row.original.code}`}/>
+                        <ButtonAction.Refund />
                     </div>
                 ),
             },
@@ -141,21 +136,8 @@ const BillPage = () => {
                             <div className="px-4 pb-3">
                                 <Typography.Title level={4}>Bộ lọc</Typography.Title>
                                 <div className="grid grid-cols-3 gap-4">
-                                    <Input name="code" placeholder="Mã đơn hàng" />
-                                    <RangePicker startName="fromDate" endName="toDate" />
-                                    <Select name="status"
-                                            options={[
-                                                { label: 'Tất cả', value: 'ALL' },
-                                                {
-                                                    label: OrderStatusVietnamese[OrderStatus.COMPLETED],
-                                                    value: OrderStatus.COMPLETED,
-                                                },
-                                                {
-                                                    label: OrderStatusVietnamese[OrderStatus.CANCELLED],
-                                                    value: OrderStatus.CANCELLED,
-                                                },
-                                            ]}
-                                    />
+                                    <Input name="code" placeholder="Mã hóa đơn" />
+                                    <DatePickerWithRange fromName="fromDate" toName="toDate"/>
                                 </div>
                             </div>
                             <AutoSubmitForm />

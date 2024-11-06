@@ -28,6 +28,7 @@ const validationSchema = Yup.object().shape({
     endDate: Yup.date()
         .required('Ngày kết thúc không được để trống')
         .min(Yup.ref('startDate'), 'Ngày kết thúc phải sau ngày bắt đầu'),
+    price: Yup.number().required('Giá không được để trống').min(0, 'Giá phải lớn hơn 0'),
 });
 
 const ModalUpdateProductPrice = ({onClose, productPrice} : ModalAddProductPriceProps) => {

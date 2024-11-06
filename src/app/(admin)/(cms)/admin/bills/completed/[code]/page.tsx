@@ -18,6 +18,7 @@ import Loader from '@/components/Admin/Loader';
 import NotFound from '@/components/Admin/NotFound';
 import { SeatTypeVietnamese } from '@/modules/seats/interface';
 import PrintBill from '@/components/Admin/Pages/Bills/PrintBill';
+import { NOT_FOUND_PRODUCT_IMAGE, TICKET_DEFAULT_IMAGE } from '@/variables/images';
 
 const OrderDetailInfo = ({ label, value }: { label: string, value: string | React.ReactNode }) => (
     <div className="flex justify-between items-center">
@@ -78,8 +79,8 @@ const OrderDetailPage = () => {
                                             <div className={`flex justify-between`}>
                                                 <div className="flex gap-3">
                                                     <div className="h-20 w-20 relative border rounded">
-                                                        <Image src={orderDetail.product.image}
-                                                               alt={orderDetail.product.image} fill
+                                                        <Image src={orderDetail.product.image || NOT_FOUND_PRODUCT_IMAGE}
+                                                               alt={`Ảnh của ${orderDetail.product.name}`} fill
                                                                sizes="(max-width: 2024px) 100vw, 2024px" quality={100}
                                                                className="object-cover rounded h-20 w-20" />
                                                     </div>
@@ -111,7 +112,7 @@ const OrderDetailPage = () => {
                                             <div className={`flex justify-between`}>
                                                 <div className="flex gap-3">
                                                     <div className="h-20 w-20 relative border rounded">
-                                                        <Image src="/img/ticket/ticket.png"
+                                                        <Image src={TICKET_DEFAULT_IMAGE}
                                                                alt="Ảnh vé" fill
                                                                priority
                                                                sizes="(max-width: 2024px) 100vw, 2024px" quality={100}

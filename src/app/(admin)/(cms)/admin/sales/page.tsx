@@ -13,6 +13,7 @@ import { formatTime } from '@/utils/formatDate';
 import { AdminShowTimeForSale } from '@/modules/showTimes/interface';
 import Typography from '@/components/Admin/Typography';
 import { useSaleContext } from '@/context/SaleContext';
+import { NOT_FOUND_MOVIE_IMAGE } from '@/variables/images';
 
 const SalePage = () => {
     const { setMovieAndShowTime, proceedToSeatSelection } = useSaleContext();
@@ -86,7 +87,7 @@ const SalePage = () => {
                                         <div key={movie.id}>
                                             <div className="relative w-full h-64 group">
                                                 <Image
-                                                    src={movie.imagePortrait}
+                                                    src={movie.imagePortrait || NOT_FOUND_MOVIE_IMAGE}
                                                     alt={`Ảnh của phim ${movie.title}`} fill className="object-cover" />
                                                 <div className="absolute top-0 mt-1 ml-1">
                                                 <span
