@@ -2,7 +2,7 @@
 import React, { useEffect } from 'react';
 import Typography from '@/components/Admin/Typography';
 import Card from '@/components/Admin/Card';
-import { OrderStatus, OrderStatusVietnamese, RefundStatusVietnamese } from '@/modules/orders/interface';
+import { OrderStatusVietnamese, RefundStatusVietnamese } from '@/modules/orders/interface';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import { formatDateInOrder, formatTime } from '@/utils/formatDate';
@@ -11,7 +11,6 @@ import { LuGift } from 'react-icons/lu';
 import Loader from '@/components/Admin/Loader';
 import NotFound from '@/components/Admin/NotFound';
 import { SeatTypeVietnamese } from '@/modules/seats/interface';
-import PrintBill from '@/components/Admin/Pages/Bills/PrintBill';
 import { NOT_FOUND_PRODUCT_IMAGE, TICKET_DEFAULT_IMAGE } from '@/variables/images';
 import { useRefundDetail } from '@/modules/refunds/repository';
 
@@ -49,12 +48,6 @@ const OrderDetailPage = () => {
                         <div>Mã hóa đơn</div>
                         <div className="text-brand-500">#{order.code}</div>
                     </div>
-
-                    {
-                        order.status === OrderStatus.COMPLETED && (
-                            <PrintBill bill={order} />
-                        )
-                    }
                 </div>
             </Card>
             <div className="grid grid-cols-3 gap-4 mt-4">

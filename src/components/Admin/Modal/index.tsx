@@ -8,10 +8,11 @@ type ModalProps = {
     onClose: () => void;
     children: React.ReactNode;
     open: boolean;
+    className?: string;
 }
 
 function Modal(props: ModalProps) {
-    const {children, title, onClose, open} = props;
+    const {children, title, onClose, open, className} = props;
     const ref = useRef<HTMLDivElement>(null);
     useClickOutside(ref, onClose);
 
@@ -31,7 +32,7 @@ function Modal(props: ModalProps) {
 
     return (
         <div className="z-50 fixed inset-0 ">
-            <div ref={ref} className="shadow-xl bg-white border border-black/20 rounded-lg w-full xl:w-1/2 mx-auto mt-10 p-4 animate-fade-up animate-duration-300 animate-ease-linear">
+            <div ref={ref} className={`shadow-xl bg-white border border-black/20 rounded-lg w-full xl:w-1/2 mx-auto mt-10 p-4 animate-fade-up animate-duration-300 animate-ease-linear ${className}`}>
                 <div className="flex flex-nowrap justify-between items-center">
                     <Typography.Title level={4}>{title}</Typography.Title>
                     <button type="button" onClick={onClose}>
