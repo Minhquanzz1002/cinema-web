@@ -1,6 +1,6 @@
 import { AdminShowTimeForSale, Seat } from '@/modules/showTimes/interface';
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { AdminMovie } from '@/modules/movies/interface';
 import { BaseProductWithPrice } from '@/modules/products/interface';
 import { CustomerWithNameAndPhone } from '@/modules/customers/interface';
@@ -52,7 +52,9 @@ interface SaleProviderProps {
 
 const SaleProvider = ({ children }: SaleProviderProps) => {
     const router = useRouter();
+    const pathname = usePathname();
     const [isClient, setIsClient] = useState(false);
+    const [hasLeftFlow, setHasLeftFlow] = useState(false);
 
     const [movie, setMovie] = useState<AdminMovie | null>(null);
 
@@ -72,6 +74,54 @@ const SaleProvider = ({ children }: SaleProviderProps) => {
     const updateProductInOrder = useUpdateProductInOrderByEmployee();
 
     const [order, setOrder] = useState<OrderResponseCreated | null>(null);
+
+    const validFlowRoutes = [
+        '/admin/sales/choose-seat',
+        '/admin/sales/choose-combo',
+        '/admin/sales/payment'
+    ];
+
+    const isValidFlowRoute = useCallback((path: string) => {
+        return validFlowRoutes.includes(path);
+    }, [validFlowRoutes]);
+
+    const handleLeaveFlow = useCallback(() => {
+        console.log('handleLeaveFlow rời');
+        if (hasLeftFlow) return; // Tránh xử lý nhiều lần
+
+        // Hủy đơn hàng nếu đã tạo
+        if (order) {
+            // Gọi API hủy đơn hàng
+            // cancelOrder.mutateAsync({ orderId: order.id });
+        }
+
+        setMovie(null);
+        setShowTime(null);
+        setSelectedSeats([]);
+        setSelectedProducts([]);
+        setCustomerState(null);
+        setOrder(null);
+        setTotalDiscount(0);
+
+        // Clear localStorage
+        localStorage.removeItem('selectedMovie');
+        localStorage.removeItem('selectedShowTime');
+        localStorage.removeItem('selectedSeats');
+        localStorage.removeItem('selectedProducts');
+        localStorage.removeItem('selectedCustomer');
+
+        setHasLeftFlow(true);
+    }, [order, hasLeftFlow]);
+
+    useEffect(() => {
+        if (!pathname || !isClient) return;
+
+        if (!isValidFlowRoute(pathname)) {
+            handleLeaveFlow();
+        } else {
+            setHasLeftFlow(false);
+        }
+    }, [pathname, isClient, isValidFlowRoute, handleLeaveFlow]);
 
     useEffect(() => {
         setIsClient(true);
