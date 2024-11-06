@@ -3,12 +3,7 @@ import React, { useEffect, useState } from 'react';
 import Typography from '@/components/Admin/Typography';
 import Card from '@/components/Admin/Card';
 import { useOrderDetail } from '@/modules/orders/repository';
-import {
-    AdminOrderOverview,
-    OrderStatus,
-    OrderStatusVietnamese,
-    RefundStatusVietnamese,
-} from '@/modules/orders/interface';
+import { AdminOrderOverview, OrderStatus, OrderStatusVietnamese } from '@/modules/orders/interface';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import { formatDateInOrder, formatTime } from '@/utils/formatDate';
@@ -185,16 +180,6 @@ const OrderDetailPage = () => {
                         <div className="flex flex-col gap-3">
                             <OrderDetailInfo label="Ngày đặt" value={formatDateInOrder(order.orderDate)} />
                             <OrderDetailInfo label="Trạng thái" value={OrderStatusVietnamese[order.status]} />
-                            {
-                                order.status === OrderStatus.CANCELLED && (
-                                    <>
-                                        <OrderDetailInfo label="Ngày hủy" value={order.refundDate ? formatDateInOrder(order.refundDate) : 'Chưa cập nhật'} />
-                                        <OrderDetailInfo label="Lý do hủy" value={order.cancelReason} />
-                                        <OrderDetailInfo label="Số tiền hoàn" value={formatNumberToCurrency(order.refundAmount)} />
-                                        <OrderDetailInfo label="Trạng thái hoàn tiền" value={RefundStatusVietnamese[order.refundStatus]} />
-                                    </>
-                                )
-                            }
                         </div>
 
                     </Card>

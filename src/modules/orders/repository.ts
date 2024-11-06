@@ -1,8 +1,9 @@
-import { SuccessResponse } from '@/core/repository/interface';
+import { ErrorResponse, SuccessResponse } from '@/core/repository/interface';
 import { PageObject } from '@/core/pagination/interface';
 import httpRepository from '@/core/repository/http';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import { AdminOrderOverview, BaseOrder, OrderResponseCreated, OrderStatus } from '@/modules/orders/interface';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { AdminOrderOverview, OrderOverview, OrderResponseCreated, OrderStatus } from '@/modules/orders/interface';
+import { toast } from 'react-toastify';
 
 export const ORDER_QUERY_KEY = 'orders';
 
@@ -17,8 +18,8 @@ interface FetchAllOrdersParams {
     toDate?: string;
 }
 
-const findAllOrders = (params: FetchAllOrdersParams): Promise<SuccessResponse<PageObject<BaseOrder>>> => {
-    return httpRepository.get<PageObject<BaseOrder>>('/admin/v1/orders', {
+const findAllOrders = (params: FetchAllOrdersParams): Promise<SuccessResponse<PageObject<OrderOverview>>> => {
+    return httpRepository.get<PageObject<OrderOverview>>('/admin/v1/orders', {
         page: params.page?.toString() || '0',
         status: params.status,
         code: params.code,
@@ -81,5 +82,33 @@ const updateProductInOrderByEmployee = ({ orderId, data }: {
 export const useUpdateProductInOrderByEmployee = () => {
     return useMutation({
         mutationFn: updateProductInOrderByEmployee,
+    });
+};
+
+/**
+ * Refund order by employee
+ */
+interface RefundOrderData {
+    reason: string;
+}
+
+const refundOrder = ({ orderId, data }: {
+    orderId: string;
+    data: RefundOrderData
+}): Promise<SuccessResponse<OrderResponseCreated>> => {
+    return httpRepository.put<OrderResponseCreated, RefundOrderData>(`/admin/v1/orders/${orderId}/refund`, data);
+};
+
+export const useRefundOrder = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: refundOrder,
+        onSuccess: async (res) => {
+            await queryClient.invalidateQueries({ queryKey: [ORDER_QUERY_KEY] });
+            toast.success(res.message);
+        },
+        onError: (error: ErrorResponse) => {
+            toast.error(error.message || 'Hoàn đơn không thành công. Hãy thử lại sau');
+        }
     });
 };
