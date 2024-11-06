@@ -44,6 +44,19 @@ export interface BaseOrder extends BaseEntity {
     user?: UserInOrder;
 }
 
+export interface OrderOverview extends BaseOrder {
+    showTime: {
+        startTime: string;
+        startDate: Date;
+        movie: {
+            title: string;
+        }
+    }
+    cancelReason?: string;
+    refundAmount?: number;
+    refundStatus: RefundStatus;
+}
+
 interface OrderDetail {
     type: 'PRODUCT' | 'TICKET';
     quantity: number;
@@ -75,10 +88,6 @@ export interface AdminOrderOverview {
     orderDate: Date;
     status: OrderStatus;
     orderDetails: OrderDetail[];
-    cancelReason: string;
-    refundAmount: number;
-    refundDate: Date;
-    refundStatus: RefundStatus;
     showTime: {
         id: string;
         cinemaName: string;

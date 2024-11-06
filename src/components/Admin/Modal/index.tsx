@@ -34,7 +34,7 @@ function Modal(props: ModalProps) {
             <div ref={ref} className="shadow-xl bg-white border border-black/20 rounded-lg w-full xl:w-1/2 mx-auto mt-10 p-4 animate-fade-up animate-duration-300 animate-ease-linear">
                 <div className="flex flex-nowrap justify-between items-center">
                     <Typography.Title level={4}>{title}</Typography.Title>
-                    <button onClick={onClose}>
+                    <button type="button" onClick={onClose}>
                         <MdOutlineClose />
                     </button>
                 </div>

@@ -1,14 +1,8 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import Typography from '@/components/Admin/Typography';
 import Card from '@/components/Admin/Card';
-import { useOrderDetail } from '@/modules/orders/repository';
-import {
-    AdminOrderOverview,
-    OrderStatus,
-    OrderStatusVietnamese,
-    RefundStatusVietnamese,
-} from '@/modules/orders/interface';
+import { OrderStatus, OrderStatusVietnamese, RefundStatusVietnamese } from '@/modules/orders/interface';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import { formatDateInOrder, formatTime } from '@/utils/formatDate';
@@ -19,6 +13,7 @@ import NotFound from '@/components/Admin/NotFound';
 import { SeatTypeVietnamese } from '@/modules/seats/interface';
 import PrintBill from '@/components/Admin/Pages/Bills/PrintBill';
 import { NOT_FOUND_PRODUCT_IMAGE, TICKET_DEFAULT_IMAGE } from '@/variables/images';
+import { useRefundDetail } from '@/modules/refunds/repository';
 
 const OrderDetailInfo = ({ label, value }: { label: string, value: string | React.ReactNode }) => (
     <div className="flex justify-between items-center">
@@ -30,26 +25,21 @@ const OrderDetailInfo = ({ label, value }: { label: string, value: string | Reac
 
 const OrderDetailPage = () => {
     const { code } = useParams<{ code: string }>();
-    const { data: responseData, isLoading } = useOrderDetail(code);
-    const [order, setOrder] = useState<AdminOrderOverview | null>(null);
+    const { data: refund, isLoading } = useRefundDetail(code);
 
     useEffect(() => {
-        if (responseData?.data) {
-            setOrder(responseData.data);
-        }
-    }, [responseData]);
-
-    useEffect(() => {
-        document.title = 'B&Q Cinema - Chi tiết đơn hàng';
+        document.title = 'B&Q Cinema - Chi tiết hoàn đơn';
     }, []);
 
     if (isLoading) {
         return <Loader />;
     }
 
-    if (!order) {
+    if (!refund) {
         return <NotFound />;
     }
+
+    const { order } = refund;
 
     return (
         <div className="my-5">
@@ -185,16 +175,10 @@ const OrderDetailPage = () => {
                         <div className="flex flex-col gap-3">
                             <OrderDetailInfo label="Ngày đặt" value={formatDateInOrder(order.orderDate)} />
                             <OrderDetailInfo label="Trạng thái" value={OrderStatusVietnamese[order.status]} />
-                            {
-                                order.status === OrderStatus.CANCELLED && (
-                                    <>
-                                        <OrderDetailInfo label="Ngày hủy" value={order.refundDate ? formatDateInOrder(order.refundDate) : 'Chưa cập nhật'} />
-                                        <OrderDetailInfo label="Lý do hủy" value={order.cancelReason} />
-                                        <OrderDetailInfo label="Số tiền hoàn" value={formatNumberToCurrency(order.refundAmount)} />
-                                        <OrderDetailInfo label="Trạng thái hoàn tiền" value={RefundStatusVietnamese[order.refundStatus]} />
-                                    </>
-                                )
-                            }
+                            <OrderDetailInfo label="Ngày hủy" value={refund.refundDate ? formatDateInOrder(refund.refundDate) : 'Chưa cập nhật'} />
+                            <OrderDetailInfo label="Lý do hủy" value={refund.reason} />
+                            <OrderDetailInfo label="Số tiền hoàn" value={formatNumberToCurrency(refund.amount)} />
+                            <OrderDetailInfo label="Trạng thái hoàn tiền" value={RefundStatusVietnamese[refund.status]} />
                         </div>
 
                     </Card>
