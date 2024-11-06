@@ -11,6 +11,7 @@ import { BaseProductWithPrice } from '@/modules/products/interface';
 import { formatNumberToCurrency } from '@/utils/formatNumber';
 import { FaMinus, FaPlus } from 'react-icons/fa6';
 import BookingDetails from '@/components/Admin/BookingDetails';
+import { NOT_FOUND_PRODUCT_IMAGE } from '@/variables/images';
 
 const CardProduct = ({ product }: { product: BaseProductWithPrice }) => {
     const { selectedProducts, addProduct, updateProductQuantity } = useSaleContext();
@@ -36,7 +37,7 @@ const CardProduct = ({ product }: { product: BaseProductWithPrice }) => {
         <div>
             <div className="flex gap-2 p-2 rounded-lg">
                 <div className="relative w-36 h-20 border rounded overflow-hidden shadow">
-                    <Image src={product.image} alt={`Ảnh sản phẩm ${product.name}`} fill className="object-cover" />
+                    <Image src={product.image || NOT_FOUND_PRODUCT_IMAGE} alt={`Ảnh sản phẩm ${product.name}`} fill className="object-cover" />
                 </div>
                 <div className="flex-1">
                     <div className="flex justify-between">

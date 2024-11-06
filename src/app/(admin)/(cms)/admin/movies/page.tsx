@@ -22,6 +22,7 @@ import useFilterPagination, { PaginationState } from '@/hook/useFilterPagination
 import useDeleteModal from '@/hook/useDeleteModal';
 import ModalDeleteAlert from '@/components/Admin/ModalDeleteAlert';
 import HighlightedText from '@/components/Admin/ModalDeleteAlert/HighlightedText';
+import { NOT_FOUND_MOVIE_IMAGE } from '@/variables/images';
 
 interface MovieFilter extends PaginationState {
     search: string;
@@ -96,7 +97,7 @@ const MoviePage = () => {
                 cell: ({ row }) => {
                     return (
                         <div className="w-28 h-40 relative">
-                            <Image src={row.original.imagePortrait} alt={row.original.title} fill
+                            <Image src={row.original.imagePortrait || NOT_FOUND_MOVIE_IMAGE} alt={row.original.title} fill
                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                    className="rounded-md object-cover" priority />
                         </div>

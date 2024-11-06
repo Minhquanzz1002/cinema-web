@@ -17,7 +17,7 @@ export interface BaseProduct {
     code: string;
     name: string;
     description: string;
-    image: string;
+    image?: string;
     status: ProductStatus;
 }
 

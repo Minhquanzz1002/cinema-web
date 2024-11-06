@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Form, Formik } from 'formik';
 import Input from '@/components/Admin/Input';
 import Card from '@/components/Admin/Card';
-import { array, mixed, object, string } from 'yup';
+import { array, object, string } from 'yup';
 import Typography from '@/components/Admin/Typography';
 import { Editor } from '@/components/Admin/Fields';
 import Select, { SelectProps } from '@/components/Admin/Select';
@@ -20,27 +20,16 @@ import UploadImage, { ImageFile } from '@/components/Admin/UploadImage';
 import { useParams, useRouter } from 'next/navigation';
 import Loader from '@/components/Admin/Loader';
 import NotFound from '@/components/Admin/NotFound';
+import { countries } from '@/variables/countries';
 
 const MovieSchema = object({
     title: string().required('Tên không được để trống'),
-    trailer: string().required('Trailer không được để trống'),
+    trailer: string().url('Đường dẫn không hợp lệ'),
     duration: string().required('Thời lượng không được để trống'),
     genres: array().required('Hãy chọn 1 thể loại').min(1, 'Thể loại không được để trống'),
-    actors: array().required('Hãy chọn 1 diễn viên').min(1, 'Diễn viên không được để trống'),
-    producers: array().required('Hãy chọn 1 nhà sản xuất').min(1, 'Nhà sản xuất không được để trống'),
-    directors: array().required('Hãy chọn 1 đạo diễn').min(1, 'Đạo diễn không được để trống'),
-    imagePortrait: array().of(
-        object().shape({
-            path: string().required('Ảnh bìa là bắt buộc'),
-            file: mixed().optional(),
-        }),
-    ).min(1, 'Chọn ít nhất 1 ảnh bìa').required('Chọn ít nhất 1 ảnh bìa'),
-    imageLandscape: array().of(
-        object().shape({
-            path: string().required('Ảnh nền là bắt buộc'),
-            file: mixed().optional(),
-        }),
-    ).min(1, 'Chọn ít nhất 1 ảnh nền').required('Chọn ít nhất 1 ảnh nền'),
+    actors: array().nullable(),
+    producers: array().nullable(),
+    directors: array().nullable(),
 });
 
 interface FormValues {
@@ -71,7 +60,7 @@ const UpdateMoviePage = () => {
     const [directors, setDirectors] = useState<ProducerFilter[]>([]);
 
     useEffect(() => {
-        document.title = 'B&Q Cinema - Phim mới';
+        document.title = 'B&Q Cinema - Cập nhật phim';
     }, []);
 
     useEffect(() => {
@@ -93,15 +82,15 @@ const UpdateMoviePage = () => {
         title: movie.title,
         trailer: movie.trailer,
         duration: movie.duration,
-        country: movie.country,
-        summary: movie.summary,
-        imagePortrait: [{ path: movie.imagePortrait }],
+        country: movie.country || '',
+        summary: movie.summary || '',
+        imagePortrait: movie.imagePortrait ? [{ path: movie.imagePortrait }] : [],
         imageLandscape: movie.imageLandscape && movie.imageLandscape !== "" ? [{ path: movie.imageLandscape }] : [],
         ageRating: movie.ageRating,
         genres: movie.genres.map(genre => genre.id),
-        actors: movie.actors.map(actor => actor.id),
-        producers: movie.producers.map(producer => producer.id),
-        directors: movie.directors.map(director => director.id),
+        actors: movie.actors ? movie.actors.map(actor => actor.id) : [],
+        producers: movie.producers ? movie.producers.map(producer => producer.id) : [],
+        directors: movie.directors ? movie.directors.map(director => director.id) : [],
         status: movie.status,
     };
 
@@ -155,8 +144,8 @@ const UpdateMoviePage = () => {
                 id: movie.id,
                 payload: {
                     ...values,
-                    imagePortrait: uploadedImagePortrait[0],
-                    imageLandscape: uploadedImageLandscape[0],
+                    imagePortrait: uploadedImagePortrait[0] || undefined,
+                    imageLandscape: uploadedImageLandscape[0] || undefined,
                 },
             });
 
@@ -195,12 +184,14 @@ const UpdateMoviePage = () => {
                                         { label: AgeRating.C, value: AgeRating.C },
                                         { label: AgeRating.K, value: AgeRating.K },
                                     ]} />
-                                    <Input name="trailer" label="Trailer" placeholder="Nhập URL trailer" required />
+                                    <Input name="trailer" label="Trailer" placeholder="Nhập URL trailer" />
                                     <div className="grid grid-cols-2 gap-x-3">
                                         <Input name="duration" label="Thời lượng" placeholder="Nhập thời lượng"
                                                unit="Phút"
                                                type="number" min={1} max={999} required />
-                                        <Input name="country" label="Quốc gia" placeholder="Nhập quốc gia" required />
+                                        <Select name="country" label="Quốc gia" placeholder="Chọn quốc gia" options={[
+                                            ...countries.map(country => ({ label: country, value: country })),
+                                        ]} />
                                     </div>
                                 </div>
                             </Card>
@@ -261,7 +252,7 @@ const UpdateMoviePage = () => {
                                     Hủy bỏ
                                 </ButtonIcon>
                             </Link>
-                            <ButtonIcon icon={<FaSave />} type="submit">
+                            <ButtonIcon icon={<FaSave />} type="submit" disabled={updateMovieMutation.isPending}>
                                 Cập nhật
                             </ButtonIcon>
                         </div>

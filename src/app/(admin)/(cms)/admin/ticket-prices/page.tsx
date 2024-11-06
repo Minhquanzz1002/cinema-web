@@ -30,9 +30,9 @@ import { formatNumberToCurrency } from '@/utils/formatNumber';
 import { FaPlus } from 'react-icons/fa6';
 import { LuSearch } from 'react-icons/lu';
 import ModalUpdateTicketPriceLine from '@/components/Admin/Pages/TicketPrice/ModalUpdateTicketPriceLine';
-import RangePicker from '@/components/Admin/RangePicker';
 import dayjs from 'dayjs';
 import BaseStatusBadge from '@/components/Admin/Badge/BaseStatusBadge';
+import { DatePickerWithRange } from '@/components/Admin/DatePickerWithRange';
 
 interface TicketPriceFilter extends PaginationState {
     name: string;
@@ -253,7 +253,7 @@ const TicketPricePage = () => {
                                 <Typography.Title level={4}>Bộ lọc</Typography.Title>
                                 <div className="grid grid-cols-3 gap-4">
                                     <Input name="name" placeholder="Tên bảng giá" />
-                                    <RangePicker startName="startDate" endName="endDate" />
+                                    <DatePickerWithRange/>
                                     <Select name="status"
                                             options={[
                                                 { label: 'Tất cả', value: 'ALL' },

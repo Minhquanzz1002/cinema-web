@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import { Form, Formik } from 'formik';
 import Input from '@/components/Admin/Input';
 import Card from '@/components/Admin/Card';
-import { array, mixed, object, string } from 'yup';
+import { object, string } from 'yup';
 import Typography from '@/components/Admin/Typography';
 import Select from '@/components/Admin/Select';
 import { ButtonIcon } from '@/components/Admin/Button';
@@ -25,12 +25,6 @@ const ProductSchema = object({
     }),
     name: string().required('Tên không được để trống'),
     description: string().required('Mô tả không được để trống'),
-    image: array().of(
-        object().shape({
-            path: string().required('Hình ảnh là bắt buộc'),
-            file: mixed().optional(),
-        }),
-    ).min(1, 'Chọn ít nhất 1 ảnh sản phẩm').required('Chọn ít nhất 1 ảnh sản phẩm'),
 });
 
 interface FormValues {
@@ -129,7 +123,7 @@ const NewProductPage = () => {
                             </ButtonIcon>
                         </Link>
                         <ButtonIcon icon={<FaSave />} type="submit" disabled={createProduct.isPending}>
-                            {createProduct.isPending ? 'Đang xử lý...' : 'Lưu'}
+                            Lưu
                         </ButtonIcon>
                     </div>
                 </Form>
