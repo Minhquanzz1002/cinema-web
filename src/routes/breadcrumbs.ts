@@ -178,10 +178,28 @@ export const breadcrumbs: IBreadcrumb[] = [
     },
     {
         label: 'Quản lý hóa đơn',
+        link: '^/admin/bills/completed/[^/]+$',
+        breadcrumbTrail: [
+            { label: 'Hóa đơn' },
+            { label: 'Danh sách hóa đơn', link: '/admin/bills/completed' },
+            { label: 'Chi tiết' },
+        ],
+    },
+    {
+        label: 'Quản lý hóa đơn',
         link: '^/admin/bills/refund$',
         breadcrumbTrail: [
             { label: 'Hóa đơn' },
             { label: 'Danh sách hóa đơn' },
+        ],
+    },
+    {
+        label: 'Quản lý hóa đơn',
+        link: '^/admin/bills/refund/[^/]+$',
+        breadcrumbTrail: [
+            { label: 'Hóa đơn' },
+            { label: 'Danh sách hóa đơn', link: '/admin/bills/refund' },
+            { label: 'Chi tiết' },
         ],
     },
     {
@@ -247,7 +265,7 @@ export const breadcrumbs: IBreadcrumb[] = [
         label: 'Chọn ghế',
         link: '^/admin/sales/choose-seat$',
         breadcrumbTrail: [
-            { label: 'Bán hàng', link: "/admin/sales" },
+            { label: 'Bán hàng', link: '/admin/sales' },
             { label: 'Chọn ghế' },
         ],
     },
@@ -255,8 +273,8 @@ export const breadcrumbs: IBreadcrumb[] = [
         label: 'Chọn ghế',
         link: '^/admin/sales/choose-combo$',
         breadcrumbTrail: [
-            { label: 'Bán hàng', link: "/admin/sales" },
-            { label: 'Chọn ghế', link: "/admin/sales/choose-seat" },
+            { label: 'Bán hàng', link: '/admin/sales' },
+            { label: 'Chọn ghế', link: '/admin/sales/choose-seat' },
             { label: 'Chọn combo' },
         ],
     },
@@ -264,9 +282,9 @@ export const breadcrumbs: IBreadcrumb[] = [
         label: 'Chọn ghế',
         link: '^/admin/sales/payment$',
         breadcrumbTrail: [
-            { label: 'Bán hàng', link: "/admin/sales" },
-            { label: 'Chọn ghế', link: "/admin/sales/choose-seat" },
-            { label: 'Chọn combo', link: "/admin/sales/choose-combo" },
+            { label: 'Bán hàng', link: '/admin/sales' },
+            { label: 'Chọn ghế', link: '/admin/sales/choose-seat' },
+            { label: 'Chọn combo', link: '/admin/sales/choose-combo' },
             { label: 'Thanh toán' },
         ],
     },

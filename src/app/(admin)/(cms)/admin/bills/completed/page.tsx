@@ -5,7 +5,7 @@ import Card from '@/components/Admin/Card';
 import { RiFileExcel2Line } from 'react-icons/ri';
 import Table from '@/components/Admin/Tables';
 import { exportToExcel } from '@/utils/exportToExcel';
-import { BaseOrder, OrderStatus } from '@/modules/orders/interface';
+import { BaseOrder, OrderOverview, OrderStatus } from '@/modules/orders/interface';
 import { useAllOrders } from '@/modules/orders/repository';
 import { formatNumberToCurrency } from '@/utils/formatNumber';
 import { formatDateInOrder, timeFromNow } from '@/utils/formatDate';
@@ -18,18 +18,20 @@ import AutoSubmitForm from '@/components/Admin/AutoSubmitForm';
 import dayjs from 'dayjs';
 import { DatePickerWithRange } from '@/components/Admin/DatePickerWithRange';
 import ButtonAction from '@/components/Admin/ButtonAction';
+import ModalRefundOrder from '@/components/Admin/Pages/Bills/ModalRefundOrder';
 
-interface BillFilter extends PaginationState{
+interface BillFilter extends PaginationState {
     code: string;
     fromDate?: Date;
     toDate?: Date;
 }
 
-const BillPage = () => {
+const BillCompletePage = () => {
     const [filters, setFilters] = useState<BillFilter>({
         page: 1,
         code: '',
     });
+    const [orderToRefund, setOrderToRefund] = useState<OrderOverview | null>(null);
 
     const productsQuery = useAllOrders({
         page: filters.page - 1,
@@ -45,18 +47,29 @@ const BillPage = () => {
         totalPages,
         isLoading,
         onFilterChange,
-        onPageChange
+        onPageChange,
     } = useFilterPagination({
         queryResult: productsQuery,
         initialFilters: filters,
-        onFilterChange: setFilters
+        onFilterChange: setFilters,
     });
 
     useEffect(() => {
         document.title = 'B&Q Cinema - Hóa đơn đã hoàn thành';
     }, []);
 
-    const columns = React.useMemo<ColumnDef<BaseOrder>[]>(
+    const isRefundable = (order: OrderOverview) => {
+        const now = dayjs();
+        const orderDate = dayjs(order.orderDate);
+        const showDateTime = dayjs(order.showTime.startDate).set('hour', parseInt(order.showTime.startTime.split(':')[0]))
+            .set('minute', parseInt(order.showTime.startTime.split(':')[1]));
+
+        const isOrderFromToday = orderDate.isSame(now, 'day');
+        const hasShowTimeStarted = now.isAfter(showDateTime);
+        return isOrderFromToday && !hasShowTimeStarted;
+    };
+
+    const columns = React.useMemo<ColumnDef<OrderOverview>[]>(
         () => [
             {
                 accessorKey: 'code',
@@ -94,16 +107,17 @@ const BillPage = () => {
             },
             {
                 accessorKey: 'status',
-                cell: ({ row }) => <OrderStatusBadge status={row.original.status}/>,
+                cell: ({ row }) => <OrderStatusBadge status={row.original.status} />,
                 header: 'Trạng thái',
             },
             {
                 id: 'actions',
                 header: () => '',
-                cell: ({row}) => (
-                    <div className="inline-flex gap-2 items-center">
-                        <ButtonAction.View href={`/admin/bills/completed/${row.original.code}`}/>
-                        <ButtonAction.Refund />
+                cell: ({ row }) => (
+                    <div className="flex justify-end gap-2 items-center">
+                        {isRefundable(row.original) &&
+                            <ButtonAction.Refund onClick={() => setOrderToRefund(row.original)} />}
+                        <ButtonAction.View href={`/admin/bills/completed/${row.original.code}`} />
                     </div>
                 ),
             },
@@ -112,7 +126,7 @@ const BillPage = () => {
     );
 
     const handleExportExcel = async () => {
-        await exportToExcel<BaseOrder>(orders,'bills.xlsx');
+        await exportToExcel<BaseOrder>(orders, 'bills.xlsx');
     };
 
     return (
@@ -137,20 +151,22 @@ const BillPage = () => {
                                 <Typography.Title level={4}>Bộ lọc</Typography.Title>
                                 <div className="grid grid-cols-3 gap-4">
                                     <Input name="code" placeholder="Mã hóa đơn" />
-                                    <DatePickerWithRange fromName="fromDate" toName="toDate"/>
+                                    <DatePickerWithRange fromName="fromDate" toName="toDate" />
                                 </div>
                             </div>
                             <AutoSubmitForm />
                         </Form>
                     </Formik>
-                    <Table<BaseOrder> data={orders} columns={columns} currentPage={currentPage}
-                                      totalPages={totalPages}
-                                      isLoading={isLoading}
-                                      onChangePage={onPageChange} />
+                    <Table<OrderOverview> data={orders} columns={columns} currentPage={currentPage}
+                                          totalPages={totalPages}
+                                          isLoading={isLoading}
+                                          onChangePage={onPageChange} />
                 </Card>
             </div>
+
+            <ModalRefundOrder onClose={() => setOrderToRefund(null)} order={orderToRefund} />
         </>
     );
 };
 
-export default BillPage;
+export default BillCompletePage;
