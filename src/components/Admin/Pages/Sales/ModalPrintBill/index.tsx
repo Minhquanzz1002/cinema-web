@@ -1,22 +1,24 @@
 import React, { useRef } from 'react';
 import Modal from '@/components/Admin/Modal';
 import { useReactToPrint } from 'react-to-print';
-import { AdminOrderOverview } from '@/modules/orders/interface';
 import { groupBy, sumBy } from 'lodash';
 import { formatDateToLocalDate, formatTime } from '@/utils/formatDate';
 import { formatNumberToCurrency } from '@/utils/formatNumber';
+import { useSaleContext } from '@/context/SaleContext';
+import { useRouter } from 'next/navigation';
 
 interface ModalPrintBillProps {
     isOpen: boolean;
     onClose: () => void;
-    bill: AdminOrderOverview;
 }
 
-interface PrintContentProps {
-    bill: AdminOrderOverview;
-}
+const PrintContent = React.forwardRef<HTMLDivElement>((props, ref) => {
+    const { order: bill } = useSaleContext();
 
-const PrintContent = React.forwardRef<HTMLDivElement, PrintContentProps>(({ bill }, ref) => {
+    if (!bill) {
+        return null;
+    }
+
     const { orderDetails } = bill;
     const groupedDetails = groupBy(orderDetails, 'type');
     const tickets = groupedDetails['TICKET'] || [];
@@ -29,14 +31,14 @@ const PrintContent = React.forwardRef<HTMLDivElement, PrintContentProps>(({ bill
                 tickets.map((ticket, index) => (
                     <div key={`ticket-${index}`} className="border p-3">
                         <div className="text-xl font-bold bg-black text-white">B&Q Cinema
-                            | {bill.showTime.cinemaName}</div>
+                            | {bill.showTime.cinema.name}</div>
                         <div className="border-b pt-1 mt-1">
                             Mã hóa đơn: #{bill.code}
                         </div>
 
                         <div className="grid grid-cols-2">
                             <div>Phim: <span>{bill.showTime.movie.title}</span></div>
-                            <div>Rạp: <span>{bill.showTime.roomName}</span></div>
+                            <div>Rạp: <span>{bill.showTime.room.name}</span></div>
                         </div>
                         <div className="grid grid-cols-2">
                             <div>Ngày: <span>{formatDateToLocalDate(bill.showTime.startDate)}</span></div>
@@ -54,7 +56,7 @@ const PrintContent = React.forwardRef<HTMLDivElement, PrintContentProps>(({ bill
                 products.length > 0 && (
                     <div className="border p-3">
                         <div className="text-xl font-bold bg-black text-white">B&Q Cinema
-                            | {bill.showTime.cinemaName}</div>
+                            | {bill.showTime.cinema.name}</div>
                         <div className="border-b pt-1 mt-1">
                             Mã hóa đơn: #{bill.code}
                         </div>
@@ -84,7 +86,8 @@ const PrintContent = React.forwardRef<HTMLDivElement, PrintContentProps>(({ bill
 
 PrintContent.displayName = 'PrintContent';
 
-const ModalPrintBill = ({ isOpen, onClose, bill }: ModalPrintBillProps) => {
+const ModalPrintBill = ({ isOpen, onClose }: ModalPrintBillProps) => {
+    const router = useRouter();
     const contentRef = useRef<HTMLDivElement>(null);
 
     const reactToPrintFn = useReactToPrint({
@@ -114,13 +117,18 @@ const ModalPrintBill = ({ isOpen, onClose, bill }: ModalPrintBillProps) => {
         reactToPrintFn();
     };
 
+    const handleClose = () => {
+        onClose();
+        router.push('/admin/sales');
+    };
+
     return (
         <Modal open={isOpen} onClose={onClose} title="In vé" className="!max-w-[500px] w-[500px]">
             <div className="max-h-[700px]">
-                <PrintContent ref={contentRef} bill={bill} />
+                <PrintContent ref={contentRef} />
             </div>
             <div className="mt-3 flex justify-end gap-3 items-center">
-                <button className="bg-gray-100 h-9 rounded px-4" onClick={onClose}>
+            <button className="bg-gray-100 h-9 rounded px-4" onClick={handleClose}>
                     Hủy
                 </button>
 

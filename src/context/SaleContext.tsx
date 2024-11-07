@@ -34,6 +34,7 @@ interface SaleContextType {
     isLoadingRedirect: boolean;
     totalDiscount: number;
     order: OrderResponseCreated | null;
+    setOrder: (order: OrderResponseCreated | null) => void;
 }
 
 const SaleContext = createContext<SaleContextType>({} as SaleContextType);
@@ -73,7 +74,7 @@ const SaleProvider = ({ children }: SaleProviderProps) => {
     const createOrder = useCreateOrderByEmployee();
     const updateProductInOrder = useUpdateProductInOrderByEmployee();
 
-    const [order, setOrder] = useState<OrderResponseCreated | null>(null);
+    const [order, setOrderState] = useState<OrderResponseCreated | null>(null);
 
     const validFlowRoutes = [
         '/admin/sales/choose-seat',
@@ -100,7 +101,7 @@ const SaleProvider = ({ children }: SaleProviderProps) => {
         setSelectedSeats([]);
         setSelectedProducts([]);
         setCustomerState(null);
-        setOrder(null);
+        setOrderState(null);
         setTotalDiscount(0);
 
         // Clear localStorage
@@ -220,7 +221,7 @@ const SaleProvider = ({ children }: SaleProviderProps) => {
             });
             if (data) {
                 setTotalDiscount(data.totalDiscount);
-                setOrder(data);
+                setOrderState(data);
             }
             setIsLoadingRedirect(false);
             router.push('/admin/sales/choose-combo');
@@ -229,9 +230,8 @@ const SaleProvider = ({ children }: SaleProviderProps) => {
 
     const proceedToPaymentSelection = useCallback(async () => {
         if (movie && showTime && selectedSeats.length > 0 && order) {
-            console.log("toi day");
             setIsLoadingRedirect(true);
-            await updateProductInOrder.mutateAsync({
+            const { data } = await updateProductInOrder.mutateAsync({
                 orderId: order.id,
                 data: {
                     products: selectedProducts.map(product => ({
@@ -240,6 +240,11 @@ const SaleProvider = ({ children }: SaleProviderProps) => {
                     }))
                 }
             });
+
+            if (data) {
+                setTotalDiscount(data.totalDiscount);
+                setOrderState(data);
+            }
             setIsLoadingRedirect(false);
             router.push('/admin/sales/payment');
         }
@@ -304,6 +309,10 @@ const SaleProvider = ({ children }: SaleProviderProps) => {
         localStorage.removeItem('selectedProducts');
     }, []);
 
+    const setOrder = (order: OrderResponseCreated | null) => {
+        setOrderState(order);
+    };
+
     const value = {
         movie,
         showTime,
@@ -326,6 +335,7 @@ const SaleProvider = ({ children }: SaleProviderProps) => {
         isLoadingRedirect,
         totalDiscount,
         order,
+        setOrder,
     };
 
     return (
