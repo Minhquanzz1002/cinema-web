@@ -1,5 +1,5 @@
 import { AdminShowTimeForSale, Seat } from '@/modules/showTimes/interface';
-import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { AdminMovie } from '@/modules/movies/interface';
 import { BaseProductWithPrice } from '@/modules/products/interface';
@@ -76,11 +76,11 @@ const SaleProvider = ({ children }: SaleProviderProps) => {
 
     const [order, setOrderState] = useState<OrderResponseCreated | null>(null);
 
-    const validFlowRoutes = [
+    const validFlowRoutes = useMemo(() => [
         '/admin/sales/choose-seat',
         '/admin/sales/choose-combo',
         '/admin/sales/payment'
-    ];
+    ], []);
 
     const isValidFlowRoute = useCallback((path: string) => {
         return validFlowRoutes.includes(path);

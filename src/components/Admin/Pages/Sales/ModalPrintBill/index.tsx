@@ -26,7 +26,7 @@ const PrintContent = React.forwardRef<HTMLDivElement>((props, ref) => {
     const totalAmount = sumBy(products, product => product.quantity * product.price);
 
     return (
-        <div ref={ref} className="flex flex-col gap-2">
+        <div ref={ref} className="flex flex-col gap-2 max-h-[500px] overflow-y-auto">
             {
                 tickets.map((ticket, index) => (
                     <div key={`ticket-${index}`} className="border p-3">

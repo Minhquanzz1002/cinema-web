@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Card from '@/components/Admin/Card';
 import Typography from '@/components/Admin/Typography';
 
@@ -176,155 +176,167 @@ const ViewPromotionPage = () => {
             [deleteModal],
         );
 
-        const CashRebateHeaders = ({ row }: { row: Row<AdminPromotionLineOverview> }) => (
-            <>
-                <tr className="h-10 border-t">
-                    <TableHeaderCell colSpan={2}>Thông tin giảm giá</TableHeaderCell>
-                    <TableHeaderCell colSpan={2}>Sử dụng</TableHeaderCell>
-                    <TableHeaderCell></TableHeaderCell>
-                    <TableHeaderCell></TableHeaderCell>
-                </tr>
-                <tr className="h-10 border-t">
-                    <SubHeaderCell dashed>Giá trị</SubHeaderCell>
-                    <SubHeaderCell dashed>Đơn tối thiểu</SubHeaderCell>
-                    <SubHeaderCell dashed>Giới hạn</SubHeaderCell>
-                    <SubHeaderCell>Đã dùng</SubHeaderCell>
-                    <SubHeaderCell>Trạng thái</SubHeaderCell>
-                    <SubHeaderCell>
-                        {
-                            promotion?.status !== BaseStatus.ACTIVE && (
-                                <div className="flex justify-end">
-                                    <button className="bg-brand-500 text-white px-2 py-1.5 rounded-md"
-                                            onClick={() => setPromotionLineToAddPromotionDetail(row.original)}
-                                    >
-                                        <FaPlus className="h-4 w-4" />
-                                    </button>
-                                </div>
-                            )
-                        }
-                    </SubHeaderCell>
-                </tr>
-            </>
+        const CashRebateHeaders = useCallback(
+            ({ row }: { row: Row<AdminPromotionLineOverview> }) => (
+                <>
+                    <tr className="h-10 border-t">
+                        <TableHeaderCell colSpan={2}>Thông tin giảm giá</TableHeaderCell>
+                        <TableHeaderCell colSpan={2}>Sử dụng</TableHeaderCell>
+                        <TableHeaderCell></TableHeaderCell>
+                        <TableHeaderCell></TableHeaderCell>
+                    </tr>
+                    <tr className="h-10 border-t">
+                        <SubHeaderCell dashed>Giá trị</SubHeaderCell>
+                        <SubHeaderCell dashed>Đơn tối thiểu</SubHeaderCell>
+                        <SubHeaderCell dashed>Giới hạn</SubHeaderCell>
+                        <SubHeaderCell>Đã dùng</SubHeaderCell>
+                        <SubHeaderCell>Trạng thái</SubHeaderCell>
+                        <SubHeaderCell>
+                            {
+                                promotion?.status !== BaseStatus.ACTIVE && (
+                                    <div className="flex justify-end">
+                                        <button className="bg-brand-500 text-white px-2 py-1.5 rounded-md"
+                                                onClick={() => setPromotionLineToAddPromotionDetail(row.original)}
+                                        >
+                                            <FaPlus className="h-4 w-4" />
+                                        </button>
+                                    </div>
+                                )
+                            }
+                        </SubHeaderCell>
+                    </tr>
+                </>
+            ), [promotion?.status],
         );
 
-        const CashRebateRow: React.FC<{ detail: AdminPromotionDetailOverview }> = ({ detail }) => (
-            <>
-                <TableCell dashed>{formatNumberToCurrency(detail.discountValue)}</TableCell>
-                <TableCell dashed>{formatNumberToCurrency(detail.minOrderValue)}</TableCell>
-                <TableCell dashed>{detail.usageLimit}</TableCell>
-                <TableCell>{detail.currentUsageCount}</TableCell>
-                <TableCell>
-                    <BaseStatusBadge status={detail.status} />
-                </TableCell>
-                <TableCell>
-                    <div className="flex justify-end items-center gap-2">
-                        <ButtonAction.Update />
-                        <ButtonAction.Delete onClick={() => deleteModalPromotionDetail.openDeleteModal(detail)}/>
-                    </div>
-                </TableCell>
-            </>
+        const CashRebateRow = useCallback(
+            ({ detail }: { detail: AdminPromotionDetailOverview }) => (
+                <>
+                    <TableCell dashed>{formatNumberToCurrency(detail.discountValue)}</TableCell>
+                    <TableCell dashed>{formatNumberToCurrency(detail.minOrderValue)}</TableCell>
+                    <TableCell dashed>{detail.usageLimit}</TableCell>
+                    <TableCell>{detail.currentUsageCount}</TableCell>
+                    <TableCell>
+                        <BaseStatusBadge status={detail.status} />
+                    </TableCell>
+                    <TableCell>
+                        <div className="flex justify-end items-center gap-2">
+                            <ButtonAction.Update />
+                            <ButtonAction.Delete onClick={() => deleteModalPromotionDetail.openDeleteModal(detail)} />
+                        </div>
+                    </TableCell>
+                </>
+            ), [deleteModalPromotionDetail],
         );
 
-        const PriceDiscountHeaders = ({ row }: { row: Row<AdminPromotionLineOverview> }) => (
-            <>
-                <tr className="h-10 border-t">
-                    <TableHeaderCell colSpan={3}>Thông tin giảm giá</TableHeaderCell>
-                    <TableHeaderCell colSpan={2}>Sử dụng</TableHeaderCell>
-                    <TableHeaderCell></TableHeaderCell>
-                    <TableHeaderCell></TableHeaderCell>
-                </tr>
-                <tr className="h-10 border-t">
-                    <SubHeaderCell dashed>Giá trị (%)</SubHeaderCell>
-                    <SubHeaderCell dashed>Tối đa</SubHeaderCell>
-                    <SubHeaderCell dashed>Đơn tối thiểu</SubHeaderCell>
-                    <SubHeaderCell dashed>Giới hạn</SubHeaderCell>
-                    <SubHeaderCell>Đã dùng</SubHeaderCell>
-                    <SubHeaderCell>Trạng thái</SubHeaderCell>
-                    <SubHeaderCell>
-                        {
-                            promotion?.status !== BaseStatus.ACTIVE && (
-                                <div className="flex justify-end">
-                                    <button className="bg-brand-500 text-white px-2 py-1.5 rounded-md"
-                                            title="Thêm chi tiết khuyến mãi"
-                                            onClick={() => setPromotionLineToAddPromotionDetail(row.original)}
-                                    >
-                                        <FaPlus className="h-4 w-4" />
-                                    </button>
-                                </div>
-                            )
-                        }
-                    </SubHeaderCell>
-                </tr>
-            </>
+        const PriceDiscountHeaders = useCallback(
+            ({ row }: { row: Row<AdminPromotionLineOverview> }) => (
+                <>
+                    <tr className="h-10 border-t">
+                        <TableHeaderCell colSpan={3}>Thông tin giảm giá</TableHeaderCell>
+                        <TableHeaderCell colSpan={2}>Sử dụng</TableHeaderCell>
+                        <TableHeaderCell></TableHeaderCell>
+                        <TableHeaderCell></TableHeaderCell>
+                    </tr>
+                    <tr className="h-10 border-t">
+                        <SubHeaderCell dashed>Giá trị (%)</SubHeaderCell>
+                        <SubHeaderCell dashed>Tối đa</SubHeaderCell>
+                        <SubHeaderCell dashed>Đơn tối thiểu</SubHeaderCell>
+                        <SubHeaderCell dashed>Giới hạn</SubHeaderCell>
+                        <SubHeaderCell>Đã dùng</SubHeaderCell>
+                        <SubHeaderCell>Trạng thái</SubHeaderCell>
+                        <SubHeaderCell>
+                            {
+                                promotion?.status !== BaseStatus.ACTIVE && (
+                                    <div className="flex justify-end">
+                                        <button className="bg-brand-500 text-white px-2 py-1.5 rounded-md"
+                                                title="Thêm chi tiết khuyến mãi"
+                                                onClick={() => setPromotionLineToAddPromotionDetail(row.original)}
+                                        >
+                                            <FaPlus className="h-4 w-4" />
+                                        </button>
+                                    </div>
+                                )
+                            }
+                        </SubHeaderCell>
+                    </tr>
+                </>
+            ), [promotion?.status],
         );
 
-        const PriceDiscountRow: React.FC<{ detail: AdminPromotionDetailOverview }> = ({ detail }) => (
-            <>
-                <TableCell dashed>{detail.discountValue}%</TableCell>
-                <TableCell dashed>{formatNumberToCurrency(detail.maxDiscountValue)}</TableCell>
-                <TableCell dashed>{formatNumberToCurrency(detail.minOrderValue)}</TableCell>
-                <TableCell dashed>{detail.usageLimit}</TableCell>
-                <TableCell>{detail.currentUsageCount}</TableCell>
-                <TableCell>
-                    <BaseStatusBadge status={detail.status} />
-                </TableCell>
-                <TableCell>
-                    <div className="flex justify-end items-center gap-2">
-                        <ButtonAction.Update />
-                        <ButtonAction.Delete onClick={() => deleteModalPromotionDetail.openDeleteModal(detail)}/>
-                    </div>
-                </TableCell>
-            </>
+        const PriceDiscountRow = useCallback(
+            ({ detail }: { detail: AdminPromotionDetailOverview }) => (
+                <>
+                    <TableCell dashed>{detail.discountValue}%</TableCell>
+                    <TableCell dashed>{formatNumberToCurrency(detail.maxDiscountValue)}</TableCell>
+                    <TableCell dashed>{formatNumberToCurrency(detail.minOrderValue)}</TableCell>
+                    <TableCell dashed>{detail.usageLimit}</TableCell>
+                    <TableCell>{detail.currentUsageCount}</TableCell>
+                    <TableCell>
+                        <BaseStatusBadge status={detail.status} />
+                    </TableCell>
+                    <TableCell>
+                        <div className="flex justify-end items-center gap-2">
+                            <ButtonAction.Update />
+                            <ButtonAction.Delete onClick={() => deleteModalPromotionDetail.openDeleteModal(detail)} />
+                        </div>
+                    </TableCell>
+                </>
+            ), [deleteModalPromotionDetail],
         );
 
-        const BuyTicketsGetTicketsHeaders = () => (
-            <>
-                <tr className="h-10 border-t">
-                    <TableHeaderCell colSpan={2}>Vé yêu cầu</TableHeaderCell>
-                    <TableHeaderCell colSpan={2}>Vé tặng</TableHeaderCell>
-                    <TableHeaderCell colSpan={2}>Sử dụng</TableHeaderCell>
-                    <TableHeaderCell></TableHeaderCell>
-                    <TableHeaderCell></TableHeaderCell>
-                </tr>
-                <tr className="h-10 border-t">
-                    <SubHeaderCell dashed>Loại vé</SubHeaderCell>
-                    <SubHeaderCell>Số lượng</SubHeaderCell>
-                    <SubHeaderCell dashed>Loại vé</SubHeaderCell>
-                    <SubHeaderCell>Số lượng</SubHeaderCell>
-                    <SubHeaderCell dashed>Giới hạn</SubHeaderCell>
-                    <SubHeaderCell>Đã dùng</SubHeaderCell>
-                    <SubHeaderCell>Trạng thái</SubHeaderCell>
-                    <SubHeaderCell></SubHeaderCell>
-                </tr>
-            </>
+        const BuyTicketsGetTicketsHeaders = useCallback(
+            () => (
+                <>
+                    <tr className="h-10 border-t">
+                        <TableHeaderCell colSpan={2}>Vé yêu cầu</TableHeaderCell>
+                        <TableHeaderCell colSpan={2}>Vé tặng</TableHeaderCell>
+                        <TableHeaderCell colSpan={2}>Sử dụng</TableHeaderCell>
+                        <TableHeaderCell></TableHeaderCell>
+                        <TableHeaderCell></TableHeaderCell>
+                    </tr>
+                    <tr className="h-10 border-t">
+                        <SubHeaderCell dashed>Loại vé</SubHeaderCell>
+                        <SubHeaderCell>Số lượng</SubHeaderCell>
+                        <SubHeaderCell dashed>Loại vé</SubHeaderCell>
+                        <SubHeaderCell>Số lượng</SubHeaderCell>
+                        <SubHeaderCell dashed>Giới hạn</SubHeaderCell>
+                        <SubHeaderCell>Đã dùng</SubHeaderCell>
+                        <SubHeaderCell>Trạng thái</SubHeaderCell>
+                        <SubHeaderCell></SubHeaderCell>
+                    </tr>
+                </>
+            ), [],
         );
 
-        const BuyTicketsRow: React.FC<{ detail: any; type: PromotionLineType }> = ({ detail, type }) => (
-            <>
-                <TableCell dashed>{SeatTypeVietnamese[detail.requiredSeatType as SeatType]}</TableCell>
-                <TableCell>{detail.requiredSeatQuantity}</TableCell>
-                <TableCell dashed>
-                    {type === PromotionLineType.BUY_TICKETS_GET_TICKETS
-                        ? SeatTypeVietnamese[detail.giftSeatType as SeatType]
-                        : detail.giftProduct?.name}
-                </TableCell>
-                <TableCell>
-                    {type === PromotionLineType.BUY_TICKETS_GET_TICKETS
-                        ? detail.giftSeatQuantity
-                        : detail.giftQuantity}
-                </TableCell>
-                <TableCell dashed>{detail.usageLimit}</TableCell>
-                <TableCell>{detail.currentUsageCount}</TableCell>
-                <TableCell>
-                    <BaseStatusBadge status={detail.status} />
-                </TableCell>
-                <TableCell>
-                    <div className="flex justify-end items-center gap-2">
-                        <ButtonAction.Update />
-                        <ButtonAction.Delete onClick={() => deleteModalPromotionDetail.openDeleteModal(detail)}/>
-                    </div>
-                </TableCell>
-            </>
+        const BuyTicketsRow = useCallback(
+            ({ detail, type }: { detail: any; type: PromotionLineType }) => (
+                <>
+                    <TableCell dashed>{SeatTypeVietnamese[detail.requiredSeatType as SeatType]}</TableCell>
+                    <TableCell>{detail.requiredSeatQuantity}</TableCell>
+                    <TableCell dashed>
+                        {type === PromotionLineType.BUY_TICKETS_GET_TICKETS
+                            ? SeatTypeVietnamese[detail.giftSeatType as SeatType]
+                            : detail.giftProduct?.name}
+                    </TableCell>
+                    <TableCell>
+                        {type === PromotionLineType.BUY_TICKETS_GET_TICKETS
+                            ? detail.giftSeatQuantity
+                            : detail.giftQuantity}
+                    </TableCell>
+                    <TableCell dashed>{detail.usageLimit}</TableCell>
+                    <TableCell>{detail.currentUsageCount}</TableCell>
+                    <TableCell>
+                        <BaseStatusBadge status={detail.status} />
+                    </TableCell>
+                    <TableCell>
+                        <div className="flex justify-end items-center gap-2">
+                            <ButtonAction.Update />
+                            <ButtonAction.Delete onClick={() => deleteModalPromotionDetail.openDeleteModal(detail)} />
+                        </div>
+                    </TableCell>
+                </>
+            ), [deleteModalPromotionDetail]
         );
 
         const BuyTicketsGetProductsHeaders = () => (
@@ -402,7 +414,7 @@ const ViewPromotionPage = () => {
                     </div>
                 );
             },
-            [],
+            [BuyTicketsGetTicketsHeaders, BuyTicketsRow, CashRebateHeaders, CashRebateRow, PriceDiscountHeaders, PriceDiscountRow],
         );
 
         if (isLoadingPromotion) {
@@ -424,7 +436,7 @@ const ViewPromotionPage = () => {
                     </Card>
 
                     <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
-                        
+
                         <Card className="p-[18px] lg:col-span-4">
                             <Typography.Title level={4}>Thông tin chung</Typography.Title>
                             <div className="flex flex-col gap-3">
@@ -436,7 +448,6 @@ const ViewPromotionPage = () => {
                         </Card>
                     </div>
 
-                    
 
                     <Card className="py-4">
                         <div className="flex justify-between items-center px-4 pb-3">
