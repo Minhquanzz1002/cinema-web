@@ -13,6 +13,7 @@ import DatePicker from '@/components/Admin/DatePicker';
 import { useUpdatePromotion } from '@/modules/promotions/repository';
 import dayjs from 'dayjs';
 import { AdminPromotionOverview } from '@/modules/promotions/interface';
+import ButtonAction from '@/components/Admin/ButtonAction';
 
 const PromotionSchema = object({
     name: string().required('Tên không được để trống'),
@@ -99,7 +100,8 @@ const ModalUpdatePromotion = ({ onClose, promotion }: UpdatePromotionModalProps)
                                         })),
                                     ]}
                                 />
-                                <DatePicker
+                                <div className="grid grid-cols-2 gap-3">
+                                    <DatePicker
                                         name="startDate"
                                         label="Ngày bắt đầu"
                                         minDate={new Date()}
@@ -110,18 +112,12 @@ const ModalUpdatePromotion = ({ onClose, promotion }: UpdatePromotionModalProps)
                                         label="Ngày kết thúc"
                                         minDate={getMinDate()}
                                     />
+                                </div>
                             </div>
                         </div>
 
                         <div className="mt-4 flex justify-end gap-4">
-                            <ButtonIcon
-                                icon={<FaSave />}
-                                variant="secondary"
-                                onClick={onClose}
-                                type="button"
-                            >
-                                Hủy bỏ
-                            </ButtonIcon>
+                            <ButtonAction.Cancel onClick={onClose} />
                             <ButtonIcon
                                 icon={<FaSave />}
                                 type="submit"

@@ -86,6 +86,20 @@ export const useUpdateProductInOrderByEmployee = () => {
 };
 
 /**
+ * Complete order by employee
+ */
+
+const completeOrderByEmployee = (orderId: string): Promise<SuccessResponse<OrderResponseCreated>> => {
+    return httpRepository.put<OrderResponseCreated, UpdateProductsInOrderData>(`/admin/v1/orders/${orderId}/complete`);
+};
+
+export const useCompleteOrderByEmployee = () => {
+    return useMutation({
+        mutationFn: completeOrderByEmployee,
+    });
+};
+
+/**
  * Refund order by employee
  */
 interface RefundOrderData {
@@ -109,6 +123,6 @@ export const useRefundOrder = () => {
         },
         onError: (error: ErrorResponse) => {
             toast.error(error.message || 'Hoàn đơn không thành công. Hãy thử lại sau');
-        }
+        },
     });
 };

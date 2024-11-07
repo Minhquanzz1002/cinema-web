@@ -440,12 +440,7 @@ const ViewPromotionPage = () => {
 
                     <Card className="py-4">
                         <div className="flex justify-between items-center px-4 pb-3">
-                            <Typography.Title level={4}>Danh sách chương trình</Typography.Title>
-                            {/*{*/}
-                            {/*    promotion.status !== BaseStatus.ACTIVE && (*/}
-                            {/*        <ButtonAction.Add text="Thêm chương trình" href={`/admin/promotions/${code}/lines/new`} />*/}
-                            {/*    )*/}
-                            {/*}*/}
+                            <Typography.Title level={4}>Chi tiết khuyến mãi</Typography.Title>
                             <ButtonAction.Add text="Thêm chương trình" href={`/admin/promotions/${code}/lines/new`} />
                         </div>
                         <Formik initialValues={filters} onSubmit={onFilterChange} enableReinitialize>
