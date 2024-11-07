@@ -124,6 +124,19 @@ export interface OrderResponseCreated {
     orderDate: Date;
     status: OrderStatus;
     orderDetails: OrderDetailInOrderCreated[]
+    showTime: {
+        startDate: Date;
+        startTime: string;
+        room: {
+            name: string;
+        }
+        cinema: {
+            name: string;
+        }
+        movie: {
+            title: string;
+        }
+    }
 }
 
 export interface OrderDetailInOrderCreated {

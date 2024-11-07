@@ -43,6 +43,7 @@ type SubmitButtonProps = {
     onClick?: MouseEventHandler<HTMLButtonElement>;
     text?: string;
     isLoading?: boolean;
+    disabled?: boolean;
 }
 
 type SubmitDeleteButtonProps = {
@@ -137,11 +138,11 @@ const ButtonAction = {
             </button>
         );
     },
-    Submit: ({ onClick, text = 'Xác nhận', isLoading = false }: SubmitButtonProps) => {
+    Submit: ({ onClick, text = 'Xác nhận', isLoading = false, disabled }: SubmitButtonProps) => {
         return (
             <button
-                className="bg-brand-500 py-1.5 px-2 rounded flex items-center justify-center text-white gap-x-2 text-sm"
-                disabled={isLoading}
+                className="bg-brand-500 py-1.5 px-2 rounded flex items-center justify-center text-white gap-x-2 text-sm disabled:bg-brand-300"
+                disabled={isLoading || disabled}
                 onClick={onClick} type="submit">
                 {isLoading ? 'Đang xử lý...' : text}
             </button>
