@@ -1,5 +1,5 @@
 import { LuTrash } from 'react-icons/lu';
-import React, { MouseEventHandler } from 'react';
+import React, { ButtonHTMLAttributes, MouseEventHandler } from 'react';
 import { FaEdit, FaEye } from 'react-icons/fa';
 import Link from 'next/link';
 import { FaFileImport, FaPlus } from 'react-icons/fa6';
@@ -35,8 +35,8 @@ type ImportButtonProps = {
     onClick?: MouseEventHandler<HTMLButtonElement>
 }
 
-type ExportButtonProps = {
-    onClick?: MouseEventHandler<HTMLButtonElement>
+type ExportButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
+    text?: string;
 }
 
 type SubmitButtonProps = {
@@ -129,12 +129,13 @@ const ButtonAction = {
             </button>
         );
     },
-    Export: ({ onClick }: ExportButtonProps) => {
+    Export: ({ onClick, text = "Export", ...props }: ExportButtonProps) => {
         return (
             <button type="button"
                     onClick={onClick}
-                    className="bg-brand-500 py-1.5 px-2 rounded flex items-center justify-center text-white gap-x-2 text-sm">
-                <RiFileExcel2Line className="h-5 w-5" /> Export
+                    {...props}
+                    className="bg-brand-500 py-1.5 px-2 rounded flex items-center justify-center text-white gap-x-2 text-sm disabled:bg-brand-400">
+                <RiFileExcel2Line className="h-5 w-5" /> {text}
             </button>
         );
     },
