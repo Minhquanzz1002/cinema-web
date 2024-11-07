@@ -4,22 +4,7 @@ import { flexRender, useReactTable } from '@tanstack/react-table';
 import Pagination from '@/components/Admin/Pagination';
 import { LuChevronDown } from 'react-icons/lu';
 import EmptyState from '@/components/Admin/Tables/EmptyState';
-
-const TableSkeleton = ({ columnCount }: { columnCount: number }) => {
-    return (
-        <>
-            {[...Array(5)].map((_, index) => (
-                <tr key={index} className="border-t last:border-b">
-                    {[...Array(columnCount)].map((_, cellIndex) => (
-                        <td key={cellIndex} className="px-4 py-2 first:pr-0">
-                            <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
-                        </td>
-                    ))}
-                </tr>
-            ))}
-        </>
-    );
-};
+import TableSkeleton from '@/components/Admin/Tables/TableSkeleton';
 
 type TableProps<T> = {
     data: T[],
