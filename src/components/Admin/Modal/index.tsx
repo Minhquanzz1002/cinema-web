@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import {MdOutlineClose} from "react-icons/md";
+import { MdOutlineClose } from 'react-icons/md';
 import useClickOutside from '@/hook/useClickOutside';
 import Typography from '@/components/Admin/Typography';
 
@@ -9,12 +9,18 @@ type ModalProps = {
     children: React.ReactNode;
     open: boolean;
     className?: string;
+    wrapperClassName?: string;
+    closeOnClickOutside?: boolean;
 }
 
 function Modal(props: ModalProps) {
-    const {children, title, onClose, open, className} = props;
+    const { children, title, onClose, open, className, wrapperClassName, closeOnClickOutside = true } = props;
     const ref = useRef<HTMLDivElement>(null);
-    useClickOutside(ref, onClose);
+    useClickOutside(ref, () => {
+        if (closeOnClickOutside) {
+            onClose();
+        }
+    });
 
     useEffect(() => {
         if (open) {
@@ -31,8 +37,9 @@ function Modal(props: ModalProps) {
     if (!open) return null;
 
     return (
-        <div className="z-50 fixed inset-0 ">
-            <div ref={ref} className={`shadow-xl bg-white border border-black/20 rounded-lg w-full xl:w-1/2 mx-auto mt-10 p-4 animate-fade-up animate-duration-300 animate-ease-linear ${className}`}>
+        <div className={`z-50 fixed inset-0 ${wrapperClassName}`}>
+            <div ref={ref}
+                 className={`shadow-xl bg-white border border-black/20 rounded-lg w-full xl:w-1/2 mx-auto mt-10 p-4 animate-fade-up animate-duration-300 animate-ease-linear ${className}`}>
                 <div className="flex flex-nowrap justify-between items-center">
                     <Typography.Title level={4}>{title}</Typography.Title>
                     <button type="button" onClick={onClose}>

@@ -8,11 +8,14 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import isBetween from 'dayjs/plugin/isBetween';
 import 'dayjs/locale/vi';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
+import durationPlugin from 'dayjs/plugin/duration';
 
 dayjs.extend(relativeTime);
 dayjs.extend(isBetween);
 dayjs.locale('vi');
 dayjs.extend(customParseFormat);
+dayjs.extend(durationPlugin);
+
 
 export default function AdminLayout({
                                         children,
