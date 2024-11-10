@@ -35,6 +35,8 @@ interface SaleContextType {
     totalDiscount: number;
     order: OrderResponseCreated | null;
     setOrder: (order: OrderResponseCreated | null) => void;
+    zpAppTransId: string | null;
+    setZpAppTransId: (zpAppTransId: string | null) => void;
 }
 
 const SaleContext = createContext<SaleContextType>({} as SaleContextType);
@@ -75,6 +77,8 @@ const SaleProvider = ({ children }: SaleProviderProps) => {
     const updateProductInOrder = useUpdateProductInOrderByEmployee();
 
     const [order, setOrderState] = useState<OrderResponseCreated | null>(null);
+
+    const [zpAppTransId, setZpAppTransIdState] = useState<string | null>(null);
 
     const validFlowRoutes = useMemo(() => [
         '/admin/sales/choose-seat',
@@ -313,6 +317,10 @@ const SaleProvider = ({ children }: SaleProviderProps) => {
         setOrderState(order);
     };
 
+    const setZpAppTransId = (zpAppTransId: string | null) => {
+        setZpAppTransIdState(zpAppTransId);
+    };
+
     const value = {
         movie,
         showTime,
@@ -336,6 +344,9 @@ const SaleProvider = ({ children }: SaleProviderProps) => {
         totalDiscount,
         order,
         setOrder,
+        zpAppTransId,
+        setZpAppTransId,
+
     };
 
     return (

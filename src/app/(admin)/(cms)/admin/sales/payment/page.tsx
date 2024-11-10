@@ -11,13 +11,21 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import ModalCashPayment from '@/components/Admin/Pages/Sales/ModalCashPayment';
 import ModalPrintBill from '@/components/Admin/Pages/Sales/ModalPrintBill';
+import { useCreateOrderZaloPay } from '@/modules/payments/repository';
+import ModalZaloPayPayment from '@/components/Admin/Pages/Sales/ModalZaloPayPayment';
 
 const AdminPaymentPage = () => {
     const router = useRouter();
-    const { movie, showTime, selectedSeats, selectedProducts } = useSaleContext();
+    const { movie, showTime, selectedSeats, selectedProducts, order, setZpAppTransId, zpAppTransId } = useSaleContext();
+    /**
+     * React query
+     */
     const { data: layout, isLoading: isLoadingSeat } = useLayoutSeatByShowTimeId(showTime?.id || '');
+    const createOrderZaloPay = useCreateOrderZaloPay();
+
     const [selectedPayment, setSelectedPayment] = useState<'cash' | 'vnpay' | 'zalopay'>('cash');
     const [showModalCashPayment, setShowModalCashPayment] = useState<boolean>(false);
+    const [showModalZaloPayPayment, setShowModalZaloPayPayment] = useState<string | null>(null);
     const [showModalPrintBill, setShowModalPrintBill] = useState<boolean>(false);
 
     useEffect(() => {
@@ -28,18 +36,16 @@ const AdminPaymentPage = () => {
         return <Loader />;
     }
 
-    if (!movie || !showTime || !layout) {
+    if (!movie || !showTime || !layout || !order) {
         return <NotFound />;
     }
 
-    const handlePayment = () => {
+    const handlePayment = async () => {
         switch(selectedPayment) {
             case 'zalopay':
-                console.log('Thanh toán qua ZaloPay');
-                break;
-            case 'vnpay':
-
-                console.log('Thanh toán qua VNPAY');
+                const response = await createOrderZaloPay.mutateAsync({ orderId: order.id });
+                setShowModalZaloPayPayment(response.data.qrUrl);
+                setZpAppTransId(response.data.transId);
                 break;
             case 'cash':
                 setShowModalCashPayment(true);
@@ -68,14 +74,14 @@ const AdminPaymentPage = () => {
                                     <div>Zalopay</div>
                                 </label>
                                 <label className=" flex items-center gap-2">
-                                    <input type="radio" name="paymentMethod" value="vnpay"
+                                    <input disabled type="radio" name="paymentMethod" value="vnpay"
                                            onChange={() => setSelectedPayment('vnpay')}
                                            className="!max-w-5 min-w-5 h-4 w-4" />
                                     <div className="relative w-12 h-12">
                                         <Image src="/img/payment/vnpay.png" alt="Thanh toán VNPAY" fill
                                                objectFit="contain" />
                                     </div>
-                                    <div>VNPAY</div>
+                                    <div>VNPAY (bảo trì)</div>
                                 </label>
                                 <label className="flex items-center gap-2">
                                     <input type="radio" name="paymentMethod" value="cash"
@@ -112,6 +118,11 @@ const AdminPaymentPage = () => {
             </div>
             <ModalCashPayment isOpen={showModalCashPayment} onClose={() => setShowModalCashPayment(false)} onSuccess={() => setShowModalPrintBill(true)} />
             <ModalPrintBill isOpen={showModalPrintBill} onClose={() => setShowModalPrintBill(false)} />
+            {
+                showModalZaloPayPayment && zpAppTransId && (
+                    <ModalZaloPayPayment zpAppTransId={zpAppTransId} qrCode={showModalZaloPayPayment} onSuccess={() => setShowModalPrintBill(true)} onClose={() => setShowModalZaloPayPayment(null)} />
+                )
+            }
         </>
     );
 };
