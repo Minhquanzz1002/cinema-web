@@ -123,7 +123,7 @@ const ModalPrintBill = ({ isOpen, onClose }: ModalPrintBillProps) => {
     };
 
     return (
-        <Modal open={isOpen} onClose={onClose} title="In vé" className="!max-w-[500px] w-[500px]">
+        <Modal open={isOpen} onClose={handleClose} title="In vé" className="!max-w-[500px] w-[500px]">
             <div className="max-h-[700px]">
                 <PrintContent ref={contentRef} />
             </div>
