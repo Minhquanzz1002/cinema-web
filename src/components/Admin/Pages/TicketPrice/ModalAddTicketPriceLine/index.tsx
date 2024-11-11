@@ -115,7 +115,7 @@ const ModalAddTicketPriceLine = ({ onClose, ticketPrice }: ModalAddTicketPriceLi
                 <InputCurrency min={0} name="couplePrice" label="Giá ghế đôi" unit="VND" />
                
 
-                <div className="flex justify-end items-center gap-3">
+                <div className="flex justify-end items-center gap-3 mt-3">
                     <ButtonAction.Cancel onClick={onClose} />
                     <ButtonAction.Submit isLoading={saveTicketPriceLine.isPending} />
                 </div>
