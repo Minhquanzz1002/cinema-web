@@ -16,3 +16,8 @@ export interface LoginResponse extends User {
     accessToken: string;
     refreshToken: string;
 }
+
+export enum UserStatus {
+    ACTIVE = 'ACTIVE',
+    INACTIVE = 'INACTIVE',
+}

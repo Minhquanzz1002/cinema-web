@@ -47,18 +47,6 @@ const DatePicker = ({
 
     const calendarPositionRef = useRef<'top' | 'bottom'>('bottom');
 
-    // useEffect(() => {
-    //     if (isOpen && calendarRef.current) {
-    //         const calendar = calendarRef.current;
-    //         const calendarRect = calendar.getBoundingClientRect();
-    //         const viewportHeight = window.innerHeight;
-    //
-    //         if (calendarRect.bottom > viewportHeight) {
-    //             calendarPositionRef.current = 'top';
-    //         }
-    //     }
-    // }, [isOpen]);
-
     const calculatePosition = () => {
         if (inputRef.current) {
             const inputRect = inputRef.current.getBoundingClientRect();
@@ -78,13 +66,17 @@ const DatePicker = ({
 
 
     useEffect(() => {
-        if (field.value instanceof Date && !isNaN(field.value.getTime())) {
-            const date = dayjs(field.value);
-            setInputValue(date.format('DD/MM/YYYY'));
-            setCurrentDate(date);
-        } else {
-            setInputValue('');
-            helpers.setValue(null);
+        const initialValue = field.value;
+
+        if (inputValue) {
+            const date = dayjs(initialValue);
+            if (date.isValid()) {
+                setInputValue(date.format('DD/MM/YYYY'));
+                setCurrentDate(date);
+            } else {
+                setInputValue('');
+                helpers.setValue(null);
+            }
         }
     }, [field.value, helpers]);
 
@@ -93,13 +85,16 @@ const DatePicker = ({
     }, [inputValue]);
 
     const handleDateClick = (day: number) => {
-        const selectedDate = currentDate.date(day).toDate();
-        helpers.setValue(selectedDate);
-        setInputValue(dayjs(selectedDate).format('DD/MM/YYYY'));
-        setIsOpen(false);
+        const selectedDate = currentDate.date(day);
+        if (selectedDate.isValid()) {
+            helpers.setValue(selectedDate.toDate());
+            setInputValue(dayjs(selectedDate).format('DD/MM/YYYY'));
+            setIsOpen(false);
+        }
     };
 
     const isDateInRange = (date: Dayjs) => {
+        if (!date.isValid()) return false;
         if (minDate && date.isBefore(dayjs(minDate), 'day')) return false;
         if (maxDate && date.isAfter(dayjs(maxDate), 'day')) return false;
         return true;
@@ -159,7 +154,6 @@ const DatePicker = ({
         setInputValue(value);
         setFieldTouched(name, true, false);
 
-        helpers.setValue(value);
         if (value.length === 10) {
             if (isValidDate(value)) {
                 const parsedDate = dayjs(value, 'DD/MM/YYYY').toDate();

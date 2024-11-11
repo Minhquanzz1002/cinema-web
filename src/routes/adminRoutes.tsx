@@ -2,9 +2,10 @@ import { LuLayoutGrid } from 'react-icons/lu';
 import React from 'react';
 import { RiMoneyDollarCircleLine, RiMovie2Line } from 'react-icons/ri';
 import { IoMdGift } from 'react-icons/io';
-import { FiCalendar } from 'react-icons/fi';
+import { FiCalendar, FiUsers } from 'react-icons/fi';
 import { GoPackage } from 'react-icons/go';
 import { IoTicketOutline } from 'react-icons/io5';
+import { MdOutlineLocationOn } from 'react-icons/md';
 
 export type IAdminRoute = {
     name: string;
@@ -37,6 +38,11 @@ const adminRoutes: IAdminRoute[] = [
             { name: 'Tất cả diễn viên', path: '/admin/movies/actors' },
             { name: 'Tất cả đạo diễn', path: '/admin/movies/directors' },
         ],
+    },
+    {
+        name: 'Rạp',
+        path: '/admin/cinemas',
+        icon: <MdOutlineLocationOn />,
     },
     {
         name: 'Giá vé',
@@ -75,6 +81,11 @@ const adminRoutes: IAdminRoute[] = [
         name: 'Bán hàng',
         path: '/admin/sales',
         icon: <RiMoneyDollarCircleLine />,
+    },
+    {
+        name: 'Nhân viên',
+        path: '/admin/employees',
+        icon: <FiUsers />,
     },
 ];
 

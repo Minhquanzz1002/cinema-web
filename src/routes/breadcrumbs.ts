@@ -288,4 +288,20 @@ export const breadcrumbs: IBreadcrumb[] = [
             { label: 'Thanh toán' },
         ],
     },
+    {
+        label: 'Nhân viên',
+        link: '^/admin/employees$',
+        breadcrumbTrail: [
+            { label: 'Nhân viên' },
+            { label: 'Danh sách nhân viên' },
+        ],
+    },
+    {
+        label: 'Rạp',
+        link: '^/admin/cinemas$',
+        breadcrumbTrail: [
+            { label: 'Rạp' },
+            { label: 'Danh sách rạp' },
+        ],
+    },
 ];

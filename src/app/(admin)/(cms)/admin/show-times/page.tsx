@@ -20,6 +20,7 @@ import useDeleteModal from '@/hook/useDeleteModal';
 import HighlightedText from '@/components/Admin/ModalDeleteAlert/HighlightedText';
 import ModalDeleteAlert from '@/components/Admin/ModalDeleteAlert';
 import ModalUpdateShowTime from '@/components/Admin/Pages/ShowTimes/ModalUpdateShowTime/page';
+import ModalGenerateShowTime from '@/components/Admin/Pages/ShowTimes/ModalGenerateShowTime';
 
 interface ShowTimeFilter {
     status: 'ALL' | BaseStatus;
@@ -99,6 +100,11 @@ const ShowTimePage = () => {
     const [showModalAddShowTime, setShowModalAddShowTime] = useState<boolean>(false);
     const [defaultRoomToAdd, setDefaultRoomToAdd] = useState<Room | undefined>(undefined);
     const [defaultStartTime, setDefaultStartTime] = useState<Date | undefined>(undefined);
+
+    /**
+     * State for generating show time
+     */
+    const [showModalGenerateShowTime, setShowModalGenerateShowTime] = useState<boolean>(false);
 
 
     const { data: showTimes, isLoading: isLoadingShowTimes } = useAllShowTimes({
@@ -184,7 +190,8 @@ const ShowTimePage = () => {
                 <Card extra={`h-full w-full px-6 py-4`}>
                     <div className="flex items-center justify-end">
                         <div className="flex gap-2 h-9">
-                            <ButtonAction.Add onClick={() => setShowModalAddShowTime(true)} />
+                            <ButtonAction.Add text="Thêm tự động" onClick={() => setShowModalGenerateShowTime(true)} />
+                            <ButtonAction.Add text="Thêm thủ công" onClick={() => setShowModalAddShowTime(true)} />
                             <ButtonAction.Import />
                         </div>
                     </div>
@@ -300,7 +307,8 @@ const ShowTimePage = () => {
                                                                              className={`px-2 flex flex-col justify-center  ${movieColorMap[showTime.movie.title] || 'bg-green-500'} text-white rounded-lg relative group h-12`}>
                                                                             <div
                                                                                 className="flex justify-between items-center">
-                                                                                <div className="flex-1 flex-col flex gap-1">
+                                                                                <div
+                                                                                    className="flex-1 flex-col flex gap-1">
                                                                                     <div
                                                                                         className="text-xs font-medium">
                                                                                         {showTime.movie.title}
@@ -355,16 +363,23 @@ const ShowTimePage = () => {
                               defaultStartTime={defaultStartTime}
                               defaultStartDate={filters.startDate}
                               defaultCinemaId={filters.cinemaId} />
-            <ModalUpdateShowTime showTime={showTimeToUpdate} onClose={() => setShowTimeToUpdate(undefined)} movies={movies} cinemas={cinemas} rooms={rooms}/>
+            <ModalUpdateShowTime showTime={showTimeToUpdate} onClose={() => setShowTimeToUpdate(undefined)}
+                                 movies={movies} cinemas={cinemas} rooms={rooms} />
 
             <ModalDeleteAlert onClose={deleteModal.closeDeleteModal}
                               onConfirm={deleteModal.handleDelete}
                               isOpen={deleteModal.showDeleteModal}
                               title="Xóa suất chiếu?"
                               content={
-                                  <>Bạn có chắc chắn muốn xóa suất chiếu <HighlightedText>{deleteModal.selectedData?.movie.title} - {deleteModal.selectedData?.startTime && formatTime(deleteModal.selectedData.startTime)}</HighlightedText> không?</>
+                                  <>Bạn có chắc chắn muốn xóa suất
+                                      chiếu <HighlightedText>{deleteModal.selectedData?.movie.title} - {deleteModal.selectedData?.startTime && formatTime(deleteModal.selectedData.startTime)}</HighlightedText> không?</>
                               }
             />
+            {
+                showModalGenerateShowTime && (
+                    <ModalGenerateShowTime onClose={() => setShowModalGenerateShowTime(false)} />
+                )
+            }
         </>
     );
 };
