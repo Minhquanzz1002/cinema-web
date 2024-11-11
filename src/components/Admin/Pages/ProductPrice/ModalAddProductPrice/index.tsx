@@ -139,14 +139,14 @@ const FormikContent = ({ onClose }: { onClose: () => void }) => {
                                                         </div>
                                                         <div className="flex-1 flex flex-col justify-center">
                                                             <div className="text-sm font-medium line-clamp-1">
-                                                                #{product.code} - {product.name} {product.name} {product.name}
+                                                                #{product.code} - {product.name}
                                                             </div>
                                                             <div className="text-xs line-clamp-1">
                                                                 {product.description}
                                                             </div>
                                                         </div>
                                                         <div className="flex justify-center items-center">
-                                                            <button className="text-brand-500"><FaPlus /></button>
+                                                            <button type="button" className="text-brand-500"><FaPlus /></button>
                                                         </div>
                                                     </div>
                                                 </div>
