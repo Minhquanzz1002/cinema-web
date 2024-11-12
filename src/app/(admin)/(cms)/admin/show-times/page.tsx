@@ -377,7 +377,10 @@ const ShowTimePage = () => {
             />
             {
                 showModalGenerateShowTime && (
-                    <ModalGenerateShowTime onClose={() => setShowModalGenerateShowTime(false)} />
+                    <ModalGenerateShowTime onClose={() => setShowModalGenerateShowTime(false)}
+                                           onSuccess={(date, cinemaId) => setFilters({ ...filters, startDate: date, cinemaId })}
+                                           cinemas={cinemas}
+                    />
                 )
             }
         </>

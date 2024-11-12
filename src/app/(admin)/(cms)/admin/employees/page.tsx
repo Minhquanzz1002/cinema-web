@@ -121,7 +121,7 @@ const EmployeePage = () => {
 
 
     const handleExportExcel = async () => {
-        await exportToExcel<AdminEmployeeOverview>(employees);
+        await exportToExcel<AdminEmployeeOverview>(employees, 'DSNV', ['ID', 'Mã nhân viên', 'Tên', 'Giới tính', 'Email', 'Số điện thoại', 'Sinh nhật']);
     };
 
     return (
@@ -131,7 +131,6 @@ const EmployeePage = () => {
                     <div className="flex items-center justify-end">
                         <div className="flex gap-2 h-9">
                             <ButtonAction.Add text="Thêm nhân viên" href="/admin/employees/new" />
-                            <ButtonAction.Import onClick={() => setShowImportModal(true)} />
                             <ButtonAction.Export onClick={handleExportExcel} />
                         </div>
                     </div>

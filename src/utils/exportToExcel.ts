@@ -43,7 +43,7 @@ export async function exportToExcel<T extends Record<string, any>>(
     });
 
     data.forEach((item) => {
-        const row = actualHeaders.map((header) => item[header] ?? '');
+        const row = Object.keys(data[0]).map((header) => item[header] ?? '');
         const dataRow = worksheet.addRow(row);
 
         dataRow.eachCell((cell) => {

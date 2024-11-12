@@ -185,3 +185,37 @@ export const useLayoutSeatByShowTimeId = (showTimeId: string) => {
         },
     );
 };
+
+
+/**
+ * generate show time
+ */
+
+interface GenerateShowTimePayload {
+    cinemaId: number;
+    startDate: string;
+    endDate: string;
+    movies: {
+        id: number;
+        totalShowTimes: number;
+    }[];
+}
+
+const generateShowTime = (payload: GenerateShowTimePayload): Promise<SuccessResponse<void>> => {
+    return httpRepository.post<void, GenerateShowTimePayload>('/admin/v1/show-times/generate', payload);
+};
+
+export const useGenerateShowTime = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: generateShowTime,
+        onSuccess: async (res) => {
+            await queryClient.invalidateQueries({ queryKey: [SHOW_TIME_QUERY_KEY] });
+            toast.success(res.message);
+        },
+        onError: (error: ErrorResponse) => {
+            toast.error(error.message || 'Tạo suất chiếu không thành công. Hãy thử lại sau');
+            console.error('Generate show time error:', error);
+        },
+    });
+};
