@@ -31,7 +31,6 @@ interface FormValues {
     normalPrice: number;
     vipPrice: number;
     couplePrice: number;
-    triplePrice: number;
 }
 
 const validationSchema = Yup.object().shape({
@@ -64,7 +63,6 @@ const ModalUpdateTicketPriceLine = ({ onClose, ticketPrice, ticketPriceLine }: M
         normalPrice: ticketPriceLine.ticketPriceDetails.find(detail => detail.seatType === SeatType.NORMAL)?.price || 0,
         vipPrice: ticketPriceLine.ticketPriceDetails.find(detail => detail.seatType === SeatType.VIP)?.price || 0,
         couplePrice: ticketPriceLine.ticketPriceDetails.find(detail => detail.seatType === SeatType.COUPLE)?.price || 0,
-        triplePrice: ticketPriceLine.ticketPriceDetails.find(detail => detail.seatType === SeatType.TRIPLE)?.price || 0,
     };
 
     const handleSubmit = async (values: FormValues) => {
@@ -81,7 +79,6 @@ const ModalUpdateTicketPriceLine = ({ onClose, ticketPrice, ticketPriceLine }: M
                     normalPrice: values.normalPrice,
                     vipPrice: values.vipPrice,
                     couplePrice: values.couplePrice,
-                    triplePrice: values.triplePrice,
                 },
             });
             onClose();

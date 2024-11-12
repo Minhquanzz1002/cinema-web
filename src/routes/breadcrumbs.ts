@@ -39,10 +39,10 @@ export const breadcrumbs: IBreadcrumb[] = [
     },
     {
         label: 'Danh số bán hàng theo ngày',
-        link: '^/admin/reports/employee-sales$',
+        link: '^/admin/reports/promotion-summary$',
         breadcrumbTrail: [
             { label: 'Báo cáo' },
-            { label: 'Danh số bán hàng theo NVBH' },
+            { label: 'Tổng kết khuyến mãi' },
         ],
     },
     {
