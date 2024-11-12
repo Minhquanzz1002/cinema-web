@@ -1,6 +1,7 @@
 import { BaseEntity, BaseStatus } from '@/modules/base/interface';
 import { BaseProduct } from '@/modules/products/interface';
 import { AgeRating } from '@/modules/movies/interface';
+import { SeatType } from '@/modules/seats/interface';
 
 export enum OrderStatus {
     PENDING = 'PENDING',
@@ -15,13 +16,6 @@ export const OrderStatusVietnamese = {
     [OrderStatus.COMPLETED]: 'Hoàn thành',
     [OrderStatus.CANCELLED]: 'Đã hủy',
 };
-
-export enum SeatType {
-    NORMAL = 'NORMAL',
-    VIP = 'VIP',
-    COUPLE = 'COUPLE',
-    TRIPLE = 'TRIPLE',
-}
 
 interface UserInOrder {
     id: string;

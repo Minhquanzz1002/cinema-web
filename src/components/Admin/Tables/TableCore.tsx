@@ -26,8 +26,10 @@ const TableCore = React.forwardRef<HTMLTableElement, TableCoreProps>(({
                                                                                                   className,
                                                                                                   ...props
                                                                                               }, ref) => (
-    <div className="w-full overflow-x-scroll xl:overflow-x-hidden">
-        <table ref={ref} className={cn("w-full", className)} {...props} />
+    <div className="relative w-full">
+        <div className="max-w-full min-w-full overflow-x-scroll">
+            <table ref={ref} className={cn('w-full min-w-full table-auto', className)} {...props} />
+        </div>
     </div>
 )) as TableCoreComponent;
 

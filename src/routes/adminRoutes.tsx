@@ -26,7 +26,7 @@ const adminRoutes: IAdminRoute[] = [
         icon: <RiMovie2Line />,
         children: [
             { name: 'DSBH theo ngày', path: '/admin/reports/daily-sales' },
-            { name: 'DSBH theo NVBH', path: '/admin/reports/employee-sales' },
+            { name: 'Tổng kết khuyến mãi', path: '/admin/reports/promotion-summary' },
         ],
     },
     {

@@ -61,7 +61,7 @@ const DailyReportPage = () => {
     };
 
     useEffect(() => {
-        document.title = 'B&Q Cinema - Danh số bán hàng theo ngày';
+        document.title = 'B&Q Cinema - Tổng kết khuyến mãi';
     }, []);
 
     const handleExportExcel = async () => {

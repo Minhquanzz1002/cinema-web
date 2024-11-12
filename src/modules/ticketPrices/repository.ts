@@ -177,7 +177,6 @@ interface UpdateTicketPriceLinePayload {
     normalPrice: number;
     vipPrice: number;
     couplePrice: number;
-    triplePrice: number;
 }
 
 const updateTicketPriceLine = ({ ticketPriceId, ticketPriceLineId, data }: {
