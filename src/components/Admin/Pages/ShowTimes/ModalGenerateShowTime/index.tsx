@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Modal from '@/components/Admin/Modal';
 import { FieldArray, Form, Formik, useFormikContext } from 'formik';
 import DatePicker from '@/components/Admin/DatePicker';
@@ -13,9 +13,14 @@ import { FaPlus } from 'react-icons/fa6';
 import * as Yup from 'yup';
 import InputNumber from '@/components/Admin/InputNumber';
 import ButtonAction from '@/components/Admin/ButtonAction';
+import { useGenerateShowTime } from '@/modules/showTimes/repository';
+import dayjs from 'dayjs';
+import Select from '@/components/Admin/Select';
 
 interface ModalGenerateShowTimeProps {
     onClose: () => void;
+    cinemas: { id: number; name: string }[];
+    onSuccess: (date: Date, cinemaId: number) => void;
 }
 
 interface FormValues {
@@ -23,18 +28,20 @@ interface FormValues {
     endDate: Date;
     movies: {
         id: number;
-        price?: number;
+        price: number;
         code: string;
         title: string;
         imagePortrait: string;
         duration: number;
     }[];
+    cinema: number;
 }
 
 const initialValues: FormValues = {
     startDate: new Date(),
     endDate: new Date(),
     movies: [],
+    cinema: 0,
 };
 
 interface MovieFilter extends PaginationState {
@@ -47,6 +54,7 @@ const validationSchema = Yup.object().shape({
     endDate: Yup.date()
         .required('Ngày kết thúc không được để trống')
         .min(Yup.ref('startDate'), 'Ngày kết thúc phải sau ngày bắt đầu'),
+    cinema: Yup.number().required('Rạp không được để trống'),
     movies: Yup.array().of(
         Yup.object().shape({
             price: Yup.number().required('Giá không được để trống')
@@ -56,7 +64,7 @@ const validationSchema = Yup.object().shape({
     ).min(1, 'Vui lòng chọn ít nhất 1 phim'),
 });
 
-const ModalGenerateShowTime = ({ onClose }: ModalGenerateShowTimeProps) => {
+const ModalGenerateShowTime = ({ onClose, cinemas, onSuccess }: ModalGenerateShowTimeProps) => {
     const [filters, setFilters] = useState<MovieFilter>({
         page: 1,
         search: '',
@@ -71,6 +79,7 @@ const ModalGenerateShowTime = ({ onClose }: ModalGenerateShowTimeProps) => {
         search: filters.search,
         status: MovieStatus.ACTIVE,
     });
+    const generateShowTimeMutation = useGenerateShowTime();
 
     /**
      * Custom hooks CRUD
@@ -111,11 +120,19 @@ const ModalGenerateShowTime = ({ onClose }: ModalGenerateShowTimeProps) => {
             setSearch('');
         };
 
+        useEffect(() => {
+            if (dayjs(values.endDate).isBefore(dayjs(values.startDate))) {
+                setFieldValue('endDate', values.startDate);
+            }
+        }, [values.startDate, values.endDate, setFieldValue]);
+
         return (
             <Form>
                 <div className="grid grid-cols-4 gap-3">
                     <DatePicker name="startDate" />
                     <DatePicker name="endDate" />
+                    <Select name="cinema" options={cinemas.map(cinema => ({ value: cinema.id, label: cinema.name }))}
+                            placeholder="Chọn rạp" />
                 </div>
                 <div className="flex gap-2 items-center">
                     <div className="font-normal text-sm cursor-pointer">Phim áp dụng:</div>
@@ -225,8 +242,23 @@ const ModalGenerateShowTime = ({ onClose }: ModalGenerateShowTimeProps) => {
         );
     };
 
-    const handleSubmit = (values: FormValues) => {
+    const handleSubmit = async (values: FormValues) => {
         console.table(values);
+        try {
+            await generateShowTimeMutation.mutateAsync({
+                startDate: dayjs(values.startDate).format("YYYY-MM-DD"),
+                endDate: dayjs(values.endDate).format("YYYY-MM-DD"),
+                movies: values.movies.map(movie => ({
+                    id: movie.id,
+                    totalShowTimes: movie.price,
+                })),
+                cinemaId: values.cinema,
+            });
+            onSuccess(values.startDate, values.cinema);
+            onClose();
+        } catch (error) {
+            console.log("Update show time error:", error);
+        }
     };
 
     return (
