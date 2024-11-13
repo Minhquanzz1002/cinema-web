@@ -45,7 +45,7 @@ const PrintContent = React.forwardRef<HTMLDivElement>((props, ref) => {
                             <div>Giờ: <span>{formatTime(bill.showTime.startTime)}</span></div>
                         </div>
                         <div className="grid grid-cols-2">
-                            <div>Ghế: <span className="text-xl font-medium">{ticket.seat?.name}</span></div>
+                            <div>Ghế: <span className="text-xl font-medium">{ticket.seat?.fullName}</span></div>
                             <div>Giá: <span
                                 className="text-xl font-medium">{formatNumberToCurrency(ticket.price)}</span></div>
                         </div>

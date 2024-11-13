@@ -4,7 +4,11 @@ import { usePathname, useRouter } from 'next/navigation';
 import { AdminMovie } from '@/modules/movies/interface';
 import { BaseProductWithPrice } from '@/modules/products/interface';
 import { CustomerWithNameAndPhone } from '@/modules/customers/interface';
-import { useCreateOrderByEmployee, useUpdateProductInOrderByEmployee } from '@/modules/orders/repository';
+import {
+    useCancelOrderByEmployee,
+    useCreateOrderByEmployee,
+    useUpdateProductInOrderByEmployee, useUpdateSeatInOrderByEmployee,
+} from '@/modules/orders/repository';
 import { OrderResponseCreated } from '@/modules/orders/interface';
 
 export interface SelectedProduct {
@@ -16,6 +20,7 @@ interface SaleContextType {
     movie: AdminMovie | null;
     showTime: AdminShowTimeForSale | null;
     selectedSeats: Seat[];
+    selectedTempSeats: Seat[];
     addSeat: (seat: Seat) => void;
     removeSeat: (seatId: number) => void;
     clearSeats: () => void;
@@ -56,6 +61,7 @@ interface SaleProviderProps {
 const SaleProvider = ({ children }: SaleProviderProps) => {
     const router = useRouter();
     const pathname = usePathname();
+    const cancelOrder = useCancelOrderByEmployee();
     const [isClient, setIsClient] = useState(false);
     const [hasLeftFlow, setHasLeftFlow] = useState(false);
 
@@ -64,6 +70,7 @@ const SaleProvider = ({ children }: SaleProviderProps) => {
     const [showTime, setShowTime] = useState<AdminShowTimeForSale | null>(null);
 
     const [selectedSeats, setSelectedSeats] = useState<Seat[]>([]);
+    const [selectedTempSeats, setSelectedTempSeats] = useState<Seat[]>([]);
 
     const [selectedProducts, setSelectedProducts] = useState<SelectedProduct[]>([]);
 
@@ -74,6 +81,7 @@ const SaleProvider = ({ children }: SaleProviderProps) => {
     const [totalDiscount, setTotalDiscount] = useState<number>(0);
 
     const createOrder = useCreateOrderByEmployee();
+    const updateSeat = useUpdateSeatInOrderByEmployee();
     const updateProductInOrder = useUpdateProductInOrderByEmployee();
 
     const [order, setOrderState] = useState<OrderResponseCreated | null>(null);
@@ -90,14 +98,14 @@ const SaleProvider = ({ children }: SaleProviderProps) => {
         return validFlowRoutes.includes(path);
     }, [validFlowRoutes]);
 
-    const handleLeaveFlow = useCallback(() => {
+    const handleLeaveFlow = useCallback(async () => {
         console.log('handleLeaveFlow rời');
         if (hasLeftFlow) return; // Tránh xử lý nhiều lần
 
-        // Hủy đơn hàng nếu đã tạo
+        console.log("truoc khi xoa");
         if (order) {
-            // Gọi API hủy đơn hàng
-            // cancelOrder.mutateAsync({ orderId: order.id });
+            console.log("xoa order");
+            await cancelOrder.mutateAsync(order.id);
         }
 
         setMovie(null);
@@ -107,6 +115,7 @@ const SaleProvider = ({ children }: SaleProviderProps) => {
         setCustomerState(null);
         setOrderState(null);
         setTotalDiscount(0);
+        setIsLoadingRedirect(false);
 
         // Clear localStorage
         localStorage.removeItem('selectedMovie');
@@ -218,16 +227,30 @@ const SaleProvider = ({ children }: SaleProviderProps) => {
     const proceedToComboSelection = useCallback(async () => {
         if (movie && showTime && selectedSeats.length > 0) {
             setIsLoadingRedirect(true);
-            const { data } = await createOrder.mutateAsync({
-                customerId: customer?.id,
-                showTimeId: showTime.id,
-                seatIds: selectedSeats.map(seat => seat.id),
-            });
-            if (data) {
-                setTotalDiscount(data.totalDiscount);
-                setOrderState(data);
+            if (order) {
+                const { data } = await updateSeat.mutateAsync({
+                    orderId: order.id,
+                    data: {
+                        seatIds: selectedSeats.map(seat => seat.id),
+                    }
+                });
+                if (data) {
+                    setTotalDiscount(data.totalDiscount);
+                    setOrderState(data);
+                }
+            } else {
+                const { data } = await createOrder.mutateAsync({
+                    customerId: customer?.id,
+                    showTimeId: showTime.id,
+                    seatIds: selectedSeats.map(seat => seat.id),
+                });
+                if (data) {
+                    setTotalDiscount(data.totalDiscount);
+                    setOrderState(data);
+                }
             }
             setIsLoadingRedirect(false);
+            setSelectedTempSeats(selectedSeats);
             router.push('/admin/sales/choose-combo');
         }
     }, [movie, showTime, selectedSeats, createOrder, customer?.id, router]);
@@ -346,7 +369,7 @@ const SaleProvider = ({ children }: SaleProviderProps) => {
         setOrder,
         zpAppTransId,
         setZpAppTransId,
-
+        selectedTempSeats,
     };
 
     return (
