@@ -5,21 +5,19 @@ import Select from '@/components/Admin/Select';
 import { BaseStatus, BaseStatusVietnamese } from '@/modules/base/interface';
 import ButtonAction from '@/components/Admin/ButtonAction';
 import InputCurrency from '@/components/Admin/InputCurrency';
-import { AdminPromotionLineOverview, PromotionLineType } from '@/modules/promotions/interface';
+import {
+    AdminPromotionDetailOverview,
+    AdminPromotionLineOverview,
+    PromotionLineType,
+} from '@/modules/promotions/interface';
 import { number, object, string } from 'yup';
-import { useCreatePromotionDetail } from '@/modules/promotions/repository';
+import { useUpdatePromotionDetail } from '@/modules/promotions/repository';
 
-type ModalAddPromotionDetailProps = {
+type ModalUpdatePromotionDetailProps = {
     onClose: () => void;
     promotionLine: AdminPromotionLineOverview | null;
+    promotionDetail: AdminPromotionDetailOverview | null;
 }
-
-// interface CashRebateFormValues {
-//     status: BaseStatus;
-//     discountValue: number;
-//     minOrderValue?: number;
-//     usageLimit: number;
-// }
 
 const CashRebateForm = ({onClose} : {onClose: () => void}) => {
 
@@ -28,7 +26,7 @@ const CashRebateForm = ({onClose} : {onClose: () => void}) => {
             <InputCurrency name="discountValue" label="Số tiền giảm" placeholder="Nhập số tiền giảm" required unit="VND"/>
             <InputCurrency name="minOrderValue" label="Giá trị đơn hàng tối thiểu" placeholder="Nhập giá trị đơn hàng tối thiểu" unit="VND"/>
             <InputCurrency name="usageLimit" label="Số lượng áp dụng tối đa" placeholder="Nhập số lượng áp dụng tối đa" required/>
-            <Select name="status" label="Trạng thái" readOnly tooltip="Trạng thái mặc định khi tạo là `Ngưng kích hoạt`" options={[
+            <Select name="status" label="Trạng thái" tooltip="Trạng thái mặc định khi tạo là `Ngưng kích hoạt`" options={[
                 { value: BaseStatus.ACTIVE, label: BaseStatusVietnamese[BaseStatus.ACTIVE] },
                 { value: BaseStatus.INACTIVE, label: BaseStatusVietnamese[BaseStatus.INACTIVE] },
             ]}/>
@@ -47,7 +45,7 @@ const PriceDiscountForm = ({onClose} : {onClose: () => void}) => {
             <InputCurrency name="maxDiscountValue" label="Giới hạn số tiền giảm" placeholder="Nhập giới hạn số tiền giảm" unit="VND"/>
             <InputCurrency name="minOrderValue" label="Giá trị đơn hàng tối thiểu" placeholder="Nhập giá trị đơn hàng tối thiểu" unit="VND"/>
             <InputCurrency name="usageLimit" label="Số lượng áp dụng tối đa" placeholder="Nhập số lượng áp dụng tối đa" required/>
-            <Select name="status" label="Trạng thái" readOnly tooltip="Trạng thái mặc định khi tạo là `Ngưng kích hoạt`" options={[
+            <Select name="status" label="Trạng thái" tooltip="Trạng thái mặc định khi tạo là `Ngưng kích hoạt`" options={[
                 { value: BaseStatus.ACTIVE, label: BaseStatusVietnamese[BaseStatus.ACTIVE] },
                 { value: BaseStatus.INACTIVE, label: BaseStatusVietnamese[BaseStatus.INACTIVE] },
             ]}/>
@@ -59,8 +57,8 @@ const PriceDiscountForm = ({onClose} : {onClose: () => void}) => {
     );
 };
 
-const ModalAddPromotionDetail = ({onClose, promotionLine} : ModalAddPromotionDetailProps) => {
-    const createPromotionDetail = useCreatePromotionDetail();
+const ModalUpdatePromotionDetail = ({onClose, promotionLine, promotionDetail} : ModalUpdatePromotionDetailProps) => {
+    const updatePromotionDetail = useUpdatePromotionDetail();
 
     const getValidationSchema = () => {
         const baseSchema = object({
@@ -88,17 +86,17 @@ const ModalAddPromotionDetail = ({onClose, promotionLine} : ModalAddPromotionDet
             case PromotionLineType.CASH_REBATE:
                 return {
                     ...baseValues,
-                    discountValue: 0,
-                    minOrderValue: undefined,
-                    usageLimit: 1,
+                    discountValue: promotionDetail?.discountValue,
+                    minOrderValue: promotionDetail?.minOrderValue,
+                    usageLimit: promotionDetail?.usageLimit,
                 };
             case PromotionLineType.PRICE_DISCOUNT:
                 return {
                     ...baseValues,
-                    discountValue: 0,
-                    maxDiscountValue: undefined,
-                    minOrderValue: 0,
-                    usageLimit: 1,
+                    discountValue: promotionDetail?.discountValue,
+                    maxDiscountValue: promotionDetail?.maxDiscountValue,
+                    minOrderValue: promotionDetail?.minOrderValue,
+                    usageLimit: promotionDetail?.usageLimit,
                 };
             default:
                 return baseValues;
@@ -120,27 +118,29 @@ const ModalAddPromotionDetail = ({onClose, promotionLine} : ModalAddPromotionDet
         }
     };
 
-    if (!promotionLine) {
+    if (!promotionLine && !promotionDetail && !promotionDetail) {
         return null;
     }
 
     const handleSubmit = async (values: any) => {
         console.log(values);
         try {
-            await createPromotionDetail.mutateAsync({
-                promotionLineId: promotionLine.id,
-                payload: {
-                    ...values,
-                }
-            });
-            onClose();
+            if (promotionDetail) {
+                await updatePromotionDetail.mutateAsync({
+                    id: promotionDetail.id,
+                    payload: {
+                        ...values
+                    }
+                });
+                onClose();
+            }
         } catch (error) {
             console.log(error);
         }
     };
 
     return (
-        <Modal title="Thêm chi tiết khuyến mãi" open={true} onClose={onClose}>
+        <Modal title="Cập nhật chi tiết khuyến mãi" open={true} onClose={onClose}>
             <Formik initialValues={getInitialValues()} onSubmit={handleSubmit} validationSchema={getValidationSchema}>
                 {getFormContent()}
             </Formik>
@@ -148,4 +148,4 @@ const ModalAddPromotionDetail = ({onClose, promotionLine} : ModalAddPromotionDet
     );
 };
 
-export default ModalAddPromotionDetail;
+export default ModalUpdatePromotionDetail;
