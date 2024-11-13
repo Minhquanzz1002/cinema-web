@@ -236,7 +236,7 @@ export const usePromotionLineByCode = (code: string) => {
 
 
 /**
- * Create promotion line
+ * Create promotion detail
  */
 
 interface CreatePromotionDetailPayload {
@@ -269,6 +269,42 @@ export const useCreatePromotionDetail = () => {
         },
         onError: error => {
             toast.error('Thêm chi tiết khuyến mãi không thành công');
+            console.error('Create ticket price line error:', error);
+        },
+    });
+};
+
+/**
+ * Update promotion detail
+ */
+
+interface UpdatePromotionDetailPayload {
+    discountValue?: number;
+    minOrderValue?: number;
+    usageLimit?: number;
+    maxDiscountValue?: number;
+    requiredSeatType?: SeatType;
+    requiredSeatQuantity?: number;
+    giftSeatType?: SeatType;
+    giftSeatQuantity?: number;
+    giftProduct?: number;
+    giftQuantity?: number;
+}
+
+const updatePromotionDetail = ({id, payload} : {id: number; payload: UpdatePromotionDetailPayload} ): Promise<SuccessResponse<void>> => {
+    return httpRepository.put<void, CreatePromotionDetailPayload>(`/admin/v1/promotion-details/${id}`, payload);
+};
+
+export const useUpdatePromotionDetail = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: updatePromotionDetail,
+        onSuccess: async (res) => {
+            await queryClient.invalidateQueries({ queryKey: [PROMOTION_QUERY_KEY] });
+            toast.success(res.message);
+        },
+        onError: (error: ErrorResponse) => {
+            toast.error(error.message || 'Cập nhật chi tiết khuyến mãi không thành công');
             console.error('Create ticket price line error:', error);
         },
     });

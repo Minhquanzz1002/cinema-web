@@ -39,6 +39,7 @@ import ModalDeleteAlert from '@/components/Admin/ModalDeleteAlert';
 import HighlightedText from '@/components/Admin/ModalDeleteAlert/HighlightedText';
 import ModalAddPromotionDetail from '@/components/Admin/Pages/PromotionDetail/ModalAddPromotionDetail';
 import { DatePickerWithRange } from '@/components/Admin/DatePickerWithRange';
+import ModalUpdatePromotionDetail from '@/components/Admin/Pages/PromotionDetail/ModalUpdatePromotionDetail';
 
 const TableCell: React.FC<{ children?: React.ReactNode; dashed?: boolean }> = ({ children, dashed }) => (
     <td className={`text-tiny dark:text-white px-4 py-2 border-r ${dashed ? 'border-dashed' : ''}`}>
@@ -72,6 +73,8 @@ const ViewPromotionPage = () => {
          * States for add promotion details
          */
         const [promotionLineToAddPromotionDetail, setPromotionLineToAddPromotionDetail] = useState<AdminPromotionLineOverview | null>(null);
+        const [promotionDetailToUpdate, setPromotionDetailToUpdate] = useState<AdminPromotionDetailOverview | null>(null);
+        const [promotionLineToUpdatePromotionDetail, setPromotionLineToUpdatePromotionDetail] = useState<AdminPromotionLineOverview | null>(null);
 
         /**
          * States for update promotion lines
@@ -210,7 +213,7 @@ const ViewPromotionPage = () => {
         );
 
         const CashRebateRow = useCallback(
-            ({ detail }: { detail: AdminPromotionDetailOverview }) => (
+            ({ detail, line }: { detail: AdminPromotionDetailOverview; line: AdminPromotionLineOverview }) => (
                 <>
                     <TableCell dashed>{formatNumberToCurrency(detail.discountValue)}</TableCell>
                     <TableCell dashed>{formatNumberToCurrency(detail.minOrderValue)}</TableCell>
@@ -221,7 +224,10 @@ const ViewPromotionPage = () => {
                     </TableCell>
                     <TableCell>
                         <div className="flex justify-end items-center gap-2">
-                            <ButtonAction.Update />
+                            <ButtonAction.Update onClick={() => {
+                                setPromotionDetailToUpdate(detail);
+                                setPromotionLineToUpdatePromotionDetail(line);
+                            }}/>
                             <ButtonAction.Delete onClick={() => deleteModalPromotionDetail.openDeleteModal(detail)} />
                         </div>
                     </TableCell>
@@ -265,7 +271,7 @@ const ViewPromotionPage = () => {
         );
 
         const PriceDiscountRow = useCallback(
-            ({ detail }: { detail: AdminPromotionDetailOverview }) => (
+            ({ detail, line }: { detail: AdminPromotionDetailOverview; line: AdminPromotionLineOverview }) => (
                 <>
                     <TableCell dashed>{detail.discountValue}%</TableCell>
                     <TableCell dashed>{formatNumberToCurrency(detail.maxDiscountValue)}</TableCell>
@@ -277,7 +283,10 @@ const ViewPromotionPage = () => {
                     </TableCell>
                     <TableCell>
                         <div className="flex justify-end items-center gap-2">
-                            <ButtonAction.Update />
+                            <ButtonAction.Update onClick={() => {
+                                setPromotionDetailToUpdate(detail);
+                                setPromotionLineToUpdatePromotionDetail(line);
+                            }}/>
                             <ButtonAction.Delete onClick={() => deleteModalPromotionDetail.openDeleteModal(detail)} />
                         </div>
                     </TableCell>
@@ -378,12 +387,12 @@ const ViewPromotionPage = () => {
                     }
                 };
 
-                const renderRow = (detail: any) => {
+                const renderRow = (detail: any, line: AdminPromotionLineOverview) => {
                     switch (row.original.type) {
                         case PromotionLineType.CASH_REBATE:
-                            return <CashRebateRow detail={detail} />;
+                            return <CashRebateRow detail={detail} line={line}/>;
                         case PromotionLineType.PRICE_DISCOUNT:
-                            return <PriceDiscountRow detail={detail} />;
+                            return <PriceDiscountRow detail={detail} line={line} />;
                         case PromotionLineType.BUY_TICKETS_GET_TICKETS:
                         case PromotionLineType.BUY_TICKETS_GET_PRODUCTS:
                             return <BuyTicketsRow detail={detail} type={row.original.type} />;
@@ -404,7 +413,7 @@ const ViewPromotionPage = () => {
                                 ) : (
                                     row.original.promotionDetails.map((detail) => (
                                         <tr key={detail.id} className="border-t last-of-type:border-b">
-                                            {renderRow(detail)}
+                                            {renderRow(detail, row.original)}
                                         </tr>
                                     ))
                                 )}
@@ -503,6 +512,11 @@ const ViewPromotionPage = () => {
                                          promotionLine={promotionLineToAddPromotionDetail} />
                 <ModalUpdatePromotionLine onClose={() => setPromotionLineToUpdate(null)}
                                           promotionLine={promotionLineToUpdate} promotion={promotion} />
+
+                <ModalUpdatePromotionDetail onClose={() => {
+                    setPromotionDetailToUpdate(null);
+                    setPromotionLineToUpdatePromotionDetail(null);
+                }} promotionLine={promotionLineToUpdatePromotionDetail} promotionDetail={promotionDetailToUpdate} />
             </>
         );
     }
