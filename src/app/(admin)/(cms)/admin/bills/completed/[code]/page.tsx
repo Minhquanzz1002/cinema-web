@@ -3,7 +3,12 @@ import React, { useEffect, useState } from 'react';
 import Typography from '@/components/Admin/Typography';
 import Card from '@/components/Admin/Card';
 import { useOrderDetail } from '@/modules/orders/repository';
-import { AdminOrderOverview, OrderStatus, OrderStatusVietnamese } from '@/modules/orders/interface';
+import {
+    AdminOrderOverview,
+    OrderStatus,
+    OrderStatusVietnamese,
+    PaymentMethodVietnamese,
+} from '@/modules/orders/interface';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import { formatDateInOrder, formatTime } from '@/utils/formatDate';
@@ -187,6 +192,7 @@ const OrderDetailPage = () => {
                             <div className="flex flex-col gap-3">
                                 <OrderDetailInfo label="Ngày đặt" value={formatDateInOrder(order.orderDate)} />
                                 <OrderDetailInfo label="Trạng thái" value={OrderStatusVietnamese[order.status]} />
+                                <OrderDetailInfo label="Hình thức thanh toán" value={PaymentMethodVietnamese[order.paymentMethod]} />
                             </div>
 
                         </Card>

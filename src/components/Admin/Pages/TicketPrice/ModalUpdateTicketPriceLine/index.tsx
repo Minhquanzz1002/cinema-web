@@ -45,6 +45,9 @@ const validationSchema = Yup.object().shape({
             }
             return true;
         }),
+    normalPrice: Yup.number().min(0, 'Giá không được nhỏ hơn 0').required('Giá không được để trống'),
+    vipPrice: Yup.number().min(0, 'Giá không được nhỏ hơn 0').required('Giá không được để trống'),
+    couplePrice: Yup.number().min(0, 'Giá không được nhỏ hơn 0').required('Giá không được để trống'),
     status: Yup.mixed<BaseStatus>()
         .oneOf(Object.values(BaseStatus), 'Trạng thái không hợp lệ')
         .required('Trạng thái không được để trống'),
@@ -90,7 +93,7 @@ const ModalUpdateTicketPriceLine = ({ onClose, ticketPrice, ticketPriceLine }: M
     const FormikContent = () => {
         return (
             <Form>
-                <Select name="applyForDays" label="Ngày áp dụng" multiple options={[
+                <Select required name="applyForDays" label="Ngày áp dụng" multiple options={[
                     ...Object.keys(ApplyForDay).map(day => ({
                         value: day,
                         label: ApplyForDayVietnamese[day as ApplyForDay],
@@ -106,12 +109,11 @@ const ModalUpdateTicketPriceLine = ({ onClose, ticketPrice, ticketPriceLine }: M
                     </div>
                 </div>
 
-                <InputCurrency min={0} max={10000000} name="normalPrice" label="Giá ghế thường" unit="VND" />
-                <InputCurrency min={0} name="vipPrice" label="Giá VIP" unit="VND" />
-                <InputCurrency min={0} name="couplePrice" label="Giá ghế đôi" unit="VND" />
-                <InputCurrency min={0} name="triplePrice" label="Giá ghế ba" unit="VND" />
+                <InputCurrency min={0} max={10000000} name="normalPrice" label="Giá ghế thường" unit="VND" required />
+                <InputCurrency min={0} name="vipPrice" label="Giá VIP" unit="VND" required />
+                <InputCurrency min={0} name="couplePrice" label="Giá ghế đôi" unit="VND" required />
 
-                <div className="flex justify-end items-center gap-3">
+                <div className="flex justify-end items-center gap-3 mt-3">
                     <ButtonAction.Cancel onClick={onClose} />
                     <ButtonAction.Submit text="Cập nhật" isLoading={updateTicketPriceLine.isPending} />
                 </div>
@@ -120,7 +122,7 @@ const ModalUpdateTicketPriceLine = ({ onClose, ticketPrice, ticketPriceLine }: M
     };
 
     return (
-        <Modal title="Thêm chi tiết giá" open={true} onClose={onClose}>
+        <Modal title="Cập nhật chi tiết giá" open={true} onClose={onClose}>
             <Formik initialValues={initialValues} onSubmit={handleSubmit} validationSchema={validationSchema}>
                 <FormikContent />
             </Formik>

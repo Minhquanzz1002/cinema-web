@@ -212,10 +212,12 @@ const TicketPricePage = () => {
                                         </td>
                                         <td className="text-sm dark:text-white px-4 py-2 first-of-type:pr-0">
                                             <div className="flex gap-2 items-center justify-end">
-                                                <ButtonAction.Update disabled={row.original.status === BaseStatus.ACTIVE} onClick={() => {
-                                                    setTicketPriceToUpdateTicketPriceLine(row.original);
-                                                    setTicketPriceLineToUpdate(line);
-                                                }} />
+                                                <ButtonAction.Update
+                                                    disabled={row.original.status === BaseStatus.ACTIVE}
+                                                    onClick={() => {
+                                                        setTicketPriceToUpdateTicketPriceLine(row.original);
+                                                        setTicketPriceLineToUpdate(line);
+                                                    }} />
                                                 <ButtonAction.Delete
                                                     onClick={() => deleteTicketPriceLineModal.openDeleteModal(line)} />
                                             </div>
@@ -253,7 +255,7 @@ const TicketPricePage = () => {
                                 <Typography.Title level={4}>Bộ lọc</Typography.Title>
                                 <div className="grid grid-cols-3 gap-4">
                                     <Input name="name" placeholder="Tên bảng giá" />
-                                    <DatePickerWithRange/>
+                                    <DatePickerWithRange />
                                     <Select name="status"
                                             options={[
                                                 { label: 'Tất cả', value: 'ALL' },
@@ -303,6 +305,7 @@ const TicketPricePage = () => {
             }
             <ModalAddTicketPriceLine onClose={() => setTicketPriceToAddNewLine(null)}
                                      ticketPrice={ticketPriceToAddNewLine} />
+
             <ModalUpdateTicketPriceLine onClose={() => {
                 setTicketPriceToUpdateTicketPriceLine(null);
                 setTicketPriceLineToUpdate(null);

@@ -86,6 +86,26 @@ export const useUpdateProductInOrderByEmployee = () => {
 };
 
 /**
+ * Update seats in order by employee
+ */
+interface UpdateSeatsInOrderData {
+    seatIds: number[];
+}
+
+const updateSeatInOrderByEmployee = ({ orderId, data }: {
+    orderId: string;
+    data: UpdateSeatsInOrderData
+}): Promise<SuccessResponse<OrderResponseCreated>> => {
+    return httpRepository.put<OrderResponseCreated, UpdateSeatsInOrderData>(`/admin/v1/orders/${orderId}/seats`, data);
+};
+
+export const useUpdateSeatInOrderByEmployee = () => {
+    return useMutation({
+        mutationFn: updateSeatInOrderByEmployee,
+    });
+};
+
+/**
  * Complete order by employee
  */
 
@@ -124,5 +144,18 @@ export const useRefundOrder = () => {
         onError: (error: ErrorResponse) => {
             toast.error(error.message || 'Hoàn đơn không thành công. Hãy thử lại sau');
         },
+    });
+};
+
+/**
+ * Cancel order by employee
+ */
+const cancelOrderByEmployee = (orderId: string): Promise<SuccessResponse<void>> => {
+    return httpRepository.delete(`/admin/v1/orders/${orderId}`);
+};
+
+export const useCancelOrderByEmployee = () => {
+    return useMutation({
+        mutationFn: cancelOrderByEmployee,
     });
 };

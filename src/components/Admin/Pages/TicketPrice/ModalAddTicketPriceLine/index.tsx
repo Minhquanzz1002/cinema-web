@@ -41,7 +41,7 @@ const initialValues: FormValues = {
         .second(0)
         .millisecond(0)
         .toDate(),
-    status: BaseStatus.ACTIVE,
+    status: BaseStatus.INACTIVE,
     normalPrice: 0,
     vipPrice: 0,
     couplePrice: 0,
@@ -60,6 +60,9 @@ const validationSchema = Yup.object().shape({
             }
             return true;
         }),
+    normalPrice: Yup.number().min(0, 'Giá không được nhỏ hơn 0').required('Giá không được để trống'),
+    vipPrice: Yup.number().min(0, 'Giá không được nhỏ hơn 0').required('Giá không được để trống'),
+    couplePrice: Yup.number().min(0, 'Giá không được nhỏ hơn 0').required('Giá không được để trống'),
     status: Yup.mixed<BaseStatus>()
         .oneOf(Object.values(BaseStatus), 'Trạng thái không hợp lệ')
         .required('Trạng thái không được để trống'),
@@ -94,7 +97,7 @@ const ModalAddTicketPriceLine = ({ onClose, ticketPrice }: ModalAddTicketPriceLi
     const FormikContent = () => {
         return (
             <Form>
-                <Select name="applyForDays" label="Ngày áp dụng" multiple options={[
+                <Select required name="applyForDays" label="Ngày áp dụng" multiple options={[
                     ...Object.keys(ApplyForDay).map(day => ({
                         label: ApplyForDayVietnamese[day as ApplyForDay],
                         value: day,
@@ -110,9 +113,9 @@ const ModalAddTicketPriceLine = ({ onClose, ticketPrice }: ModalAddTicketPriceLi
                     </div>
                 </div>
 
-                <InputCurrency min={0} max={10000000} name="normalPrice" label="Giá ghế thường" unit="VND" />
-                <InputCurrency min={0} name="vipPrice" label="Giá VIP" unit="VND" />
-                <InputCurrency min={0} name="couplePrice" label="Giá ghế đôi" unit="VND" />
+                <InputCurrency min={0} max={10000000} name="normalPrice" label="Giá ghế thường" unit="VND" required />
+                <InputCurrency min={0} name="vipPrice" label="Giá VIP" unit="VND" required />
+                <InputCurrency min={0} name="couplePrice" label="Giá ghế đôi" unit="VND" required />
                
 
                 <div className="flex justify-end items-center gap-3 mt-3">
