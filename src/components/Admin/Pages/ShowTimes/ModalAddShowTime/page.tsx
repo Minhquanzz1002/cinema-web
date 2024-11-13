@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Modal from '@/components/Admin/Modal';
 import { Form, Formik, useFormikContext } from 'formik';
 import DatePicker from '@/components/Admin/DatePicker';
@@ -9,6 +9,7 @@ import Select from '@/components/Admin/Select';
 import { BaseStatus, BaseStatusVietnamese } from '@/modules/base/interface';
 import TimePicker from '@/components/Admin/TimePicker';
 import { useCreateShowTime } from '@/modules/showTimes/repository';
+import { useAllRoomsByCinemaId } from '@/modules/cinemas/repository';
 
 interface Room {
     id: number;
@@ -21,11 +22,9 @@ interface Cinema {
 }
 
 type ModalAddShowTimeProps = {
-    isOpen: boolean;
     onClose: () => void;
     movies: { id: number, title: string, duration: number } [];
     cinemas: Cinema[];
-    rooms: { id: number, name: string } [];
     defaultRoom?: Room;
     defaultCinemaId?: number;
     defaultStartDate?: Date;
@@ -42,23 +41,65 @@ interface FormValues {
     status: BaseStatus;
 }
 
-const validationSchema = Yup.object().shape({
-    startDate: Yup.date().required('Ngày bắt đầu không được để trống'),
-});
+const createValidationSchema = (movies: ModalAddShowTimeProps['movies']) => {
+    return Yup.object().shape({
+        startDate: Yup.date().required('Ngày bắt đầu không được để trống'),
+        startTime: Yup.date().required('Thời gian bắt đầu không được để trống'),
+        endTime: Yup.date()
+            .required('Thời gian kết thúc không được để trống')
+            .test('is-after-start', 'Thời gian kết thúc phải sau thời gian bắt đầu', function(endTime) {
+                const { startTime } = this.parent;
+                if (!startTime || !endTime) return true;
+                return dayjs(endTime).isAfter(dayjs(startTime));
+            })
+            .test('min-duration', 'Thời gian kết thúc phải đủ thời lượng chiếu phim', function(endTime) {
+                const { startTime, movie } = this.parent;
+                if (!startTime || !endTime || !movie) return true;
+
+                const selectedMovie = movies.find(m => m.id === movie);
+                if (!selectedMovie) return true;
+
+                const minEndTime = dayjs(startTime).add(selectedMovie.duration, 'minutes');
+                return dayjs(endTime).isAfter(minEndTime) || dayjs(endTime).isSame(minEndTime);
+            }),
+        room: Yup.number()
+            .required('Phòng chiếu không được để trống')
+            .nullable(),
+        movie: Yup.number()
+            .required('Phim không được để trống')
+            .nullable(),
+        cinema: Yup.number()
+            .required('Cụm rạp không được để trống')
+            .nullable(),
+    });
+};
 
 const ModalAddShowTime = ({
                               onClose,
-                              isOpen,
                               cinemas,
                               movies,
-                              rooms,
                               defaultRoom,
                               defaultCinemaId,
                               defaultStartTime,
                               defaultStartDate,
                           }: ModalAddShowTimeProps) => {
+    const [selectedCinema, setSelectedCinema] = useState<number>();
     const createShowTime = useCreateShowTime();
-    if (!isOpen) return null;
+    const { data: rooms } = useAllRoomsByCinemaId(selectedCinema);
+
+    const RoomUpdater = () => {
+        const { values, setFieldValue } = useFormikContext<FormValues>();
+
+        useEffect(() => {
+            if (values.cinema !== selectedCinema) {
+                setSelectedCinema(values.cinema);
+                // Reset room khi đổi cinema
+                setFieldValue('room', undefined);
+            }
+        }, [values.cinema, setFieldValue]);
+
+        return null;
+    };
 
     const AutoCalculateEndTime = () => {
         const { values, setFieldValue } = useFormikContext<FormValues>();
@@ -70,7 +111,7 @@ const ModalAddShowTime = ({
                     const endTime = dayjs(values.startTime)
                         .add(selectedMovie.duration + 15, 'minutes')
                         .toDate();
-                    setFieldValue('endTime', endTime);
+                    setFieldValue('endTime', endTime, true);
                 }
             }
         }, [values.movie, values.startTime, setFieldValue]);
@@ -84,6 +125,8 @@ const ModalAddShowTime = ({
         room: defaultRoom?.id,
         cinema: defaultCinemaId,
         status: BaseStatus.INACTIVE,
+        movie: undefined,
+        endTime: undefined,
     };
 
     const handleSubmit = async (values: FormValues) => {
@@ -106,16 +149,17 @@ const ModalAddShowTime = ({
 
     return (
         <Modal title="Thêm lịch chiếu" open={true} onClose={onClose}>
-            <Formik initialValues={initialValues} onSubmit={handleSubmit} validationSchema={validationSchema}>
+            <Formik initialValues={initialValues} onSubmit={handleSubmit} validationSchema={createValidationSchema(movies)}>
                 <Form>
                     <AutoCalculateEndTime />
-                    <Select name="cinema" label="Cụm rạp" placeholder="Chọn rạp"
+                    <RoomUpdater />
+                    <Select required name="cinema" label="Cụm rạp" placeholder="Chọn rạp"
                             options={cinemas.map(cinema => ({ value: cinema.id, label: cinema.name }))}
                     />
-                    <Select name="room" label="Phòng chiếu" placeholder="Chọn phòng chiếu"
-                            options={rooms.map(room => ({ value: room.id, label: room.name }))}
+                    <Select required name="room" label="Phòng chiếu" placeholder="Chọn phòng chiếu"
+                            options={rooms ? rooms.map(room => ({ value: room.id, label: room.name })) : []}
                     />
-                    <Select name="movie" label="Phim" placeholder="Chọn phim"
+                    <Select required name="movie" label="Phim" placeholder="Chọn phim"
                             options={movies.map(movie => ({ value: movie.id, label: movie.title + ' - ' + movie.duration + ' phút' }))}
                     />
                     <DatePicker name="startDate" label="Ngày bắt đầu" minDate={dayjs().toDate()} required />

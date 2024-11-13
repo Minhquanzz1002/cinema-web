@@ -68,6 +68,16 @@ export enum RefundStatus {
     COMPLETED = 'COMPLETED',
 }
 
+export enum PaymentMethod {
+    CASH = 'CASH',
+    ZALOPAY = 'ZALOPAY',
+}
+
+export const PaymentMethodVietnamese: Record<PaymentMethod, string> = {
+    [PaymentMethod.CASH]: 'Tiền mặt',
+    [PaymentMethod.ZALOPAY]: 'ZaloPay',
+};
+
 export const RefundStatusVietnamese: Record<RefundStatus, string> = {
     [RefundStatus.PENDING]: 'Chờ xử lý',
     [RefundStatus.COMPLETED]: 'Hoàn thành',
@@ -82,6 +92,7 @@ export interface AdminOrderOverview {
     orderDate: Date;
     status: OrderStatus;
     orderDetails: OrderDetail[];
+    paymentMethod: PaymentMethod;
     showTime: {
         id: string;
         cinemaName: string;

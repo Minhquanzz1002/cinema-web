@@ -1,7 +1,7 @@
 // components/Admin/Modal/UpdatePromotionModal.tsx
 'use client';
-import React from 'react';
-import { Form, Formik } from 'formik';
+import React, { useEffect } from 'react';
+import { Form, Formik, useFormikContext } from 'formik';
 import { object, string } from 'yup';
 import Modal from '@/components/Admin/Modal';
 import Input from '@/components/Admin/Input';
@@ -25,9 +25,7 @@ const PromotionSchema = object({
 interface FormValues {
     code?: string;
     name: string;
-
     status: BaseStatus;
-
     startDate: Date;
     endDate: Date;
 }
@@ -45,6 +43,52 @@ interface UpdatePromotionModalProps {
     onClose: () => void;
     isOpen: boolean;
 }
+
+const FormContent = ({ onClose, isLoading }: { onClose: () => void; isLoading: boolean }) => {
+    const { values, setFieldValue } = useFormikContext<FormValues>();
+    useEffect(() => {
+        if (dayjs(values.endDate).isBefore(dayjs(values.startDate))) {
+            setFieldValue('endDate', values.startDate);
+        }
+    }, [values.startDate, values.endDate, setFieldValue]);
+
+    return (
+        <Form>
+            <div className="flex flex-col gap-5">
+                <div>
+                    <div className="grid grid-cols-2 gap-3">
+                        <Input name="code" label="Mã khuyến mãi"
+                               placeholder="Nhập mã khuyến mãi (tối thiểu 4 ký tự)"
+                               required uppercase />
+
+                        <Select name="status" label="Trạng thái" readOnly options={[
+                            ...Object.keys(BaseStatus).map(status => ({
+                                label: BaseStatusVietnamese[status as BaseStatus],
+                                value: status,
+                            })),
+                        ]} />
+                    </div>
+
+                    <Input name="name" label="Tên khuyến mãi" placeholder="Nhập tên khuyến mãi"
+                           required />
+
+                    <div className="grid grid-cols-2 gap-3">
+                        <DatePicker name="startDate" label="Ngày bắt đầu" minDate={new Date()} />
+                        <DatePicker name="endDate" label="Ngày kết thúc" minDate={new Date()} />
+                    </div>
+                </div>
+
+
+                <div className="flex justify-end items-center gap-4">
+                    <ButtonAction.Cancel onClick={onClose} />
+                    <ButtonIcon icon={<FaSave />} type="submit" disabled={isLoading}>
+                        Tạo mới
+                    </ButtonIcon>
+                </div>
+            </div>
+        </Form>
+    );
+};
 
 const ModalAddPromotion = ({ onClose, isOpen }: UpdatePromotionModalProps) => {
     const createPromotion = useCreatePromotion();
@@ -68,46 +112,13 @@ const ModalAddPromotion = ({ onClose, isOpen }: UpdatePromotionModalProps) => {
     };
 
     return (
-        <Modal open={true} onClose={onClose} title={`Cập nhật khuyến mãi`}>
+        <Modal open={true} onClose={onClose} title={`Thêm khuyến mãi`}>
             <Formik
                 initialValues={initialFormValues}
                 onSubmit={handleSubmit}
                 validationSchema={PromotionSchema}
             >
-                <Form>
-                    <div className="flex flex-col gap-5">
-                        <div>
-                            <div className="grid grid-cols-2 gap-3">
-                                <Input name="code" label="Mã khuyến mãi"
-                                       placeholder="Nhập mã khuyến mãi (tối thiểu 4 ký tự)"
-                                       required uppercase />
-
-                                <Select name="status" label="Trạng thái" readOnly options={[
-                                    ...Object.keys(BaseStatus).map(status => ({
-                                        label: BaseStatusVietnamese[status as BaseStatus],
-                                        value: status,
-                                    })),
-                                ]} />
-                            </div>
-
-                            <Input name="name" label="Tên khuyến mãi" placeholder="Nhập tên khuyến mãi"
-                                   required />
-
-                            <div className="grid grid-cols-2 gap-3">
-                                <DatePicker name="startDate" label="Ngày bắt đầu" minDate={new Date()} />
-                                <DatePicker name="endDate" label="Ngày kết thúc" minDate={new Date()} />
-                            </div>
-                        </div>
-
-
-                        <div className="flex justify-end items-center gap-4">
-                            <ButtonAction.Cancel onClick={onClose} />
-                            <ButtonIcon icon={<FaSave />} type="submit" disabled={createPromotion.isPending}>
-                                Tạo mới
-                            </ButtonIcon>
-                        </div>
-                    </div>
-                </Form>
+                <FormContent onClose={onClose} isLoading={createPromotion.isPending} />
             </Formik>
         </Modal>
     );

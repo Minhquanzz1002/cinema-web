@@ -10,7 +10,7 @@ const LayoutSeat = ({layout}: LayoutSeatProps) => {
     const rows = Array(layout.maxRow).fill(null);
     layout.rows.forEach(row => rows[row.index] = row);
 
-    const { selectedSeats, addSeat, removeSeat } = useSaleContext();
+    const { selectedSeats, addSeat, removeSeat, selectedTempSeats } = useSaleContext();
     const handleSeatClick = (seat: Seat) => {
         if (selectedSeats.some(s => s.id === seat.id)) {
             removeSeat(seat.id);
@@ -20,6 +20,7 @@ const LayoutSeat = ({layout}: LayoutSeatProps) => {
     };
 
     const isSeatSelected = (seat: Seat) => selectedSeats.some(s => s.id === seat.id);
+    const isSeatTempSelected = (seat: Seat) => selectedTempSeats.some(s => s.id === seat.id);
 
     const renderSeat = (seat: Seat | null, index: number, array: (Seat | null)[]) => {
         if (!seat) {
@@ -31,7 +32,7 @@ const LayoutSeat = ({layout}: LayoutSeatProps) => {
             array.splice(index + 1, 1);
 
             return (
-                <button key={seat.id} disabled={seat.booked}
+                <button key={seat.id} disabled={!isSeatSelected(seat) && !isSeatTempSelected(seat) && seat.booked}
                         onClick={() => handleSeatClick(seat)}
                         className={`disabled:bg-gray-700 disabled:border-gray-700 disabled:text-white h-full aspect-[2/1] border border-blue-500 text-center text-xs rounded flex justify-around items-center hover:bg-brand-500 hover:border-brand-500 ${isSeatSelected(seat) ? 'bg-brand-500 text-white border-brand-500' : ''}`}>
                     <div>{seat.name}</div>
@@ -41,7 +42,7 @@ const LayoutSeat = ({layout}: LayoutSeatProps) => {
         }
 
         return (
-            <button key={seat.id} disabled={seat.booked}
+            <button key={seat.id} disabled={!isSeatSelected(seat) && !isSeatTempSelected(seat) && seat.booked}
                     onClick={() => handleSeatClick(seat)}
                     className={`disabled:bg-gray-700 disabled:border-gray-700 disabled:text-white h-full aspect-square border flex justify-center items-center hover:bg-brand-500 text-xs rounded hover:border-brand-500 ${isSeatSelected(seat) ? 'bg-brand-500 text-white border-brand-500' : ''}`}>
                 {seat.name}

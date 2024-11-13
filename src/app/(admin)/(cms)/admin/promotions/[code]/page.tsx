@@ -30,7 +30,6 @@ import {
 } from '@/modules/promotions/interface';
 import NotFound from '@/components/Admin/NotFound';
 import { formatNumberToCurrency } from '@/utils/formatNumber';
-import RangePicker from '@/components/Admin/RangePicker';
 import EmptyState from '@/components/Admin/Tables/EmptyState';
 import { SeatType, SeatTypeVietnamese } from '@/modules/seats/interface';
 import { FaPlus } from 'react-icons/fa6';
@@ -39,6 +38,7 @@ import useDeleteModal from '@/hook/useDeleteModal';
 import ModalDeleteAlert from '@/components/Admin/ModalDeleteAlert';
 import HighlightedText from '@/components/Admin/ModalDeleteAlert/HighlightedText';
 import ModalAddPromotionDetail from '@/components/Admin/Pages/PromotionDetail/ModalAddPromotionDetail';
+import { DatePickerWithRange } from '@/components/Admin/DatePickerWithRange';
 
 const TableCell: React.FC<{ children?: React.ReactNode; dashed?: boolean }> = ({ children, dashed }) => (
     <td className={`text-tiny dark:text-white px-4 py-2 border-r ${dashed ? 'border-dashed' : ''}`}>
@@ -336,7 +336,7 @@ const ViewPromotionPage = () => {
                         </div>
                     </TableCell>
                 </>
-            ), [deleteModalPromotionDetail]
+            ), [deleteModalPromotionDetail],
         );
 
         const BuyTicketsGetProductsHeaders = () => (
@@ -435,19 +435,15 @@ const ViewPromotionPage = () => {
                         </div>
                     </Card>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
-
-                        <Card className="p-[18px] lg:col-span-4">
-                            <Typography.Title level={4}>Thông tin chung</Typography.Title>
-                            <div className="flex flex-col gap-3">
-                                <ItemInfo label="Tên" value={promotion.name} />
-                                <ItemInfo label="Ngày bắt đầu" value={formatDateToLocalDate(promotion.startDate)} />
-                                <ItemInfo label="Ngày kết thúc" value={formatDateToLocalDate(promotion.endDate)} />
-                                <ItemInfo label="Trạng thái" value={BaseStatusVietnamese[promotion.status]} />
-                            </div>
-                        </Card>
-                    </div>
-
+                    <Card className="p-[18px] lg:col-span-4">
+                        <Typography.Title level={4}>Thông tin chung</Typography.Title>
+                        <div className="flex flex-col gap-3">
+                            <ItemInfo label="Tên" value={promotion.name} />
+                            <ItemInfo label="Ngày bắt đầu" value={formatDateToLocalDate(promotion.startDate)} />
+                            <ItemInfo label="Ngày kết thúc" value={formatDateToLocalDate(promotion.endDate)} />
+                            <ItemInfo label="Trạng thái" value={BaseStatusVietnamese[promotion.status]} />
+                        </div>
+                    </Card>
 
                     <Card className="py-4">
                         <div className="flex justify-between items-center px-4 pb-3">
@@ -459,7 +455,7 @@ const ViewPromotionPage = () => {
                                 <div className="px-4 pb-3 border-t py-3">
                                     <Typography.Title level={4}>Bộ lọc</Typography.Title>
                                     <div className="grid grid-cols-3 gap-4">
-                                        <RangePicker startName="startDate" endName="endDate" />
+                                        <DatePickerWithRange fromName="startDate" toName="endDate" />
                                         <Select name="status"
                                                 options={[
                                                     { label: 'Tất cả', value: 'ALL' },

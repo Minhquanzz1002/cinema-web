@@ -358,13 +358,17 @@ const ShowTimePage = () => {
                 </Card>
             </div>
 
-            <ModalAddShowTime isOpen={showModalAddShowTime} onClose={handleModalAddShowTimeClose}
-                              movies={movies} cinemas={cinemas} rooms={rooms} defaultRoom={defaultRoomToAdd}
-                              defaultStartTime={defaultStartTime}
-                              defaultStartDate={filters.startDate}
-                              defaultCinemaId={filters.cinemaId} />
+            {
+                showModalAddShowTime && (
+                    <ModalAddShowTime onClose={handleModalAddShowTimeClose}
+                                      movies={movies} cinemas={cinemas} defaultRoom={defaultRoomToAdd}
+                                      defaultStartTime={defaultStartTime}
+                                      defaultStartDate={filters.startDate}
+                                      defaultCinemaId={filters.cinemaId} />
+                )
+            }
             <ModalUpdateShowTime showTime={showTimeToUpdate} onClose={() => setShowTimeToUpdate(undefined)}
-                                 movies={movies} cinemas={cinemas} rooms={rooms} />
+                                 movies={movies} cinemas={cinemas} />
 
             <ModalDeleteAlert onClose={deleteModal.closeDeleteModal}
                               onConfirm={deleteModal.handleDelete}

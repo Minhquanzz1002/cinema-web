@@ -25,9 +25,8 @@ export const useCreateOrderZaloPay = () => {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: createOrderZaloPay,
-        onSuccess: async (res) => {
+        onSuccess: async () => {
             await queryClient.invalidateQueries({ queryKey: [PAYMENT_QUERY_KEY] });
-            toast.success(res.message);
         },
         onError: (error: ErrorResponse) => {
             toast.error(error.message || 'Tạo đơn hàng không thành công. Hãy thử lại');
