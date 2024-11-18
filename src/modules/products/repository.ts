@@ -1,11 +1,10 @@
 import { ErrorResponse, SuccessResponse } from '@/core/repository/interface';
-import { BaseProduct, BaseProductWithPrice, ProductPriceHistory, ProductStatus } from '@/modules/products/interface';
+import { BaseProduct, BaseProductWithPrice, ProductStatus } from '@/modules/products/interface';
 import httpRepository from '@/core/repository/http';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PageObject } from '@/core/pagination/interface';
 import useDataFetching from '@/hook/useDataFetching';
 import { toast } from 'react-toastify';
-import { BaseStatus } from '@/modules/base/interface';
 
 export const PRODUCT_QUERY_KEY = 'products';
 export const PRODUCT_PRICE_QUERY_KEY = 'product-prices';
@@ -71,39 +70,6 @@ export const useProductByCode = (code: string) => {
     );
 };
 
-/**
- * Fetch all product price histories
- */
-interface FetchAllProductPriceHistoriesParams {
-    code: string;
-    page?: number;
-    status?: BaseStatus;
-    startDate?: string;
-    endDate?: string;
-}
-
-const findAllProductPriceHistories = ({
-                                          code,
-                                          page = 0,
-                                          status,
-                                          startDate,
-                                          endDate,
-                                      }: FetchAllProductPriceHistoriesParams): Promise<SuccessResponse<PageObject<ProductPriceHistory>>> => {
-    return httpRepository.get<PageObject<ProductPriceHistory>>(`/admin/v1/products/${code}/price-histories`, {
-        page,
-        status,
-        startDate,
-        endDate,
-    });
-};
-
-export const useAllProductPriceHistories = (params: FetchAllProductPriceHistoriesParams) => {
-    return useQuery({
-        queryKey: [PRODUCT_QUERY_KEY, PRODUCT_PRICE_QUERY_KEY, params],
-        queryFn: () => findAllProductPriceHistories(params),
-        enabled: !!params.code,
-    });
-};
 /**
  * Get all active products
  */
