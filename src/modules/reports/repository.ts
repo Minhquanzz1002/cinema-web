@@ -1,27 +1,49 @@
 import { SuccessResponse } from '@/core/repository/interface';
 import httpRepository from '@/core/repository/http';
 import useDataFetching from '@/hook/useDataFetching';
-import { DailyReport, PromotionSummaryReport } from '@/modules/reports/interface';
+import { EmployeeSalesReport, MovieSalesReport, PromotionSummaryReport } from '@/modules/reports/interface';
 
-export const DAILY_REPORT_QUERY_KEY = 'daily-report';
+export const EMPLOYEE_SALE_REPORT_QUERY_KEY = 'employee-sale-report';
+export const MOVIE_SALE_REPORT_QUERY_KEY = 'movie-sale-report';
 export const PROMOTION_SUMMARY_REPORT_QUERY_KEY = 'promotion-summary-report';
 
 /**
- * Fetch daily report
+ * Fetch employee sales report
  */
 interface DailyReportParams {
     fromDate?: string;
     toDate?: string;
+    search?: string;
 }
 
-const fetchDailyReport = (params: DailyReportParams): Promise<SuccessResponse<DailyReport[]>> => {
-    return httpRepository.get(`/admin/v1/reports/daily`, { ...params });
+const fetchEmployeeSalesPerformanceReport = (params: DailyReportParams): Promise<SuccessResponse<EmployeeSalesReport[]>> => {
+    return httpRepository.get(`/admin/v1/reports/employee-sales`, { ...params });
 };
 
-export const useDailyReport = (params: DailyReportParams) => {
+export const useEmployeeSalesPerformanceReport = (params: DailyReportParams) => {
     return useDataFetching(
-        [DAILY_REPORT_QUERY_KEY, params],
-        () => fetchDailyReport(params),
+        [EMPLOYEE_SALE_REPORT_QUERY_KEY, params],
+        () => fetchEmployeeSalesPerformanceReport(params),
+    );
+};
+
+/**
+ * Fetch movie sales report
+ */
+interface MovieSaleReportParams {
+    fromDate?: string;
+    toDate?: string;
+    search?: string;
+}
+
+const fetchMovieSalesPerformanceReport = (params: MovieSaleReportParams): Promise<SuccessResponse<MovieSalesReport[]>> => {
+    return httpRepository.get(`/admin/v1/reports/movie-sales`, { ...params });
+};
+
+export const useMovieSalesPerformanceReport = (params: MovieSaleReportParams) => {
+    return useDataFetching(
+        [MOVIE_SALE_REPORT_QUERY_KEY, params],
+        () => fetchMovieSalesPerformanceReport(params),
     );
 };
 

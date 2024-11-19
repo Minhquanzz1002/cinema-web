@@ -1,7 +1,7 @@
 import { BaseStatus } from "@/modules/base/interface";
 import { SeatType } from "@/modules/seats/interface";
 
-export interface DailyReport {
+export interface EmployeeSalesReport {
     employeeName: string;
     employeeCode: string;
     date: Date;
@@ -10,13 +10,31 @@ export interface DailyReport {
     finalAmount: number;
 }
 
-export interface GroupedDailyReport {
+export interface GroupedEmployeeSalesReport {
     employeeName: string;
     employeeCode: string;
-    reports: DailyReport[];
+    reports: EmployeeSalesReport[];
     totalPrice: number;
     totalDiscount: number;
     finalAmount: number;
+}
+
+export interface MovieSalesReport {
+    movieTitle: string;
+    movieCode: string;
+    date: Date;
+    totalPrice: number;
+    totalShows: number;
+    totalTickets: number;
+}
+
+export interface GroupedMovieSalesReport {
+    movieTitle: string;
+    movieCode: string;
+    reports: MovieSalesReport[];
+    totalPrice: number;
+    totalShows: number;
+    totalTickets: number;
 }
 
 export interface PromotionSummaryReport {
