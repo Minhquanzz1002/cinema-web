@@ -25,7 +25,8 @@ const adminRoutes: IAdminRoute[] = [
         path: '/admin/reports',
         icon: <RiMovie2Line />,
         children: [
-            { name: 'DSBH theo ngày', path: '/admin/reports/daily-sales' },
+            { name: 'DSBH theo NVBH', path: '/admin/reports/employee-sales' },
+            { name: 'DSBH theo phim', path: '/admin/reports/movie-sales' },
             { name: 'Tổng kết khuyến mãi', path: '/admin/reports/promotion-summary' },
         ],
     },
@@ -64,7 +65,7 @@ const adminRoutes: IAdminRoute[] = [
         path: '/admin/bills',
         icon: <RiMoneyDollarCircleLine />,
         children: [
-            { name: 'Hoàn thành', path: '/admin/bills/completed' },
+            { name: 'Bán hàng', path: '/admin/bills/completed' },
             { name: 'Hoàn trả', path: '/admin/bills/refund' },
         ]
     },
