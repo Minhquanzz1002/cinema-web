@@ -78,7 +78,7 @@ const SalePage = () => {
         <div className="mt-5">
             <div className="flex gap-2">
                 <div className="border w-3/5 p-3 bg-white rounded-lg">
-                    <Typography.Title level={3}>Danh sách phim</Typography.Title>
+                    <Typography.Title level={3}>Phim đang chiếu</Typography.Title>
                     <div className="overflow-auto max-h-[700px]">
                         <div className="grid grid-cols-4 gap-2">
                             {

@@ -1,14 +1,14 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import Card from '@/components/Admin/Card';
-import { exportDailyReport } from '@/utils/exportToExcel';
+import { exportEmployeeSaleReport } from '@/utils/exportToExcel';
 import ButtonAction from '@/components/Admin/ButtonAction';
 import { Form, Formik } from 'formik';
 import Typography from '@/components/Admin/Typography';
 import AutoSubmitForm from '@/components/Admin/AutoSubmitForm';
-import { useDailyReport } from '@/modules/reports/repository';
+import { useEmployeeSalesPerformanceReport } from '@/modules/reports/repository';
 import lodash from 'lodash';
-import { DailyReport, GroupedDailyReport } from '@/modules/reports/interface';
+import { EmployeeSalesReport, GroupedEmployeeSalesReport } from '@/modules/reports/interface';
 import { formatNumberToCurrency } from '@/utils/formatNumber';
 import { formatDateToLocalDate } from '@/utils/formatDate';
 import TableCore from '@/components/Admin/Tables/TableCore';
@@ -16,13 +16,21 @@ import { DatePickerWithRange } from '@/components/Admin/DatePickerWithRange';
 import dayjs from 'dayjs';
 import TableSkeleton from '@/components/Admin/Tables/TableSkeleton';
 import EmptyState from '@/components/Admin/Tables/EmptyState';
+import Input from '@/components/Admin/Input';
 
-interface DailyReportFilter {
+interface EmployeeSaleReportFilter {
     fromDate: Date;
     toDate: Date;
+    search: string;
 }
 
-const groupDailyReports = (reports: DailyReport[]): GroupedDailyReport[] => {
+const INITIAL_FILTERS: EmployeeSaleReportFilter = {
+    fromDate: dayjs().startOf('month').toDate(),
+    toDate: dayjs().toDate(),
+    search: '',
+};
+
+const groupEmployeeSaleReports = (reports: EmployeeSalesReport[]): GroupedEmployeeSalesReport[] => {
     const grouped = lodash.groupBy(reports, report =>
         `${report.employeeName}-${report.employeeCode}`,
     );
@@ -41,19 +49,55 @@ const groupDailyReports = (reports: DailyReport[]): GroupedDailyReport[] => {
     });
 };
 
-const DailyReportPage = () => {
-    const initialFilters: DailyReportFilter = {
-        fromDate: dayjs().startOf('month').toDate(),
-        toDate: dayjs().toDate(),
-    };
+const FilterSection = (
+    { onExport, isLoading, hasData }: {
+        onExport: () => void;
+        isLoading: boolean;
+        hasData: boolean;
+    },
+) => {
+    return (
+        <Form>
+            <div className="px-4 pb-3">
+                <div className="flex justify-between">
+                    <Typography.Title level={4}>Bộ lọc</Typography.Title>
+                    <ButtonAction.Export
+                        disabled={isLoading || !hasData} text="Xuất báo cáo"
+                        onClick={onExport} />
+                </div>
+                <div className="grid grid-cols-3 gap-4">
+                    <DatePickerWithRange fromName="fromDate" toName="toDate" />
+                    <Input name="search" placeholder="Mã hoặc tên nhân viên" />
+                </div>
+            </div>
+            <AutoSubmitForm />
+        </Form>
+    );
+};
 
-    const [filters, setFilters] = useState<DailyReportFilter>(initialFilters);
+const TableHeader = () => (
+    <TableCore.Header>
+        <TableCore.RowHeader>
+            <TableCore.Head>STT</TableCore.Head>
+            <TableCore.Head>NVBH</TableCore.Head>
+            <TableCore.Head>Tên NVBH</TableCore.Head>
+            <TableCore.Head>Ngày</TableCore.Head>
+            <TableCore.Head>Chiếc khấu</TableCore.Head>
+            <TableCore.Head>Doanh số trước chiếc khấu</TableCore.Head>
+            <TableCore.Head>Doanh số sau chiếc khấu</TableCore.Head>
+        </TableCore.RowHeader>
+    </TableCore.Header>
+);
 
-    const { data: reports, isLoading } = useDailyReport({
+const EmployeeSalesReportPage = () => {
+    const [filters, setFilters] = useState<EmployeeSaleReportFilter>(INITIAL_FILTERS);
+
+    const { data: reports, isLoading } = useEmployeeSalesPerformanceReport({
         fromDate: dayjs(filters.fromDate).format('YYYY-MM-DD'),
         toDate: dayjs(filters.toDate).format('YYYY-MM-DD'),
+        search: filters.search,
     });
-    const groupedReports = groupDailyReports(reports || []);
+    const groupedReports = groupEmployeeSaleReports(reports || []);
     const grandTotal = {
         discount: lodash.sumBy(reports, 'totalDiscount'),
         totalPrice: lodash.sumBy(reports, 'totalPrice'),
@@ -61,48 +105,27 @@ const DailyReportPage = () => {
     };
 
     useEffect(() => {
-        document.title = 'B&Q Cinema - Tổng kết khuyến mãi';
+        document.title = 'B&Q Cinema - Tổng kết doanh số';
     }, []);
 
     const handleExportExcel = async () => {
-        await exportDailyReport(groupedReports, filters.fromDate, filters.toDate);
-    };
-
-    const handleSubmit = (values: DailyReportFilter) => {
-        setFilters(values);
+        await exportEmployeeSaleReport(groupedReports, filters.fromDate, filters.toDate);
     };
 
     return (
         <>
             <div className="mt-3">
                 <Card className="py-4">
-                    <Formik initialValues={filters} onSubmit={handleSubmit} enableReinitialize>
-                        <Form>
-                            <div className="px-4 pb-3">
-                                <div className="flex justify-between">
-                                    <Typography.Title level={4}>Bộ lọc</Typography.Title>
-                                    <ButtonAction.Export disabled={isLoading || groupedReports.length === 0} text="Xuất báo cáo" onClick={handleExportExcel} />
-                                </div>
-                                <div className="grid grid-cols-3 gap-4">
-                                    <DatePickerWithRange fromName="fromDate" toName="toDate" />
-                                </div>
-                            </div>
-                            <AutoSubmitForm />
-                        </Form>
+                    <Formik initialValues={INITIAL_FILTERS} onSubmit={setFilters} enableReinitialize>
+                        <FilterSection
+                            onExport={handleExportExcel}
+                            isLoading={isLoading}
+                            hasData={groupedReports.length > 0}
+                        />
                     </Formik>
 
                     <TableCore>
-                        <TableCore.Header>
-                            <TableCore.RowHeader>
-                                <TableCore.Head>STT</TableCore.Head>
-                                <TableCore.Head>NVBH</TableCore.Head>
-                                <TableCore.Head>Tên NVBH</TableCore.Head>
-                                <TableCore.Head>Ngày</TableCore.Head>
-                                <TableCore.Head>Chiếc khấu</TableCore.Head>
-                                <TableCore.Head>Doanh số trước chiếc khấu</TableCore.Head>
-                                <TableCore.Head>Doanh số sau chiếc khấu</TableCore.Head>
-                            </TableCore.RowHeader>
-                        </TableCore.Header>
+                        <TableHeader />
 
                         <TableCore.Body>
                             {
@@ -140,18 +163,24 @@ const DailyReportPage = () => {
                                                         <TableCore.Cell />
                                                         <TableCore.Cell />
                                                         <TableCore.Cell className="font-bold">Tổng cộng</TableCore.Cell>
-                                                        <TableCore.Cell>{formatNumberToCurrency(grandTotal.discount)}</TableCore.Cell>
-                                                        <TableCore.Cell>{formatNumberToCurrency(grandTotal.totalPrice)}</TableCore.Cell>
-                                                        <TableCore.Cell>{formatNumberToCurrency(grandTotal.finalAmount)}</TableCore.Cell>
+                                                        <TableCore.Cell>{formatNumberToCurrency(group.totalDiscount)}</TableCore.Cell>
+                                                        <TableCore.Cell>{formatNumberToCurrency(group.totalPrice)}</TableCore.Cell>
+                                                        <TableCore.Cell>{formatNumberToCurrency(group.finalAmount)}</TableCore.Cell>
                                                     </TableCore.RowBody>
                                                 </React.Fragment>
                                             ))
                                         }
                                         <TableCore.RowBody className="font-bold text-lg">
                                             <TableCore.Cell colSpan={4}>Tổng cộng</TableCore.Cell>
-                                            <TableCore.Cell>{formatNumberToCurrency(grandTotal.discount)}</TableCore.Cell>
-                                            <TableCore.Cell>{formatNumberToCurrency(grandTotal.totalPrice)}</TableCore.Cell>
-                                            <TableCore.Cell>{formatNumberToCurrency(grandTotal.finalAmount)}</TableCore.Cell>
+                                            <TableCore.Cell>
+                                                {formatNumberToCurrency(grandTotal.discount)}
+                                            </TableCore.Cell>
+                                            <TableCore.Cell>
+                                                {formatNumberToCurrency(grandTotal.totalPrice)}
+                                            </TableCore.Cell>
+                                            <TableCore.Cell>
+                                                {formatNumberToCurrency(grandTotal.finalAmount)}
+                                            </TableCore.Cell>
                                         </TableCore.RowBody>
                                     </>
                                 )
@@ -164,4 +193,4 @@ const DailyReportPage = () => {
     );
 };
 
-export default DailyReportPage;
+export default EmployeeSalesReportPage;
