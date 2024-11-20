@@ -6,7 +6,7 @@ import { BaseStatus } from '@/modules/base/interface';
 import { toast } from 'react-toastify';
 import useDataFetching from '@/hook/useDataFetching';
 
-export const SHOW_TIME_QUERY_KEY = 'showTimes';
+export const SHOW_TIME_QUERY_KEY = 'show-times';
 
 /**
  * Fetch all show times
@@ -215,6 +215,36 @@ export const useGenerateShowTime = () => {
         },
         onError: (error: ErrorResponse) => {
             toast.error(error.message || 'Tạo suất chiếu không thành công. Hãy thử lại sau');
+            console.error('Generate show time error:', error);
+        },
+    });
+};
+
+/**
+ * activate multiple show time
+ */
+
+interface ActivateMultiplePayload {
+    cinemaId: number;
+    startDate: string;
+    movieIds: number[];
+    roomIds: number[];
+}
+
+const activateMultipleShowTime = (payload: ActivateMultiplePayload): Promise<SuccessResponse<void>> => {
+    return httpRepository.put<void, ActivateMultiplePayload>('/admin/v1/show-times/activate-multiple', payload);
+};
+
+export const useActivateMultipleShowTime = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: activateMultipleShowTime,
+        onSuccess: async (res) => {
+            await queryClient.invalidateQueries({ queryKey: [SHOW_TIME_QUERY_KEY] });
+            toast.success(res.message);
+        },
+        onError: (error: ErrorResponse) => {
+            toast.error(error.message || 'Kích hoạt không thành công. Hãy thử lại sau');
             console.error('Generate show time error:', error);
         },
     });

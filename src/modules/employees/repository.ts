@@ -5,8 +5,43 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AdminEmployeeOverview } from '@/modules/employees/interface';
 import { toast } from 'react-toastify';
 import { UserStatus } from '@/modules/authentication/interface';
+import { BaseStatus } from '@/modules/base/interface';
+import { API_MESSAGES } from '@/variables/messages';
 
 export const EMPLOYEE_QUERY_KEY = 'employees';
+
+/**
+ * Create employee
+ */
+
+interface CreateEmployeeData {
+    name: string;
+    gender: boolean;
+    email: string;
+    phone: string;
+    password: string;
+    birthday: string;
+    status: BaseStatus;
+}
+
+const createEmployee = (data: CreateEmployeeData): Promise<SuccessResponse<void>> => {
+    return httpRepository.post<void, CreateEmployeeData>('/admin/v1/employees', data);
+};
+
+export const useCreateEmployee = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: createEmployee,
+        onSuccess: async (res) => {
+            await queryClient.invalidateQueries({ queryKey: [EMPLOYEE_QUERY_KEY] });
+            toast.success(res.message);
+        },
+        onError: (error: ErrorResponse) => {
+            toast.error(error.message || API_MESSAGES.ERROR.CREATE.EMPLOYEE);
+            console.error('Create employee error:', error);
+        },
+    });
+};
 
 /**
  * Fetch all employees
@@ -41,7 +76,7 @@ export const useDeleteEmployee = () => {
             toast.success(res.message);
         },
         onError: (error: ErrorResponse) => {
-            toast.error(error.message || 'Xóa nhân viên không thành công. Hãy thử lại sau');
+            toast.error(error.message || API_MESSAGES.ERROR.DELETE.EMPLOYEE);
             console.error('Delete employee error:', error);
         },
     });
