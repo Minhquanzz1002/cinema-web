@@ -18,3 +18,8 @@ export const BaseStatusVietnamese: Record<BaseStatus, string> = {
 export interface Pageable {
     page?: number;
 }
+
+export enum Gender {
+    MALE = "MALE",
+    FEMALE = "FEMALE"
+}
