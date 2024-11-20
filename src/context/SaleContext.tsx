@@ -42,6 +42,8 @@ interface SaleContextType {
     setOrder: (order: OrderResponseCreated | null) => void;
     zpAppTransId: string | null;
     setZpAppTransId: (zpAppTransId: string | null) => void;
+
+    handleOrderExpired: () => Promise<void>;
 }
 
 const SaleContext = createContext<SaleContextType>({} as SaleContextType);
@@ -344,6 +346,35 @@ const SaleProvider = ({ children }: SaleProviderProps) => {
         setZpAppTransIdState(zpAppTransId);
     };
 
+    const handleOrderExpired = useCallback(async () => {
+        if (order) {
+            try {
+                await cancelOrder.mutateAsync(order.id);
+                // Clear tất cả state
+                setMovie(null);
+                setShowTime(null);
+                setSelectedSeats([]);
+                setSelectedProducts([]);
+                setCustomerState(null);
+                setOrderState(null);
+                setTotalDiscount(0);
+                setIsLoadingRedirect(false);
+
+                // Clear localStorage
+                localStorage.removeItem('selectedMovie');
+                localStorage.removeItem('selectedShowTime');
+                localStorage.removeItem('selectedSeats');
+                localStorage.removeItem('selectedProducts');
+                localStorage.removeItem('selectedCustomer');
+
+                // Redirect về trang chọn phim
+                router.push('/admin/sales');
+            } catch (error) {
+                console.error('Failed to cancel expired order:', error);
+            }
+        }
+    }, [order, cancelOrder, router]);
+
     const value = {
         movie,
         showTime,
@@ -370,6 +401,7 @@ const SaleProvider = ({ children }: SaleProviderProps) => {
         zpAppTransId,
         setZpAppTransId,
         selectedTempSeats,
+        handleOrderExpired,
     };
 
     return (

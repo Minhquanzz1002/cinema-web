@@ -14,6 +14,7 @@ import AutoSubmitForm from '@/components/Admin/AutoSubmitForm';
 import { useAllCustomerWithPhone } from '@/modules/customers/repository';
 import useClickOutside from '@/hook/useClickOutside';
 import { NOT_FOUND_MOVIE_IMAGE } from '@/variables/images';
+import CountdownTimer from '@/components/Admin/CountdownTimer';
 
 interface GroupedSeat {
     type: SeatType;
@@ -39,7 +40,7 @@ const BookingDetails = ({
                         }: BookingDetailsProps) => {
     const [phone, setPhone] = useState('');
     const { data: customers } = useAllCustomerWithPhone(phone);
-    const { customer, setCustomer, totalDiscount } = useSaleContext();
+    const { customer, setCustomer, totalDiscount, order, handleOrderExpired } = useSaleContext();
     const dropdownRef = useRef<HTMLDivElement>(null);
     useClickOutside(dropdownRef, () => setPhone(''));
 
@@ -68,7 +69,11 @@ const BookingDetails = ({
 
     return (
         <div className="flex-1 bg-white rounded-lg p-3">
-            <Typography.Title level={4}>Chi tiết đặt vé</Typography.Title>
+            <Typography.Title level={4}>
+                <div className="flex justify-between items-center">
+                    Chi tiết đặt vé { order?.orderDate && <CountdownTimer orderDate={order.orderDate} onExpired={handleOrderExpired} /> }
+                </div>
+            </Typography.Title>
             <Formik initialValues={{ phone }} onSubmit={onSubmit} enableReinitialize>
                 <Form>
                     <div className="flex gap-3 items-center">

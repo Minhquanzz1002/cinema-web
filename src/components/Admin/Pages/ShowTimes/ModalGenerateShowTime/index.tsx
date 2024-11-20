@@ -21,6 +21,8 @@ interface ModalGenerateShowTimeProps {
     onClose: () => void;
     cinemas: { id: number; name: string }[];
     onSuccess: (date: Date, cinemaId: number) => void;
+    defaultStartDate?: Date;
+    defaultCinemaId?: number;
 }
 
 interface FormValues {
@@ -36,13 +38,6 @@ interface FormValues {
     }[];
     cinema: number;
 }
-
-const initialValues: FormValues = {
-    startDate: new Date(),
-    endDate: new Date(),
-    movies: [],
-    cinema: 0,
-};
 
 interface MovieFilter extends PaginationState {
     search: string;
@@ -248,7 +243,14 @@ const FormContent = ({ cinemas } : {cinemas: { id: number; name: string }[]}) =>
     );
 };
 
-const ModalGenerateShowTime = ({ onClose, cinemas, onSuccess }: ModalGenerateShowTimeProps) => {
+const ModalGenerateShowTime = ({ onClose, cinemas, onSuccess, defaultCinemaId, defaultStartDate }: ModalGenerateShowTimeProps) => {
+    const initialValues: FormValues = {
+        startDate: defaultStartDate || new Date(),
+        endDate: defaultStartDate || new Date(),
+        movies: [],
+        cinema: defaultCinemaId || cinemas[0].id,
+    };
+
     const generateShowTimeMutation = useGenerateShowTime();
 
     const handleSubmit = async (values: FormValues) => {

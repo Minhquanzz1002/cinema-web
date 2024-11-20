@@ -30,8 +30,6 @@ const initialValues: FormValues = {
 };
 
 const REFUND_REASONS = [
-    { label: 'Không thể xem phim vào ngày này', value: 'Không thể xem phim vào ngày này' },
-    { label: 'Không hài lòng về phim', value: 'Không hài lòng về phim' },
     { label: 'Đặt nhầm suất chiếu', value: 'Đặt nhầm suất chiếu' },
     { label: 'Đặt nhầm số lượng vé', value: 'Đặt nhầm số lượng vé' },
     { label: 'Có việc đột xuất không thể xem', value: 'Có việc đột xuất không thể xem' },

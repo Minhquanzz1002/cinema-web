@@ -53,11 +53,11 @@ const validationSchema = Yup.object().shape({
             price: Yup.number().required('Giá không được để trống')
                 .min(0, 'Giá phải lớn hơn 0')
                 .max(100000000000, 'Giá phải nhỏ hơn 100 tỷ'),
-        })
+        }),
     ).min(1, 'Vui lòng chọn ít nhất 1 sản phẩm'),
 });
 
-const FormikContent = ({ onClose }: { onClose: () => void }) => {
+const FormikContent = ({ onClose, isLoading }: { onClose: () => void; isLoading: boolean }) => {
     const { values, setFieldValue, errors, touched } = useFormikContext<FormValues>();
     const currentDate = dayjs().toDate();
     const [search, setSearch] = useState<string>('');
@@ -100,8 +100,9 @@ const FormikContent = ({ onClose }: { onClose: () => void }) => {
                 <DatePicker name="startDate" label="Ngày bắt đầu" minDate={currentDate} required />
                 <DatePicker name="endDate" label="Ngày kết thúc" minDate={currentDate} required />
             </div>
-            <Select name="status" label="Trạng thái" readOnly
-                    tooltip="Trạng thái mặc định khi tạo là `Ngưng hoạt động`" options={[
+            <Select
+                name="status" label="Trạng thái" readOnly
+                tooltip="Trạng thái mặc định khi tạo là `Ngưng hoạt động`" options={[
                 { value: BaseStatus.ACTIVE, label: BaseStatusVietnamese[BaseStatus.ACTIVE] },
                 { value: BaseStatus.INACTIVE, label: BaseStatusVietnamese[BaseStatus.INACTIVE] },
             ]} />
@@ -114,10 +115,11 @@ const FormikContent = ({ onClose }: { onClose: () => void }) => {
             <div className="border p-2 rounded">
                 <div className="flex gap-3">
                     <div className="relative w-96">
-                        <input className="border rounded h-8 px-2 text-sm w-full"
-                               value={search} onChange={onChangeSearchValue}
-                               onClick={() => setShowListProduct(true)}
-                               placeholder="Tìm theo tên hoặc mã sản phẩm" />
+                        <input
+                            className="border rounded h-8 px-2 text-sm w-full"
+                            value={search} onChange={onChangeSearchValue}
+                            onClick={() => setShowListProduct(true)}
+                            placeholder="Tìm theo tên hoặc mã sản phẩm" />
                         {
                             showListProduct && (
                                 <div
@@ -128,14 +130,17 @@ const FormikContent = ({ onClose }: { onClose: () => void }) => {
                                             if (values.products.find(p => p.id === product.id)) return null;
 
                                             return (
-                                                <div key={product.id} className="p-2 hover:bg-gray-100 cursor-pointer"
-                                                     onClick={() => handleAddProduct(product)}>
+                                                <div
+                                                    key={product.id} className="p-2 hover:bg-gray-100 cursor-pointer"
+                                                    onClick={() => handleAddProduct(product)}>
                                                     <div className="flex gap-3">
                                                         <div
                                                             className="relative w-12 h-12 rounded border overflow-hidden">
-                                                            <Image src={product.image || NOT_FOUND_PRODUCT_IMAGE} alt={`Ảnh combo ${product.name}`}
-                                                                   fill
-                                                                   className="object-cover" />
+                                                            <Image
+                                                                src={product.image || NOT_FOUND_PRODUCT_IMAGE}
+                                                                alt={`Ảnh combo ${product.name}`}
+                                                                fill
+                                                                className="object-cover" />
                                                         </div>
                                                         <div className="flex-1 flex flex-col justify-center">
                                                             <div className="text-sm font-medium line-clamp-1">
@@ -146,7 +151,8 @@ const FormikContent = ({ onClose }: { onClose: () => void }) => {
                                                             </div>
                                                         </div>
                                                         <div className="flex justify-center items-center">
-                                                            <button type="button" className="text-brand-500"><FaPlus /></button>
+                                                            <button type="button" className="text-brand-500"><FaPlus />
+                                                            </button>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -166,19 +172,23 @@ const FormikContent = ({ onClose }: { onClose: () => void }) => {
                     </div>
                 </div>
                 <div className="mt-3 h-80 max-h-80 overflow-y-auto border-t">
-                    <FieldArray name="products" render={arrayHelper => (
+                    <FieldArray
+                        name="products" render={arrayHelper => (
                         <div>
                             {
                                 values.products.map((product, index) => (
-                                    <div key={`product-${index}`}
-                                         className={`flex justify-between gap-3 py-1 ${index !== 0 && 'border-t'}`}>
+                                    <div
+                                        key={`product-${index}`}
+                                        className={`flex justify-between gap-3 py-1 ${index !== 0 && 'border-t'}`}>
                                         <div className="flex gap-2">
                                             <div className="flex justify-center items-center w-8">
                                                 {index + 1}
                                             </div>
                                             <div className="relative w-14 h-14 border rounded overflow-hidden">
-                                                <Image src={product.image || NOT_FOUND_PRODUCT_IMAGE} alt={`Ảnh của ${product.name}`} fill
-                                                       className="object-cover" />
+                                                <Image
+                                                    src={product.image || NOT_FOUND_PRODUCT_IMAGE}
+                                                    alt={`Ảnh của ${product.name}`} fill
+                                                    className="object-cover" />
                                             </div>
                                             <div className="flex flex-col justify-center">
                                                 <div
@@ -188,11 +198,13 @@ const FormikContent = ({ onClose }: { onClose: () => void }) => {
                                         </div>
                                         <div className="flex gap-2 items-center">
                                             <div className="w-36">
-                                                <InputCurrency name={`products.${index}.price`} wrapperClassName='' placeholder="VND"/>
+                                                <InputCurrency
+                                                    name={`products.${index}.price`} wrapperClassName=""
+                                                    placeholder="VND" />
                                             </div>
                                             <div className="w-14 flex items-center justify-center">
                                                 <button onClick={() => arrayHelper.remove(index)}>
-                                                    <MdRemoveCircleOutline size={20}/>
+                                                    <MdRemoveCircleOutline size={20} />
                                                 </button>
                                             </div>
                                         </div>
@@ -205,7 +217,7 @@ const FormikContent = ({ onClose }: { onClose: () => void }) => {
             </div>
             <div className="flex justify-end items-center gap-3 mt-3">
                 <ButtonAction.Cancel onClick={onClose} />
-                <ButtonAction.Submit />
+                <ButtonAction.Submit isLoading={isLoading} />
             </div>
         </Form>
     );
@@ -241,7 +253,7 @@ const ModalAddProductPrice = ({ onClose, isOpen }: ModalAddProductPriceProps) =>
     return (
         <Modal title="Thêm giá" open={true} onClose={onClose}>
             <Formik initialValues={initialValues} onSubmit={handleSubmit} validationSchema={validationSchema}>
-                <FormikContent onClose={onClose} />
+                <FormikContent onClose={onClose} isLoading={createProductPrice.isPending} />
             </Formik>
         </Modal>
     );

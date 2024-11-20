@@ -21,6 +21,7 @@ import HighlightedText from '@/components/Admin/ModalDeleteAlert/HighlightedText
 import ModalDeleteAlert from '@/components/Admin/ModalDeleteAlert';
 import ModalUpdateShowTime from '@/components/Admin/Pages/ShowTimes/ModalUpdateShowTime/page';
 import ModalGenerateShowTime from '@/components/Admin/Pages/ShowTimes/ModalGenerateShowTime';
+import ModalActiveMultipleShowTime from '@/components/Admin/Pages/ShowTimes/ModalActiveMultipleShowTime';
 
 interface ShowTimeFilter {
     status: 'ALL' | BaseStatus;
@@ -100,6 +101,11 @@ const ShowTimePage = () => {
     const [showModalAddShowTime, setShowModalAddShowTime] = useState<boolean>(false);
     const [defaultRoomToAdd, setDefaultRoomToAdd] = useState<Room | undefined>(undefined);
     const [defaultStartTime, setDefaultStartTime] = useState<Date | undefined>(undefined);
+
+    /**
+     * State for active multiple show time
+     */
+    const [showModalActiveMultipleShowTime, setShowModalActiveMultipleShowTime] = useState<boolean>(false);
 
     /**
      * State for generating show time
@@ -192,7 +198,11 @@ const ShowTimePage = () => {
                         <div className="flex gap-2 h-9">
                             <ButtonAction.Add text="Thêm tự động" onClick={() => setShowModalGenerateShowTime(true)} />
                             <ButtonAction.Add text="Thêm thủ công" onClick={() => setShowModalAddShowTime(true)} />
-                            <ButtonAction.Import />
+                            <button
+                                type="button" onClick={() => setShowModalActiveMultipleShowTime(true)}
+                                className="bg-brand-500 py-1.5 px-2 rounded flex items-center justify-center text-white gap-x-2 text-sm">
+                                Kích hoạt đồng loạt
+                            </button>
                         </div>
                     </div>
                 </Card>
@@ -203,34 +213,37 @@ const ShowTimePage = () => {
                             <div className="px-4">
                                 <Typography.Title level={4}>Bộ lọc</Typography.Title>
                                 <div className="grid grid-cols-4 gap-4">
-                                    <Select name="cinemaId"
-                                            placeholder="Lọc theo rạp"
-                                            options={
-                                                cinemas.map(cinema => ({
-                                                    label: cinema.name,
-                                                    value: cinema.id,
-                                                }))
-                                            }
+                                    <Select
+                                        name="cinemaId"
+                                        placeholder="Lọc theo rạp"
+                                        options={
+                                            cinemas.map(cinema => ({
+                                                label: cinema.name,
+                                                value: cinema.id,
+                                            }))
+                                        }
                                     />
-                                    <Select name="movieId"
-                                            placeholder="Lọc theo phim"
-                                            options={[
-                                                { label: 'Tất cả phim', value: 'ALL' },
-                                                ...movies.map(movie => ({
-                                                    label: movie.title,
-                                                    value: movie.id,
-                                                })),
-                                            ]}
+                                    <Select
+                                        name="movieId"
+                                        placeholder="Lọc theo phim"
+                                        options={[
+                                            { label: 'Tất cả phim', value: 'ALL' },
+                                            ...movies.map(movie => ({
+                                                label: movie.title,
+                                                value: movie.id,
+                                            })),
+                                        ]}
                                     />
-                                    <Select name="status"
-                                            placeholder="Lọc theo trạng thái"
-                                            options={[
-                                                { label: 'Tất cả trạng thái', value: 'ALL' },
-                                                ...Object.values(BaseStatus).map(value => ({
-                                                    label: BaseStatusVietnamese[value],
-                                                    value,
-                                                })),
-                                            ]}
+                                    <Select
+                                        name="status"
+                                        placeholder="Lọc theo trạng thái"
+                                        options={[
+                                            { label: 'Tất cả trạng thái', value: 'ALL' },
+                                            ...Object.values(BaseStatus).map(value => ({
+                                                label: BaseStatusVietnamese[value],
+                                                value,
+                                            })),
+                                        ]}
                                     />
                                     <DatePicker name="startDate" />
                                 </div>
@@ -251,7 +264,8 @@ const ShowTimePage = () => {
                                 </th>
                                 {
                                     rooms.map((room) => (
-                                        <th key={`${room}-header`}
+                                        <th
+                                            key={`${room.id}-header`}
                                             className="font-medium text-sm px-4 py-2 border-b border-r last-of-type:border-r-0 min-w-72 max-w-72">
                                             {room.name}
                                         </th>
@@ -282,17 +296,19 @@ const ShowTimePage = () => {
                                                 const isFutureTimeSlot = timeSlotDateTime.isAfter(now);
 
                                                 return (
-                                                    <td key={`${room}-${time}`}
+                                                    <td
+                                                        key={`${room.id}-${time}`}
                                                         className="border-b border-r last-of-type:border-r-0 px-2 py-3">
                                                         <div className="flex flex-col gap-2 group/main">
                                                             {
                                                                 !showTimesInCell.length && isFutureTimeSlot && (
-                                                                    <button type="button" onClick={() => {
+                                                                    <button
+                                                                        type="button" onClick={() => {
                                                                         setDefaultRoomToAdd(room);
                                                                         setShowModalAddShowTime(true);
                                                                         setDefaultStartTime(timeSlotDateTime.toDate());
                                                                     }}
-                                                                            className="px-2 h-12 flex justify-center items-center bg-black/5 text-gray-500 rounded-lg text-center opacity-0 group-hover/main:opacity-100">
+                                                                        className="px-2 h-12 flex justify-center items-center bg-black/5 text-gray-500 rounded-lg text-center opacity-0 group-hover/main:opacity-100">
                                                                         <FaPlus size={20} className="text-brand-500" />
                                                                     </button>
                                                                 )
@@ -303,8 +319,9 @@ const ShowTimePage = () => {
                                                                     const isLocked = showDateTime.isAfter(now) || showTime.status === BaseStatus.ACTIVE;
 
                                                                     return (
-                                                                        <div key={showTime.id}
-                                                                             className={`px-2 flex flex-col justify-center  ${movieColorMap[showTime.movie.title] || 'bg-green-500'} text-white rounded-lg relative group h-12`}>
+                                                                        <div
+                                                                            key={`${showTime.id}-${isLocked}`}
+                                                                            className={`px-2 flex flex-col justify-center  ${movieColorMap[showTime.movie.title] || 'bg-green-500'} text-white rounded-lg relative group h-12`}>
                                                                             <div
                                                                                 className="flex justify-between items-center">
                                                                                 <div
@@ -360,30 +377,47 @@ const ShowTimePage = () => {
 
             {
                 showModalAddShowTime && (
-                    <ModalAddShowTime onClose={handleModalAddShowTimeClose}
-                                      movies={movies} cinemas={cinemas} defaultRoom={defaultRoomToAdd}
-                                      defaultStartTime={defaultStartTime}
-                                      defaultStartDate={filters.startDate}
-                                      defaultCinemaId={filters.cinemaId} />
+                    <ModalAddShowTime
+                        onClose={handleModalAddShowTimeClose}
+                        movies={movies} cinemas={cinemas} defaultRoom={defaultRoomToAdd}
+                        defaultStartTime={defaultStartTime}
+                        defaultStartDate={filters.startDate}
+                        defaultCinemaId={filters.cinemaId} />
                 )
             }
-            <ModalUpdateShowTime showTime={showTimeToUpdate} onClose={() => setShowTimeToUpdate(undefined)}
-                                 movies={movies} cinemas={cinemas} />
+            <ModalUpdateShowTime
+                showTime={showTimeToUpdate} onClose={() => setShowTimeToUpdate(undefined)}
+                movies={movies} cinemas={cinemas} />
 
-            <ModalDeleteAlert onClose={deleteModal.closeDeleteModal}
-                              onConfirm={deleteModal.handleDelete}
-                              isOpen={deleteModal.showDeleteModal}
-                              title="Xóa suất chiếu?"
-                              content={
-                                  <>Bạn có chắc chắn muốn xóa suất
-                                      chiếu <HighlightedText>{deleteModal.selectedData?.movie.title} - {deleteModal.selectedData?.startTime && formatTime(deleteModal.selectedData.startTime)}</HighlightedText> không?</>
-                              }
+            <ModalDeleteAlert
+                onClose={deleteModal.closeDeleteModal}
+                onConfirm={deleteModal.handleDelete}
+                isOpen={deleteModal.showDeleteModal}
+                title="Xóa suất chiếu?"
+                content={
+                    <>Bạn có chắc chắn muốn xóa suất
+                        chiếu <HighlightedText>{deleteModal.selectedData?.movie.title} - {deleteModal.selectedData?.startTime && formatTime(deleteModal.selectedData.startTime)}</HighlightedText> không?</>
+                }
             />
             {
                 showModalGenerateShowTime && (
-                    <ModalGenerateShowTime onClose={() => setShowModalGenerateShowTime(false)}
-                                           onSuccess={(date, cinemaId) => setFilters({ ...filters, startDate: date, cinemaId })}
-                                           cinemas={cinemas}
+                    <ModalGenerateShowTime
+                        onClose={() => setShowModalGenerateShowTime(false)}
+                        onSuccess={(date, cinemaId) => setFilters({ ...filters, startDate: date, cinemaId })}
+                        cinemas={cinemas}
+                        defaultCinemaId={filters.cinemaId}
+                        defaultStartDate={filters.startDate}
+                    />
+                )
+            }
+            {
+                showModalActiveMultipleShowTime && (
+                    <ModalActiveMultipleShowTime
+                        onClose={() => setShowModalActiveMultipleShowTime(false)}
+                        movies={movies}
+                        cinemas={cinemas}
+                        defaultCinemaId={filters.cinemaId}
+                        defaultStartDate={filters.startDate}
                     />
                 )
             }
