@@ -5,6 +5,7 @@ import { useAuth } from '@/hook/useAuth';
 import Dropdown from '@/components/Admin/Layouts/Navbar/Dropdown';
 import Image from 'next/image';
 import Link from '@/components/Link';
+import { AVATAR_DEFAULT_IMAGE } from '@/variables/images';
 
 function Navbar() {
     const [darkMode, setDarkMode] = useState<boolean>(false);
@@ -39,8 +40,8 @@ function Navbar() {
                     <Dropdown
                         className="py-2 top-full -left-[180px] w-max"
                         button={
-                            <div className="relative h-7 w-7 rounded-full overflow-hidden">
-                                <Image className="object-cover" src={"/img/avatar/default.webp"} alt="Avt" fill />
+                            <div className="relative h-7 w-7 rounded-full border overflow-hidden">
+                                <Image className="object-cover object-center" src={user?.avatar || AVATAR_DEFAULT_IMAGE} alt="Avt" fill />
                             </div>
                         }
                     >

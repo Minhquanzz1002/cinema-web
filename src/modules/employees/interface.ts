@@ -9,4 +9,9 @@ export interface AdminEmployeeOverview {
     phone: string;
     birthday: Date;
     status: BaseStatus;
+    role: {
+        id: number;
+        name: string;
+        description: string;
+    };
 }
