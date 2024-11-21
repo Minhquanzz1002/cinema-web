@@ -22,11 +22,13 @@ import { UserStatus } from '@/modules/authentication/interface';
 import { useListRoles } from '@/modules/roles/repository';
 import ModalAddEmployee from '@/components/Admin/Pages/Employee/ModalAddEmployee';
 import ModalUpdateEmployee from '@/components/Admin/Pages/Employee/ModalUpdateEmployee';
+import { Role } from '@/modules/roles/interface';
+import { useAuth } from '@/hook/useAuth';
 
 interface EmployeeFilter extends PaginationState {
     search: string;
     status: 'ALL' | UserStatus;
-    role?: number | 'ALL';
+    role?: string | 'ALL';
 }
 
 const INITIAL_FILTERS: EmployeeFilter = {
@@ -39,13 +41,16 @@ const INITIAL_FILTERS: EmployeeFilter = {
 const EmployeePage: React.FC = () => {
     const { data: roles } = useListRoles();
     const [filters, setFilters] = useState<EmployeeFilter>(INITIAL_FILTERS);
+    const [roleFiltered, setRoleFiltered] = useState<Role[]>([]);
     const [showModalAddEmployee, setShowModalAddEmployee] = useState<boolean>(false);
     const [employeeToUpdate, setEmployeeToUpdate] = useState<AdminEmployeeOverview | null>(null);
+    const { user } = useAuth();
 
     const employeeQuery = useAllEmployees({
         page: filters.page - 1,
         search: filters.search,
         status: filters.status === 'ALL' ? undefined : filters.status,
+        role: filters.role === 'ALL' ? undefined : filters.role,
     });
     const deleteEmployeeMutation = useDeleteEmployee();
 
@@ -69,9 +74,15 @@ const EmployeePage: React.FC = () => {
         onSuccess: () => {
             setFilters((prev) => ({ ...prev, page: 1 }));
         },
-        canDelete: (employee: AdminEmployeeOverview) => employee.status !== BaseStatus.ACTIVE,
-        unableDeleteMessage: 'Không thể xóa nhân viên đang hoạt động',
+        canDelete: (employee: AdminEmployeeOverview) => employee.status !== BaseStatus.ACTIVE || employee.id !== user?.id,
+        unableDeleteMessage: 'Không thể xóa nhân viên đang hoạt động hoặc chính bạn',
     });
+
+    useEffect(() => {
+        if (roles && roles.length > 0) {
+            setRoleFiltered(roles.filter(role => role.name !== 'ROLE_CLIENT'));
+        }
+    }, [roles]);
 
     useEffect(() => {
         document.title = 'B&Q Cinema - Quản lý nhân viên';
@@ -90,6 +101,20 @@ const EmployeePage: React.FC = () => {
             {
                 accessorKey: 'name',
                 header: 'Tên nhân viên',
+                cell: ({ row }) => (
+                    <div className="flex gap-3 items-center">
+                        <div className="flex flex-col">
+                            <div className="flex gap-3">
+                                {row.original.name}
+                                {
+                                    user?.id === row.original.id && (<div className="bg-brand-500 text-white rounded px-1 py-0.5 text-xs">Me</div>)
+                                }
+                            </div>
+                            <div className="text-xs text-gray-800">{row.original.role.description}</div>
+                        </div>
+
+                    </div>
+                )
             },
             {
                 accessorKey: 'gender',
@@ -114,14 +139,13 @@ const EmployeePage: React.FC = () => {
                 header: '',
                 cell: ({ row }) => (
                     <div className="flex gap-2 items-center justify-end">
-                        <ButtonAction.View href={`/admin/employees/${row.original.code}`} />
                         <ButtonAction.Update onClick={() => setEmployeeToUpdate(row.original)} />
                         <ButtonAction.Delete onClick={() => deleteModal.openDeleteModal(row.original)} />
                     </div>
                 ),
             },
         ],
-        [deleteModal],
+        [deleteModal, user],
     );
 
     const statusOptions = [
@@ -134,9 +158,9 @@ const EmployeePage: React.FC = () => {
 
     const roleOptions = [
         { label: 'Tất cả chức vụ', value: 'ALL' },
-        ...(roles || []).map(role => ({
+        ...(roleFiltered || []).map(role => ({
             label: role.description,
-            value: role.id,
+            value: role.name,
         })),
     ];
 
@@ -197,13 +221,13 @@ const EmployeePage: React.FC = () => {
                     viên <HighlightedText>{deleteModal.selectedData?.code}</HighlightedText> không?</>}
             />
             {
-                roles && showModalAddEmployee && (
-                    <ModalAddEmployee onClose={() => setShowModalAddEmployee(false)} roles={roles} />
+                roleFiltered && showModalAddEmployee && (
+                    <ModalAddEmployee onClose={() => setShowModalAddEmployee(false)} roles={roleFiltered} />
                 )
             }
             {
-                roles && employeeToUpdate && (
-                    <ModalUpdateEmployee onClose={() => setEmployeeToUpdate(null)} roles={roles} employee={employeeToUpdate} />
+                roleFiltered && employeeToUpdate && (
+                    <ModalUpdateEmployee onClose={() => setEmployeeToUpdate(null)} roles={roleFiltered} employee={employeeToUpdate} />
                 )
             }
         </>
