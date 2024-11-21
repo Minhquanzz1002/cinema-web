@@ -8,7 +8,7 @@ import Input from '@/components/Admin/Input';
 import { Role } from '@/modules/roles/interface';
 import DatePicker from '@/components/Admin/DatePicker';
 import { EMPLOYEE_MESSAGES } from '@/variables/messages';
-import { BaseStatus, Gender } from '@/modules/base/interface';
+import { BaseStatus, BaseStatusVietnamese, Gender } from '@/modules/base/interface';
 import { useCreateEmployee } from '@/modules/employees/repository';
 import dayjs from 'dayjs';
 
@@ -25,17 +25,9 @@ interface FormValues {
     password: string;
     confirmPassword: string;
     birthday: Date;
+    role: number;
+    status: BaseStatus;
 }
-
-const INITIAL_VALUES: FormValues = {
-    name: '',
-    gender: Gender.MALE,
-    email: '',
-    phone: '',
-    password: '',
-    confirmPassword: '',
-    birthday: dayjs().subtract(1, 'day').toDate()
-};
 
 const validationSchema = Yup.object().shape({
     name: Yup.string().required(EMPLOYEE_MESSAGES.FORM.REQUIRED.NAME),
@@ -81,11 +73,20 @@ const FormikContent = ({ onClose, roles, isLoading }:
                     type="password" name="confirmPassword" label="Xác nhận mật khẩu" placeholder="Nhập lại mật khẩu"
                     required />
             </div>
-            <Select
-                name="role" required
-                placeholder="Chọn chức vụ"
-                label="Chức vụ"
-                options={roles.map(role => ({ label: role.description, value: role.id }))} />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <Select
+                    name="role" required
+                    placeholder="Chọn chức vụ"
+                    label="Chức vụ"
+                    options={roles.map(role => ({ label: role.description, value: role.id }))} />
+
+                <Select
+                    readOnly
+                    name="status" required
+                    placeholder="Chọn trạng thái"
+                    label="Trạng thái"
+                    options={Object.values(BaseStatus).map(status => ({label: BaseStatusVietnamese[status], value: status}))} />
+            </div>
 
             <div className="flex justify-end items-center gap-3 mt-3">
                 <ButtonAction.Cancel onClick={onClose} />
@@ -98,6 +99,18 @@ const FormikContent = ({ onClose, roles, isLoading }:
 const ModalAddEmployee = ({ onClose, roles }: ModalAddEmployeeProps) => {
     const createEmployee = useCreateEmployee();
 
+    const INITIAL_VALUES: FormValues = {
+        name: '',
+        gender: Gender.MALE,
+        email: '',
+        phone: '',
+        password: '',
+        confirmPassword: '',
+        birthday: dayjs().subtract(1, 'day').toDate(),
+        role: roles[0]?.id || 0,
+        status: BaseStatus.INACTIVE,
+    };
+
     const handleSubmit = async (values: FormValues) => {
         console.table(values);
         try {
@@ -105,7 +118,7 @@ const ModalAddEmployee = ({ onClose, roles }: ModalAddEmployeeProps) => {
                 ...values,
                 gender: values.gender === Gender.MALE,
                 birthday: dayjs(values.birthday).format('YYYY-MM-DD'),
-                status: BaseStatus.ACTIVE
+                roleId: values.role
             });
             onClose();
         } catch (error) {

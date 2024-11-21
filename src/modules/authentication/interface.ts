@@ -4,10 +4,13 @@ export interface LoginCredentials {
 }
 
 export interface User {
+    id: string;
+    code: string;
     name: string;
     email: string;
     phone: string;
     role: string;
+    avatar?: string;
     gender: boolean;
     birthday: Date;
 }

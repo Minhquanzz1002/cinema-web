@@ -22,6 +22,7 @@ interface CreateEmployeeData {
     password: string;
     birthday: string;
     status: BaseStatus;
+    roleId: number;
 }
 
 const createEmployee = (data: CreateEmployeeData): Promise<SuccessResponse<void>> => {
@@ -50,6 +51,7 @@ interface FetchAllEmployeeParams {
     page?: number;
     search?: string;
     status?: UserStatus;
+    role?: string;
 }
 
 const fetchAllEmployees = (params: FetchAllEmployeeParams): Promise<SuccessResponse<PageObject<AdminEmployeeOverview>>> => {
@@ -78,6 +80,38 @@ export const useDeleteEmployee = () => {
         onError: (error: ErrorResponse) => {
             toast.error(error.message || API_MESSAGES.ERROR.DELETE.EMPLOYEE);
             console.error('Delete employee error:', error);
+        },
+    });
+};
+
+/**
+ * Update employee
+ */
+
+interface UpdateEmployeeData {
+    name: string;
+    gender: boolean;
+    phone: string;
+    password: string;
+    birthday: string;
+    status: BaseStatus;
+}
+
+const updateEmployee = ({id, data} : {data: UpdateEmployeeData; id: string}): Promise<SuccessResponse<void>> => {
+    return httpRepository.put<void, UpdateEmployeeData>(`/admin/v1/employees/${id}`, data);
+};
+
+export const useUpdateEmployee = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: updateEmployee,
+        onSuccess: async (res) => {
+            await queryClient.invalidateQueries({ queryKey: [EMPLOYEE_QUERY_KEY] });
+            toast.success(res.message);
+        },
+        onError: (error: ErrorResponse) => {
+            toast.error(error.message || API_MESSAGES.ERROR.UPDATE.EMPLOYEE);
+            console.error('Update employee error:', error);
         },
     });
 };
