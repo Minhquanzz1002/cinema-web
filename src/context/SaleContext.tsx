@@ -6,7 +6,7 @@ import { BaseProductWithPrice } from '@/modules/products/interface';
 import { CustomerWithNameAndPhone } from '@/modules/customers/interface';
 import {
     useCancelOrderByEmployee,
-    useCreateOrderByEmployee,
+    useCreateOrderByEmployee, useUpdateCustomerInOrderByEmployee,
     useUpdateProductInOrderByEmployee, useUpdateSeatInOrderByEmployee,
 } from '@/modules/orders/repository';
 import { OrderResponseCreated } from '@/modules/orders/interface';
@@ -44,6 +44,8 @@ interface SaleContextType {
     setZpAppTransId: (zpAppTransId: string | null) => void;
 
     handleOrderExpired: () => Promise<void>;
+
+    handleClearCustomer: () => void;
 }
 
 const SaleContext = createContext<SaleContextType>({} as SaleContextType);
@@ -85,6 +87,7 @@ const SaleProvider = ({ children }: SaleProviderProps) => {
     const createOrder = useCreateOrderByEmployee();
     const updateSeat = useUpdateSeatInOrderByEmployee();
     const updateProductInOrder = useUpdateProductInOrderByEmployee();
+    const updateCustomerInOrder = useUpdateCustomerInOrderByEmployee();
 
     const [order, setOrderState] = useState<OrderResponseCreated | null>(null);
 
@@ -201,9 +204,17 @@ const SaleProvider = ({ children }: SaleProviderProps) => {
         }
     }, [customer, isClient]);
 
-    const setCustomer = useCallback((newCustomer: CustomerWithNameAndPhone | null) => {
+    const setCustomer = useCallback(async (newCustomer: CustomerWithNameAndPhone | null) => {
+        if (order) {
+            await updateCustomerInOrder.mutateAsync({
+                orderId: order.id,
+                data: {
+                    customerId: newCustomer?.id,
+                }
+            });
+        }
         setCustomerState(newCustomer);
-    }, []);
+    }, [order, updateCustomerInOrder]);
 
     const clearCustomer = useCallback(() => {
         setCustomerState(null);
@@ -375,6 +386,20 @@ const SaleProvider = ({ children }: SaleProviderProps) => {
         }
     }, [order, cancelOrder, router]);
 
+    const handleClearCustomer = async () => {
+        if (order) {
+            await updateCustomerInOrder.mutateAsync({
+                orderId: order.id,
+                data: {
+                    customerId: undefined,
+                }
+            });
+        }
+        setCustomerState(null);
+        localStorage.removeItem('selectedCustomer');
+
+    };
+
     const value = {
         movie,
         showTime,
@@ -402,6 +427,7 @@ const SaleProvider = ({ children }: SaleProviderProps) => {
         setZpAppTransId,
         selectedTempSeats,
         handleOrderExpired,
+        handleClearCustomer,
     };
 
     return (

@@ -105,6 +105,28 @@ export const useUpdateSeatInOrderByEmployee = () => {
     });
 };
 
+
+/**
+ * Update customer in order by employee
+ */
+interface UpdateCustomerInOrderData {
+    customerId?: string;
+}
+
+const updateCustomerInOrderByEmployee = ({ orderId, data }: {
+    orderId: string;
+    data: UpdateCustomerInOrderData
+}): Promise<SuccessResponse<OrderResponseCreated>> => {
+    return httpRepository.put<OrderResponseCreated, UpdateCustomerInOrderData>(`/admin/v1/orders/${orderId}/customer`, data);
+};
+
+export const useUpdateCustomerInOrderByEmployee = () => {
+    return useMutation({
+        mutationKey: [ORDER_QUERY_KEY, "update-customer"],
+        mutationFn: updateCustomerInOrderByEmployee,
+    });
+};
+
 /**
  * Complete order by employee
  */
