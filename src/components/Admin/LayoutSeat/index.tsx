@@ -34,7 +34,7 @@ const LayoutSeat = ({layout}: LayoutSeatProps) => {
             return (
                 <button key={seat.id} disabled={!isSeatSelected(seat) && !isSeatTempSelected(seat) && seat.booked}
                         onClick={() => handleSeatClick(seat)}
-                        className={`disabled:bg-gray-700 disabled:border-gray-700 disabled:text-white h-full aspect-[2/1] border border-blue-500 text-center text-xs rounded flex justify-around items-center hover:bg-brand-500 hover:border-brand-500 ${isSeatSelected(seat) ? 'bg-brand-500 text-white border-brand-500' : ''}`}>
+                        className={`disabled:bg-gray-700 disabled:border-gray-700 disabled:text-white h-full aspect-[2/1] border text-center text-xs rounded flex justify-around items-center hover:bg-brand-500 hover:border-brand-500 ${isSeatSelected(seat) ? 'bg-brand-500 text-white border-brand-500' : ''}`}>
                     <div>{seat.name}</div>
                     <div>{nextSeat?.name}</div>
                 </button>
@@ -112,7 +112,7 @@ const LayoutSeat = ({layout}: LayoutSeatProps) => {
 
                         <div className="flex gap-2 items-center">
                             <div
-                                className="w-10 h-5 rounded border border-blue-500 flex justify-center items-center"></div>
+                                className="w-10 h-5 rounded border flex justify-center items-center"></div>
                             <div>Ghế đôi</div>
                         </div>
                     </div>

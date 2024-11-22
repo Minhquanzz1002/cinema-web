@@ -19,8 +19,10 @@ const CountdownTimer = ({ orderDate, onExpired }: CountdownTimerProps) => {
             const difference = expirationTime - now;
 
             if (difference <= 0) {
-                setIsExpired(true);
-                onExpired?.();
+                if (!isExpired) {
+                    setIsExpired(true);
+                    onExpired?.();
+                }
                 return 0;
             }
 

@@ -26,7 +26,7 @@ const AdminChooseSeatPage = () => {
     }
 
     return (
-        <div className="mt-5">
+        <div className="mt-2">
             <div className="flex gap-2">
                 <div className="w-4/6 bg-white rounded-lg p-3">
                     <Typography.Title level={4}>Chọn ghế</Typography.Title>
