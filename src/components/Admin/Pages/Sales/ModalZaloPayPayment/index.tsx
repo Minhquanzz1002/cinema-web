@@ -18,7 +18,7 @@ type ModalZaloPayPaymentProps = {
 
 const ModalZaloPayPayment = ({ qrCode, onClose, onSuccess, zpAppTransId }: ModalZaloPayPaymentProps) => {
     const { data: orderStatus } = useGetOrderZaloPay(zpAppTransId);
-    const { order, setOrder } = useSaleContext();
+    const { order, updateOrder } = useSaleContext();
     const completeOrder = useCompleteOrderByEmployee();
     const [timeLeft, setTimeLeft] = useState(15 * 60);
 
@@ -54,7 +54,7 @@ const ModalZaloPayPayment = ({ qrCode, onClose, onSuccess, zpAppTransId }: Modal
                 return null;
             }
             const { data } = await completeOrder.mutateAsync(order.id);
-            setOrder(data);
+            updateOrder(data);
             onSuccess();
         } catch (error) {
             console.log(error);
