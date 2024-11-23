@@ -10,8 +10,8 @@ import LayoutSeat from '@/components/Admin/LayoutSeat';
 import BookingDetails from '@/components/Admin/BookingDetails';
 
 const AdminChooseSeatPage = () => {
-    const { movie, showTime, selectedSeats, proceedToComboSelection, selectedProducts, isLoadingRedirect } = useSaleContext();
-    const { data: layout, isLoading: isLoadingSeat } = useLayoutSeatByShowTimeId(showTime?.id || '');
+    const { selectedMovie, selectedShowTime, selectedSeats, proceedToComboSelection, selectedProducts, isLoadingRedirect } = useSaleContext();
+    const { data: layout, isLoading: isLoadingSeat } = useLayoutSeatByShowTimeId(selectedShowTime?.id || '');
 
     useEffect(() => {
         document.title = 'B&Q Cinema - Chọn ghế';
@@ -21,7 +21,7 @@ const AdminChooseSeatPage = () => {
         return <Loader />;
     }
 
-    if (!movie || !showTime || !layout) {
+    if (!selectedMovie || !selectedShowTime || !layout) {
         return <NotFound />;
     }
 
@@ -32,7 +32,7 @@ const AdminChooseSeatPage = () => {
                     <Typography.Title level={4}>Chọn ghế</Typography.Title>
                     <LayoutSeat layout={layout} />
                 </div>
-                <BookingDetails movie={movie} showTime={showTime}
+                <BookingDetails movie={selectedMovie} showTime={selectedShowTime}
                                 selectedSeats={selectedSeats}
                                 selectedProducts={selectedProducts}
                                 footer={

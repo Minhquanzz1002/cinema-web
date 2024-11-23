@@ -36,7 +36,7 @@ const BookingDetails = ({
                             selectedProducts,
                             footer,
                         }: BookingDetailsProps) => {
-    const { customer, totalDiscount, order, handleOrderExpired, handleClearCustomer } = useSaleContext();
+    const { selectedCustomer, totalDiscount, order, handleOrderExpired, handleClearCustomer } = useSaleContext();
 
     const groupedSeats: GroupedSeat[] = map(
         groupBy(selectedSeats, 'type'),
@@ -66,11 +66,11 @@ const BookingDetails = ({
                 </div>
             </Typography.Title>
             {
-                customer ? (
+                selectedCustomer ? (
                     <div className="flex gap-2 items-center">
                         <div className="flex gap-2 items-center">
                             <FaRegUser size={18} />
-                            <div>{customer.name} - {customer.phone}</div>
+                            <div>{selectedCustomer.name} - {selectedCustomer.phone}</div>
                         </div>
                         <div className="flex justify-center items-center">
                             <button

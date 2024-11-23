@@ -28,7 +28,7 @@ const validationSchema = Yup.object().shape({
 });
 
 const ModalCashPayment = ({ isOpen, onClose, onSuccess }: ModalCashPaymentProps) => {
-    const { order, setOrder } = useSaleContext();
+    const { order, updateOrder } = useSaleContext();
     const completeOrder = useCompleteOrderByEmployee();
 
     if (!order) {
@@ -44,7 +44,7 @@ const ModalCashPayment = ({ isOpen, onClose, onSuccess }: ModalCashPaymentProps)
     const handleSubmit = async () => {
         try {
             const { data } = await completeOrder.mutateAsync(order.id);
-            setOrder(data);
+            updateOrder(data);
             toast.success("Thanh toán thành công");
             onSuccess();
         } catch (error) {

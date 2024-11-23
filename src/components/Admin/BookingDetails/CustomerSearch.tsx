@@ -14,7 +14,7 @@ interface FormValues {
 const CustomerSearch = () => {
     const [phone, setPhone] = useState('');
     const { data: customers } = useAllCustomerWithPhone(phone);
-    const { setCustomer } = useSaleContext();
+    const { updateCustomer } = useSaleContext();
     const dropdownRef = useRef<HTMLDivElement>(null);
 
     useClickOutside(dropdownRef, () => setPhone(''));
@@ -43,7 +43,7 @@ const CustomerSearch = () => {
                                                     type="button" key={customer.id}
                                                     className={`py-2 px-3 block font-normal hover:bg-gray-100 w-full text-left ${index > 0 && 'border-t border-dashed border-black/30'}`}
                                                     onClick={() => {
-                                                        setCustomer(customer);
+                                                        updateCustomer(customer);
                                                         setPhone('');
                                                     }}
                                                 >

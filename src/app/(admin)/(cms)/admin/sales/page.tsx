@@ -16,7 +16,7 @@ import { useSaleContext } from '@/context/SaleContext';
 import { NOT_FOUND_MOVIE_IMAGE } from '@/variables/images';
 
 const SalePage = () => {
-    const { setMovieAndShowTime, proceedToSeatSelection } = useSaleContext();
+    const { updateMovieAndShowTime, proceedToSeatSelection } = useSaleContext();
     const { data: movies, isLoading: isLoadingMovies } = useAllMoviesForSale();
     const [selectedMovie, setSelectedMovie] = useState<AdminMovie | null>(null);
     const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -36,8 +36,8 @@ const SalePage = () => {
     }, [selectedMovie, selectedDate]);
 
     useEffect(() => {
-        setMovieAndShowTime(selectedMovie, selectedShowTime);
-    }, [selectedMovie, selectedShowTime, setMovieAndShowTime]);
+        updateMovieAndShowTime(selectedMovie, selectedShowTime);
+    }, [selectedMovie, selectedShowTime, updateMovieAndShowTime]);
 
     if (isLoadingMovies) {
         return <Loader />;

@@ -5,6 +5,7 @@ import { AdminOrderOverview } from '@/modules/orders/interface';
 import { groupBy, sumBy } from 'lodash';
 import { formatDateToLocalDate, formatTime } from '@/utils/formatDate';
 import { formatNumberToCurrency } from '@/utils/formatNumber';
+import Barcode from 'react-barcode';
 
 interface ModalPrintBillProps {
     isOpen: boolean;
@@ -27,53 +28,70 @@ const PrintContent = React.forwardRef<HTMLDivElement, PrintContentProps>(({ bill
         <div ref={ref} className="flex flex-col gap-2">
             {
                 tickets.map((ticket, index) => (
-                    <div key={`ticket-${index}`} className="border p-3">
-                        <div className="text-xl font-bold bg-black text-white">B&Q Cinema
-                            | {bill.showTime.cinemaName}</div>
-                        <div className="border-b pt-1 mt-1">
-                            Mã hóa đơn: #{bill.code}
+                    <div key={`ticket-${index}`} className="border p-3 relative">
+                        <div className="mr-20">
+                            <div className="text-lg font-bold bg-brand-500 text-white">
+                                B&Q Cinema | {bill.showTime.cinemaName}
+                            </div>
+
+                            <div className="grid grid-cols-2">
+                                <div>Phim: <span>{bill.showTime.movie.title}</span></div>
+                                <div>Rạp: <span>{bill.showTime.roomName}</span></div>
+                            </div>
+                            <div className="grid grid-cols-2">
+                                <div>Ngày: <span>{formatDateToLocalDate(bill.showTime.startDate)}</span></div>
+                                <div>Giờ: <span>{formatTime(bill.showTime.startTime)}</span></div>
+                            </div>
+                            <div className="grid grid-cols-2">
+                                <div>Ghế: <span className="text-lg font-medium">{ticket.seat?.name}</span></div>
+                                <div>Giá: <span
+                                    className="text-lg font-medium"
+                                >{formatNumberToCurrency(ticket.price)}</span></div>
+                            </div>
+
+                            <div className="absolute w-24 h-full top-0 right-0 flex justify-center items-center">
+                                <div className="-rotate-90">
+                                    <Barcode value={bill.code} height={55} width={0.75} fontSize={14}  />
+                                </div>
+                            </div>
                         </div>
 
-                        <div className="grid grid-cols-2">
-                            <div>Phim: <span>{bill.showTime.movie.title}</span></div>
-                            <div>Rạp: <span>{bill.showTime.roomName}</span></div>
-                        </div>
-                        <div className="grid grid-cols-2">
-                            <div>Ngày: <span>{formatDateToLocalDate(bill.showTime.startDate)}</span></div>
-                            <div>Giờ: <span>{formatTime(bill.showTime.startTime)}</span></div>
-                        </div>
-                        <div className="grid grid-cols-2">
-                            <div>Ghế: <span className="text-xl font-medium">{ticket.seat?.name}</span></div>
-                            <div>Giá: <span
-                                className="text-xl font-medium">{formatNumberToCurrency(ticket.price)}</span></div>
-                        </div>
                     </div>
                 ))
             }
             {
                 products.length > 0 && (
-                    <div className="border p-3">
-                        <div className="text-xl font-bold bg-black text-white">B&Q Cinema
-                            | {bill.showTime.cinemaName}</div>
-                        <div className="border-b pt-1 mt-1">
-                            Mã hóa đơn: #{bill.code}
-                        </div>
-                        <div className="grid grid-cols-7">
-                            <div className="col-span-3">Sản phẩm</div>
-                            <div className="col-span-1 text-right">SL</div>
-                            <div className="col-span-3 text-right">Giá</div>
-                        </div>
-                        {
-                            products.map((product, index) => (
-                                <div key={`product-${index}`} className="grid grid-cols-7">
-                                    <div className="col-span-3">{product.product?.name}</div>
-                                    <div className="col-span-1 text-right">{product.quantity}</div>
-                                    <div className="col-span-3 text-right">{formatNumberToCurrency(product.price)}</div>
+                    <div className="border p-3 relative">
+                        <div className="mr-20">
+                            <div className="text-lg font-bold bg-brand-500 text-white">B&Q Cinema
+                                | {bill.showTime.cinemaName}</div>
+                            <div className="grid grid-cols-7">
+                                <div className="col-span-3">Sản phẩm</div>
+                                <div className="col-span-1 text-right">SL</div>
+                                <div className="col-span-3 text-right">Giá</div>
+                            </div>
+                            {
+                                products.map((product, index) => (
+                                    <div key={`product-${index}`} className="grid grid-cols-7">
+                                        <div className="col-span-3">{product.product?.name}</div>
+                                        <div className="col-span-1 text-right">{product.quantity}</div>
+                                        <div
+                                            className="col-span-3 text-right"
+                                        >{formatNumberToCurrency(product.price)}</div>
+                                    </div>
+                                ))
+                            }
+                            <div className="flex justify-end items-center">
+                                <span
+                                    className="text-lg font-medium"
+                                >Tổng tiền: {formatNumberToCurrency(totalAmount)}</span>
+                            </div>
+
+                            <div className="absolute w-24 h-full top-0 right-0 flex justify-center items-center">
+                                <div className="-rotate-90">
+                                    <Barcode value={bill.code} height={55} width={0.75} fontSize={14} />
                                 </div>
-                            ))
-                        }
-                        <div className="flex justify-end items-center">
-                            <span className="text-lg font-medium">Tổng tiền: {formatNumberToCurrency(totalAmount)}</span>
+                            </div>
                         </div>
                     </div>
                 )
@@ -91,23 +109,20 @@ const ModalPrintBill = ({ isOpen, onClose, bill }: ModalPrintBillProps) => {
         contentRef: contentRef,
         pageStyle: `
             @page {
-                size: 80mm auto;
+                size: 400px auto;
                 margin: 0;
             }
             @media print {
                 html, body {
-                    width: 80mm;
+                    width: 400px;
                     margin: 0 auto;
-                    font-size: 12px;
+                    font-size: 16px;
                 }
-                * {
-                    box-sizing: border-box;
-                    print-color-adjust: exact;
-                    -webkit-print-color-adjust: exact;
+                svg {
+                    font-size: 16px;
                 }
             }
         `,
-
     });
 
     const handlePrint = () => {
