@@ -49,7 +49,7 @@ function Navbar() {
                             className="flex w-56 flex-col justify-start rounded-[20px] bg-white bg-cover bg-no-repeat shadow-xl dark:!bg-navy-700 dark:text-white dark:shadow-none">
                             <div className="ml-4 mt-3">
                                 <div className="flex items-center gap-2">
-                                    <p className="text-sm font-bold text-navy-700 dark:text-white">Hey, {user?.name || "Không rõ"}</p>
+                                    <p className="text-sm font-bold text-navy-700 dark:text-white">Xin chào, {user?.name || "Không rõ"}</p>
                                 </div>
                             </div>
 

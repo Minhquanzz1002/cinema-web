@@ -6,47 +6,63 @@ import { BaseProductWithPrice } from '@/modules/products/interface';
 import { CustomerWithNameAndPhone } from '@/modules/customers/interface';
 import {
     useCancelOrderByEmployee,
-    useCreateOrderByEmployee, useUpdateCustomerInOrderByEmployee,
-    useUpdateProductInOrderByEmployee, useUpdateSeatInOrderByEmployee,
+    useCreateOrderByEmployee,
+    useUpdateCustomerInOrderByEmployee,
+    useUpdateProductInOrderByEmployee,
+    useUpdateSeatInOrderByEmployee,
 } from '@/modules/orders/repository';
 import { OrderResponseCreated } from '@/modules/orders/interface';
+import { useLocalStorage } from 'usehooks-ts';
 
 export interface SelectedProduct {
     quantity: number;
     product: BaseProductWithPrice;
 }
 
-interface SaleContextType {
-    movie: AdminMovie | null;
-    showTime: AdminShowTimeForSale | null;
+interface SaleSate {
+    selectedMovie: AdminMovie | null;
+    selectedShowTime: AdminShowTimeForSale | null;
     selectedSeats: Seat[];
     selectedTempSeats: Seat[];
-    addSeat: (seat: Seat) => void;
-    removeSeat: (seatId: number) => void;
-    clearSeats: () => void;
     selectedProducts: SelectedProduct[];
-    addProduct: (product: BaseProductWithPrice) => void;
-    removeProduct: (productId: number) => void;
-    updateProductQuantity: (productId: number, quantity: number) => void;
-    clearProducts: () => void;
-    customer: CustomerWithNameAndPhone | null;
-    setCustomer: (customer: CustomerWithNameAndPhone | null) => void;
-    clearCustomer: () => void;
-    setMovieAndShowTime: (movie: AdminMovie | null, showTime: AdminShowTimeForSale | null) => void;
+
+    selectedCustomer: CustomerWithNameAndPhone | null;
+    order: OrderResponseCreated | null;
+    totalDiscount: number;
+    isLoadingRedirect: boolean;
+    zpAppTransId: string | null;
+}
+
+interface SaleActions {
+    // Movie & ShowTime actions
+    updateMovieAndShowTime: (movie: AdminMovie | null, showTime: AdminShowTimeForSale | null) => void;
+
+    // Navigation actions
     proceedToSeatSelection: () => void;
     proceedToComboSelection: () => void;
     proceedToPaymentSelection: () => void;
-    isLoadingRedirect: boolean;
-    totalDiscount: number;
-    order: OrderResponseCreated | null;
-    setOrder: (order: OrderResponseCreated | null) => void;
-    zpAppTransId: string | null;
-    setZpAppTransId: (zpAppTransId: string | null) => void;
 
-    handleOrderExpired: () => Promise<void>;
+    // Seat actions
+    addSeat: (seat: Seat) => void;
+    removeSeat: (seatId: number) => void;
+    // clearSeats: () => void;
 
+    // Product actions
+    addProduct: (product: BaseProductWithPrice) => void;
+    updateProductQuantity: (productId: number, quantity: number) => void;
+
+    // Customer actions
+    updateCustomer: (customer: CustomerWithNameAndPhone | null) => void;
+    clearCustomer: () => void;
     handleClearCustomer: () => void;
+
+    // Order actions
+    updateOrder: (order: OrderResponseCreated | null) => void;
+    updateZpAppTransId: (zpAppTransId: string | null) => void;
+    handleOrderExpired: () => Promise<void>;
 }
+
+type SaleContextType = SaleSate & SaleActions;
 
 const SaleContext = createContext<SaleContextType>({} as SaleContextType);
 
@@ -63,40 +79,49 @@ interface SaleProviderProps {
 }
 
 const SaleProvider = ({ children }: SaleProviderProps) => {
+    // Flow Navigation State
     const router = useRouter();
     const pathname = usePathname();
-    const cancelOrder = useCancelOrderByEmployee();
-    const [isClient, setIsClient] = useState(false);
     const [hasLeftFlow, setHasLeftFlow] = useState(false);
 
-    const [movie, setMovie] = useState<AdminMovie | null>(null);
-
-    const [showTime, setShowTime] = useState<AdminShowTimeForSale | null>(null);
-
-    const [selectedSeats, setSelectedSeats] = useState<Seat[]>([]);
-    const [selectedTempSeats, setSelectedTempSeats] = useState<Seat[]>([]);
-
-    const [selectedProducts, setSelectedProducts] = useState<SelectedProduct[]>([]);
-
-    const [customer, setCustomerState] = useState<CustomerWithNameAndPhone | null>(null);
-
+    // State
+    const [selectedMovie, setSelectedMovie] = useLocalStorage<AdminMovie | null>('selectedMovie', null);
+    const [selectedShowTime, setSelectedShowTime] = useLocalStorage<AdminShowTimeForSale | null>('selectedShowTime', null);
+    const [selectedSeats, setSelectedSeats] = useLocalStorage<Seat[]>('selectedSeats', []);
+    const [selectedTempSeats, setSelectedTempSeats] = useLocalStorage<Seat[]>('selectedTempSeats', []);
+    const [selectedProducts, setSelectedProducts] = useLocalStorage<SelectedProduct[]>('selectedProducts', []);
+    const [selectedCustomer, setSelectedCustomer] = useLocalStorage<CustomerWithNameAndPhone | null>('selectedCustomer', null);
     const [isLoadingRedirect, setIsLoadingRedirect] = useState<boolean>(false);
+    const [totalDiscount, setTotalDiscount] = useLocalStorage<number>('totalDiscount', 0);
+    const [zpAppTransId, setZpAppTransId] = useLocalStorage<string | null>('zpAppTransId', null);
+    const [order, setOrder] = useLocalStorage<OrderResponseCreated | null>('order', null);
 
-    const [totalDiscount, setTotalDiscount] = useState<number>(0);
+    const state: SaleSate = {
+        selectedMovie,
+        selectedShowTime,
+        selectedSeats,
+        selectedTempSeats,
+        selectedProducts,
+        selectedCustomer,
 
+        totalDiscount,
+        order,
+        isLoadingRedirect,
+        zpAppTransId,
+    };
+
+    // Mutations
     const createOrder = useCreateOrderByEmployee();
     const updateSeat = useUpdateSeatInOrderByEmployee();
     const updateProductInOrder = useUpdateProductInOrderByEmployee();
     const updateCustomerInOrder = useUpdateCustomerInOrderByEmployee();
+    const cancelOrder = useCancelOrderByEmployee();
 
-    const [order, setOrderState] = useState<OrderResponseCreated | null>(null);
-
-    const [zpAppTransId, setZpAppTransIdState] = useState<string | null>(null);
-
+    // Flow Navigation Logic
     const validFlowRoutes = useMemo(() => [
         '/admin/sales/choose-seat',
         '/admin/sales/choose-combo',
-        '/admin/sales/payment'
+        '/admin/sales/payment',
     ], []);
 
     const isValidFlowRoute = useCallback((path: string) => {
@@ -104,257 +129,116 @@ const SaleProvider = ({ children }: SaleProviderProps) => {
     }, [validFlowRoutes]);
 
     const handleLeaveFlow = useCallback(async () => {
-        console.log('handleLeaveFlow rời');
-        if (hasLeftFlow) return; // Tránh xử lý nhiều lần
+        if (hasLeftFlow) return;
 
-        console.log("truoc khi xoa");
         if (order) {
-            console.log("xoa order");
             await cancelOrder.mutateAsync(order.id);
         }
 
-        setMovie(null);
-        setShowTime(null);
+        setSelectedMovie(null);
+        setSelectedShowTime(null);
         setSelectedSeats([]);
+        setSelectedTempSeats([]);
         setSelectedProducts([]);
-        setCustomerState(null);
-        setOrderState(null);
+        setSelectedCustomer(null);
+        setOrder(null);
         setTotalDiscount(0);
         setIsLoadingRedirect(false);
 
-        // Clear localStorage
-        localStorage.removeItem('selectedMovie');
-        localStorage.removeItem('selectedShowTime');
-        localStorage.removeItem('selectedSeats');
-        localStorage.removeItem('selectedProducts');
-        localStorage.removeItem('selectedCustomer');
-
         setHasLeftFlow(true);
-    }, [order, hasLeftFlow]);
+    }, [hasLeftFlow, order, cancelOrder]);
 
     useEffect(() => {
-        if (!pathname || !isClient) return;
+        if (!pathname) return;
 
         if (!isValidFlowRoute(pathname)) {
             handleLeaveFlow();
         } else {
             setHasLeftFlow(false);
         }
-    }, [pathname, isClient, isValidFlowRoute, handleLeaveFlow]);
+    }, [pathname, isValidFlowRoute, handleLeaveFlow]);
 
-    useEffect(() => {
-        setIsClient(true);
-        const savedMovie = localStorage.getItem('selectedMovie');
-        const savedShowTime = localStorage.getItem('selectedShowTime');
-        const savedSelectedSeats = localStorage.getItem('selectedSeats');
-
-        if (savedMovie) setMovie(JSON.parse(savedMovie));
-        if (savedShowTime) setShowTime(JSON.parse(savedShowTime));
-        if (savedSelectedSeats) setSelectedSeats(JSON.parse(savedSelectedSeats));
-    }, []);
-
-    useEffect(() => {
-        if (!isClient) return;
-
-        if (movie) {
-            localStorage.setItem('selectedMovie', JSON.stringify(movie));
-        } else {
-            localStorage.removeItem('selectedMovie');
-
-        }
-    }, [movie, isClient]);
-
-    useEffect(() => {
-        if (!isClient) return;
-
-        if (showTime) {
-            localStorage.setItem('selectedShowTime', JSON.stringify(showTime));
-        } else {
-            localStorage.removeItem('selectedShowTime');
-        }
-    }, [showTime, isClient]);
-
-
-    useEffect(() => {
-        if (!isClient) return;
-
-        if (selectedSeats.length > 0) {
-            localStorage.setItem('selectedSeats', JSON.stringify(selectedSeats));
-        } else {
-            localStorage.removeItem('selectedSeats');
-        }
-    }, [selectedSeats, isClient]);
-
-    useEffect(() => {
-        if (!isClient) return;
-
-        if (selectedProducts.length > 0) {
-            localStorage.setItem('selectedProducts', JSON.stringify(selectedProducts));
-        } else {
-            localStorage.removeItem('selectedProducts');
-        }
-    }, [selectedProducts, isClient]);
-
-    useEffect(() => {
-        if (!isClient) return;
-        if (customer) {
-            localStorage.setItem('selectedCustomer', JSON.stringify(customer));
-        } else {
-            localStorage.removeItem('selectedCustomer');
-        }
-    }, [customer, isClient]);
-
-    const setCustomer = useCallback(async (newCustomer: CustomerWithNameAndPhone | null) => {
-        if (order) {
-            await updateCustomerInOrder.mutateAsync({
-                orderId: order.id,
-                data: {
-                    customerId: newCustomer?.id,
-                }
-            });
-        }
-        setCustomerState(newCustomer);
-    }, [order, updateCustomerInOrder]);
-
-    const clearCustomer = useCallback(() => {
-        setCustomerState(null);
-        localStorage.removeItem('selectedCustomer');
-    }, []);
-
-    const setMovieAndShowTime = useCallback((
+    const updateMovieAndShowTime = useCallback((
         newMovie: AdminMovie | null,
         newShowTime: AdminShowTimeForSale | null,
     ) => {
-        setMovie(newMovie);
-        setShowTime(newShowTime);
+        setSelectedMovie(newMovie);
+        setSelectedShowTime(newShowTime);
+
         setSelectedSeats([]);
+        setSelectedTempSeats([]);
         setSelectedProducts([]);
+
+        setOrder(null);
     }, []);
 
-    const proceedToSeatSelection = useCallback(() => {
-        if (movie && showTime) {
-            router.push('/admin/sales/choose-seat');
-        }
-    }, [movie, showTime, router]);
-
-    const proceedToComboSelection = useCallback(async () => {
-        if (movie && showTime && selectedSeats.length > 0) {
-            setIsLoadingRedirect(true);
-            if (order) {
-                const { data } = await updateSeat.mutateAsync({
+    const navigationActions = {
+        proceedToPaymentSelection: useCallback(async () => {
+            if (selectedMovie && selectedShowTime && selectedSeats.length > 0 && order) {
+                setIsLoadingRedirect(true);
+                const { data } = await updateProductInOrder.mutateAsync({
                     orderId: order.id,
                     data: {
-                        seatIds: selectedSeats.map(seat => seat.id),
+                        products: selectedProducts.map(product => ({
+                            id: product.product.id,
+                            quantity: product.quantity,
+                        })),
+                    },
+                });
+
+                if (data) {
+                    setTotalDiscount(data.totalDiscount);
+                    setOrder(data);
+                }
+                setIsLoadingRedirect(false);
+                router.push('/admin/sales/payment');
+            }
+        }, [selectedMovie, selectedShowTime, selectedSeats.length, order, updateProductInOrder, selectedProducts, router]),
+
+        proceedToComboSelection: useCallback(async () => {
+            if (selectedMovie && selectedShowTime && selectedSeats.length > 0) {
+                setIsLoadingRedirect(true);
+                if (order) {
+                    const { data } = await updateSeat.mutateAsync({
+                        orderId: order.id,
+                        data: {
+                            seatIds: selectedSeats.map(seat => seat.id),
+                        },
+                    });
+                    if (data) {
+                        setTotalDiscount(data.totalDiscount);
+                        setOrder(data);
                     }
-                });
-                if (data) {
-                    setTotalDiscount(data.totalDiscount);
-                    setOrderState(data);
+                } else {
+                    const { data } = await createOrder.mutateAsync({
+                        customerId: selectedCustomer?.id,
+                        showTimeId: selectedShowTime.id,
+                        seatIds: selectedSeats.map(seat => seat.id),
+                    });
+                    if (data) {
+                        setTotalDiscount(data.totalDiscount);
+                        setOrder(data);
+                    }
                 }
-            } else {
-                const { data } = await createOrder.mutateAsync({
-                    customerId: customer?.id,
-                    showTimeId: showTime.id,
-                    seatIds: selectedSeats.map(seat => seat.id),
-                });
-                if (data) {
-                    setTotalDiscount(data.totalDiscount);
-                    setOrderState(data);
-                }
+                setIsLoadingRedirect(false);
+                setSelectedTempSeats(selectedSeats);
+                router.push('/admin/sales/choose-combo');
             }
-            setIsLoadingRedirect(false);
-            setSelectedTempSeats(selectedSeats);
-            router.push('/admin/sales/choose-combo');
-        }
-    }, [movie, showTime, selectedSeats, createOrder, customer?.id, router]);
+        }, [selectedMovie, selectedShowTime, selectedSeats, order, router, updateSeat, createOrder, selectedCustomer?.id]),
 
-    const proceedToPaymentSelection = useCallback(async () => {
-        if (movie && showTime && selectedSeats.length > 0 && order) {
-            setIsLoadingRedirect(true);
-            const { data } = await updateProductInOrder.mutateAsync({
-                orderId: order.id,
-                data: {
-                    products: selectedProducts.map(product => ({
-                        id: product.product.id,
-                        quantity: product.quantity,
-                    }))
-                }
-            });
-
-            if (data) {
-                setTotalDiscount(data.totalDiscount);
-                setOrderState(data);
+        proceedToSeatSelection: useCallback(() => {
+            if (selectedMovie && selectedShowTime) {
+                router.push('/admin/sales/choose-seat');
             }
-            setIsLoadingRedirect(false);
-            router.push('/admin/sales/payment');
-        }
-    }, [movie, showTime, selectedSeats.length, order, updateProductInOrder, selectedProducts, router]);
-
-    const addSeat = useCallback((seat: Seat) => {
-        setSelectedSeats(prev => {
-            if (prev.some(s => s.id === seat.id)) {
-                return prev;
-            }
-            return [...prev, seat];
-        });
-    }, []);
-
-    const removeSeat = useCallback((seatId: number) => {
-        setSelectedSeats(prev => prev.filter(seat => seat.id !== seatId));
-    }, []);
-
-    const clearSeats = useCallback(() => {
-        setSelectedSeats([]);
-    }, []);
-
-    const addProduct = useCallback((product: BaseProductWithPrice) => {
-        setSelectedProducts(prev => {
-            const existingProductIndex = prev.findIndex(p => p.product.id === product.id);
-
-            if (existingProductIndex >= 0) {
-                const newProducts = [...prev];
-                newProducts[existingProductIndex] = {
-                    ...newProducts[existingProductIndex],
-                    quantity: newProducts[existingProductIndex].quantity + 1,
-                };
-                return newProducts;
-            }
-
-            return [...prev, { product, quantity: 1 }];
-        });
-    }, []);
-
-    const removeProduct = useCallback((productId: number) => {
-        setSelectedProducts(prev =>
-            prev.filter(item => item.product.id !== productId),
-        );
-    }, []);
-
-    const updateProductQuantity = useCallback((productId: number, quantity: number) => {
-        setSelectedProducts(prev => {
-            if (quantity <= 0) {
-                return prev.filter(item => item.product.id !== productId);
-            }
-
-            return prev.map(item =>
-                item.product.id === productId
-                    ? { ...item, quantity }
-                    : item,
-            );
-        });
-    }, []);
-
-    const clearProducts = useCallback(() => {
-        setSelectedProducts([]);
-        localStorage.removeItem('selectedProducts');
-    }, []);
-
-    const setOrder = (order: OrderResponseCreated | null) => {
-        setOrderState(order);
+        }, [selectedMovie, selectedShowTime, router]),
     };
 
-    const setZpAppTransId = (zpAppTransId: string | null) => {
-        setZpAppTransIdState(zpAppTransId);
+    const updateOrder = (order: OrderResponseCreated | null) => {
+        setOrder(order);
+    };
+
+    const updateZpAppTransId = (zpAppTransId: string | null) => {
+        setZpAppTransId(zpAppTransId);
     };
 
     const handleOrderExpired = useCallback(async () => {
@@ -362,21 +246,14 @@ const SaleProvider = ({ children }: SaleProviderProps) => {
             try {
                 await cancelOrder.mutateAsync(order.id);
                 // Clear tất cả state
-                setMovie(null);
-                setShowTime(null);
+                setSelectedMovie(null);
+                setSelectedShowTime(null);
                 setSelectedSeats([]);
                 setSelectedProducts([]);
-                setCustomerState(null);
-                setOrderState(null);
+                setSelectedCustomer(null);
+                setOrder(null);
                 setTotalDiscount(0);
                 setIsLoadingRedirect(false);
-
-                // Clear localStorage
-                localStorage.removeItem('selectedMovie');
-                localStorage.removeItem('selectedShowTime');
-                localStorage.removeItem('selectedSeats');
-                localStorage.removeItem('selectedProducts');
-                localStorage.removeItem('selectedCustomer');
 
                 // Redirect về trang chọn phim
                 router.push('/admin/sales');
@@ -386,52 +263,100 @@ const SaleProvider = ({ children }: SaleProviderProps) => {
         }
     }, [order, cancelOrder, router]);
 
-    const handleClearCustomer = async () => {
-        if (order) {
-            await updateCustomerInOrder.mutateAsync({
-                orderId: order.id,
-                data: {
-                    customerId: undefined,
+    const seatActions = {
+        addSeat: useCallback((seat: Seat) => {
+            setSelectedSeats(prev => {
+                console.log('prev:', prev);
+                if (prev.some(s => s.id === seat.id)) {
+                    return prev;
                 }
+                console.log('seat, prev:', seat, prev);
+                return [...prev, seat];
             });
-        }
-        setCustomerState(null);
-        localStorage.removeItem('selectedCustomer');
+        }, []),
 
+        removeSeat: useCallback((seatId: number) => {
+            setSelectedSeats(prev => prev.filter(seat => seat.id !== seatId));
+        }, []),
     };
 
-    const value = {
-        movie,
-        showTime,
-        setMovieAndShowTime,
-        proceedToSeatSelection,
-        selectedSeats,
-        addSeat,
-        removeSeat,
-        clearSeats,
-        selectedProducts,
-        addProduct,
-        removeProduct,
-        clearProducts,
-        updateProductQuantity,
-        proceedToComboSelection,
-        proceedToPaymentSelection,
-        customer,
-        setCustomer,
-        clearCustomer,
-        isLoadingRedirect,
-        totalDiscount,
-        order,
-        setOrder,
-        zpAppTransId,
-        setZpAppTransId,
-        selectedTempSeats,
+    const productActions = {
+        addProduct: useCallback((product: BaseProductWithPrice) => {
+            setSelectedProducts(prev => {
+                const existingProductIndex = prev.findIndex(p => p.product.id === product.id);
+
+                if (existingProductIndex >= 0) {
+                    const newProducts = [...prev];
+                    newProducts[existingProductIndex] = {
+                        ...newProducts[existingProductIndex],
+                        quantity: newProducts[existingProductIndex].quantity + 1,
+                    };
+                    return newProducts;
+                }
+
+                return [...prev, { product, quantity: 1 }];
+            });
+        }, []),
+
+        updateProductQuantity: useCallback((productId: number, quantity: number) => {
+            setSelectedProducts(prev => {
+                if (quantity <= 0) {
+                    return prev.filter(item => item.product.id !== productId);
+                }
+
+                return prev.map(item =>
+                    item.product.id === productId
+                        ? { ...item, quantity }
+                        : item,
+                );
+            });
+        }, []),
+    };
+
+    const customerActions = {
+        updateCustomer: useCallback(async (newCustomer: CustomerWithNameAndPhone | null) => {
+            if (order) {
+                await updateCustomerInOrder.mutateAsync({
+                    orderId: order.id,
+                    data: {
+                        customerId: newCustomer?.id,
+                    },
+                });
+            }
+            setSelectedCustomer(newCustomer);
+        }, [order, updateCustomerInOrder]),
+
+        clearCustomer: useCallback(() => {
+            setSelectedCustomer(null);
+        }, [setSelectedCustomer]),
+
+        handleClearCustomer: async () => {
+            if (order) {
+                await updateCustomerInOrder.mutateAsync({
+                    orderId: order.id,
+                    data: {
+                        customerId: undefined,
+                    },
+                });
+            }
+            setSelectedCustomer(null);
+        },
+    };
+
+    // Combine all actions
+    const actions: SaleActions = {
+        ...customerActions,
+        ...productActions,
+        ...seatActions,
+        updateMovieAndShowTime,
+        ...navigationActions,
+        updateOrder,
+        updateZpAppTransId,
         handleOrderExpired,
-        handleClearCustomer,
     };
 
     return (
-        <SaleContext.Provider value={value}>
+        <SaleContext.Provider value={{ ...state, ...actions }}>
             {children}
         </SaleContext.Provider>
     );

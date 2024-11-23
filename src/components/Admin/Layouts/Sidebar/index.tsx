@@ -16,14 +16,14 @@ const Sidebar = () => {
 
     return (
         <aside
-            className={`hidden md:flex duration-100 fixed !z-50 h-screen max-h-screen flex-col bg-white pb-10 shadow-2xl shadow-white/5 transition-all dark:!bg-navy-800 dark:text-white md:!z-50 lg:!z-50 xl:!z-0`}>
-            <div className="mx-[35px] mt-[50px] flex items-center">
+            className={`hidden md:flex duration-100 fixed !z-50 h-screen max-h-screen flex-col bg-white pb-5 shadow-2xl shadow-white/5 transition-all dark:!bg-navy-800 dark:text-white md:!z-50 lg:!z-50 xl:!z-0`}>
+            <div className="mx-[35px] mt-[30px] flex items-center">
                 <div
                     className="ml-1 mt-1 h-2.5 font-poppins text-[22px] font-bold uppercase text-navy-700 dark:text-white">
                     Cinema <span className="font-medium text-[15px]">Admin</span>
                 </div>
             </div>
-            <div className="mb-7 mt-[50px] h-px bg-gray-300 dark:bg-white/30"></div>
+            <div className="mb-3 mt-[50px] h-px bg-gray-300 dark:bg-white/30"></div>
 
             <div className="no-scrollbar overflow-y-auto duration-300 ease-linear">
                 <nav className="p-3 ">

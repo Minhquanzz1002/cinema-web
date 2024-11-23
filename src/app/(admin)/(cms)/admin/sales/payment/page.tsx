@@ -16,11 +16,11 @@ import ModalZaloPayPayment from '@/components/Admin/Pages/Sales/ModalZaloPayPaym
 
 const AdminPaymentPage = () => {
     const router = useRouter();
-    const { movie, showTime, selectedSeats, selectedProducts, order, setZpAppTransId, zpAppTransId } = useSaleContext();
+    const { selectedMovie, selectedShowTime, selectedSeats, selectedProducts, order, updateZpAppTransId, zpAppTransId } = useSaleContext();
     /**
      * React query
      */
-    const { data: layout, isLoading: isLoadingSeat } = useLayoutSeatByShowTimeId(showTime?.id || '');
+    const { data: layout, isLoading: isLoadingSeat } = useLayoutSeatByShowTimeId(selectedShowTime?.id || '');
     const createOrderZaloPay = useCreateOrderZaloPay();
 
     const [selectedPayment, setSelectedPayment] = useState<'cash' | 'vnpay' | 'zalopay'>('cash');
@@ -36,7 +36,7 @@ const AdminPaymentPage = () => {
         return <Loader />;
     }
 
-    if (!movie || !showTime || !layout || !order) {
+    if (!selectedMovie || !selectedShowTime || !layout || !order) {
         return <NotFound />;
     }
 
@@ -45,7 +45,7 @@ const AdminPaymentPage = () => {
             case 'zalopay':
                 const response = await createOrderZaloPay.mutateAsync({ orderId: order.id });
                 setShowModalZaloPayPayment(response.data.qrUrl);
-                setZpAppTransId(response.data.transId);
+                updateZpAppTransId(response.data.transId);
                 break;
             case 'cash':
                 setShowModalCashPayment(true);
@@ -96,7 +96,7 @@ const AdminPaymentPage = () => {
                             </div>
                         </div>
                     </div>
-                    <BookingDetails movie={movie} showTime={showTime}
+                    <BookingDetails movie={selectedMovie} showTime={selectedShowTime}
                                     selectedProducts={selectedProducts}
                                     selectedSeats={selectedSeats}
                                     footer={

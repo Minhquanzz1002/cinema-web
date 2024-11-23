@@ -63,7 +63,7 @@ const CardProduct = ({ product }: { product: BaseProductWithPrice }) => {
 
 const AdminChooseComboPage = () => {
     const { isLoadingRedirect } = useSaleContext();
-    const { movie, showTime, selectedSeats, proceedToPaymentSelection, selectedProducts } = useSaleContext();
+    const { selectedMovie, selectedShowTime, selectedSeats, proceedToPaymentSelection, selectedProducts } = useSaleContext();
     const { data: products, isLoading: isLoadingProducts } = useAllProductsForSale();
 
     useEffect(() => {
@@ -74,7 +74,7 @@ const AdminChooseComboPage = () => {
         return <Loader />;
     }
 
-    if (!movie || !showTime || !products) {
+    if (!selectedMovie || !selectedShowTime || !products) {
         return <NotFound />;
     }
 
@@ -93,7 +93,7 @@ const AdminChooseComboPage = () => {
                         </div>
                     </div>
                 </div>
-                <BookingDetails movie={movie} showTime={showTime}
+                <BookingDetails movie={selectedMovie} showTime={selectedShowTime}
                                 selectedSeats={selectedSeats}
                                 selectedProducts={selectedProducts}
                                 footer={
