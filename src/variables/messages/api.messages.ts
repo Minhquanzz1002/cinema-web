@@ -8,6 +8,7 @@ export const API_MESSAGES = {
         },
         DELETE: {
             EMPLOYEE: 'Xóa nhân viên không thành công. Hãy thử lại sau',
+            CINEMA: 'Xóa rạp không thành công. Hãy thử lại sau',
         },
     },
 };
