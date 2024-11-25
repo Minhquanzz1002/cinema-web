@@ -145,8 +145,8 @@ const EmployeeSalesReportPage = () => {
                                                                     {groupIndex + 1}
                                                                 </TableCore.Cell>
                                                             )}
-                                                            <TableCore.Cell>{report.employeeCode}</TableCore.Cell>
-                                                            <TableCore.Cell>{report.employeeName}</TableCore.Cell>
+                                                            <TableCore.Cell>{reportIndex === 0 && report.employeeCode}</TableCore.Cell>
+                                                            <TableCore.Cell>{reportIndex === 0 && report.employeeName}</TableCore.Cell>
                                                             <TableCore.Cell>{formatDateToLocalDate(report.date)}</TableCore.Cell>
                                                             <TableCore.Cell>
                                                                 {formatNumberToCurrency(report.totalDiscount)}

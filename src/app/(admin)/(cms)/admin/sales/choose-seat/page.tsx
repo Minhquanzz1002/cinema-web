@@ -10,7 +10,7 @@ import LayoutSeat from '@/components/Admin/LayoutSeat';
 import BookingDetails from '@/components/Admin/BookingDetails';
 
 const AdminChooseSeatPage = () => {
-    const { selectedMovie, selectedShowTime, selectedSeats, proceedToComboSelection, selectedProducts, isLoadingRedirect } = useSaleContext();
+    const { selectedMovie, selectedShowTime, selectedSeats, proceedToComboSelection, backToChooseMovie, selectedProducts, isLoadingRedirect } = useSaleContext();
     const { data: layout, isLoading: isLoadingSeat } = useLayoutSeatByShowTimeId(selectedShowTime?.id || '');
 
     useEffect(() => {
@@ -37,7 +37,7 @@ const AdminChooseSeatPage = () => {
                                 selectedProducts={selectedProducts}
                                 footer={
                                     <div className="flex justify-end gap-5 items-center mt-5">
-                                        <button className="text-brand-500 py-2 px-5 rounded flex items-center justify-center gap-x-2">
+                                        <button type="button" onClick={backToChooseMovie} className="text-brand-500 py-2 px-5 rounded flex items-center justify-center gap-x-2">
                                             Quay lại
                                         </button>
                                         <button disabled={selectedSeats.length === 0 || isLoadingRedirect}

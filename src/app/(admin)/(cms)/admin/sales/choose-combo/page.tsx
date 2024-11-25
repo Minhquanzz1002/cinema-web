@@ -37,7 +37,10 @@ const CardProduct = ({ product }: { product: BaseProductWithPrice }) => {
         <div>
             <div className="flex gap-2 p-2 rounded-lg">
                 <div className="relative w-36 h-20 border rounded overflow-hidden shadow">
-                    <Image src={product.image || NOT_FOUND_PRODUCT_IMAGE} alt={`Ảnh sản phẩm ${product.name}`} fill className="object-cover" />
+                    <Image
+                        src={product.image || NOT_FOUND_PRODUCT_IMAGE} alt={`Ảnh sản phẩm ${product.name}`} fill
+                        className="object-cover"
+                    />
                 </div>
                 <div className="flex-1">
                     <div className="flex justify-between">
@@ -45,7 +48,8 @@ const CardProduct = ({ product }: { product: BaseProductWithPrice }) => {
                             <div className="font-medium">{product.name}</div>
                             <div className="text-xs">{product.description}</div>
                             <div
-                                className="font-bold text-[#4a4a4a]">Giá: {formatNumberToCurrency(product.price!)}</div>
+                                className="font-bold text-[#4a4a4a]"
+                            >Giá: {formatNumberToCurrency(product.price!)}</div>
                         </div>
                         <div className="self-end">
                             <div className="flex gap-3 rounded shadow px-2 h-8">
@@ -63,7 +67,14 @@ const CardProduct = ({ product }: { product: BaseProductWithPrice }) => {
 
 const AdminChooseComboPage = () => {
     const { isLoadingRedirect } = useSaleContext();
-    const { selectedMovie, selectedShowTime, selectedSeats, proceedToPaymentSelection, selectedProducts } = useSaleContext();
+    const {
+        selectedMovie,
+        selectedShowTime,
+        selectedSeats,
+        proceedToPaymentSelection,
+        backToChooseSeat,
+        selectedProducts,
+    } = useSaleContext();
     const { data: products, isLoading: isLoadingProducts } = useAllProductsForSale();
 
     useEffect(() => {
@@ -93,22 +104,28 @@ const AdminChooseComboPage = () => {
                         </div>
                     </div>
                 </div>
-                <BookingDetails movie={selectedMovie} showTime={selectedShowTime}
-                                selectedSeats={selectedSeats}
-                                selectedProducts={selectedProducts}
-                                footer={
-                                    <div className="flex justify-end gap-5 items-center mt-5">
-                                        <button
-                                            className="text-brand-500 py-2 px-5 rounded flex items-center justify-center gap-x-2">
-                                            Quay lại
-                                        </button>
-                                        <button disabled={selectedSeats.length === 0 || isLoadingRedirect}
-                                                onClick={proceedToPaymentSelection}
-                                                className="disabled:bg-brand-200 bg-brand-500 py-2 px-5 rounded flex items-center justify-center text-white gap-x-2">
-                                            {isLoadingProducts ? 'Đang xử lý...' : 'Tiếp tục'}
-                                        </button>
-                                    </div>
-                                }
+                <BookingDetails
+                    movie={selectedMovie} showTime={selectedShowTime}
+                    selectedSeats={selectedSeats}
+                    selectedProducts={selectedProducts}
+                    footer={
+                        <div className="flex justify-end gap-5 items-center mt-5">
+                            <button
+                                type="button" onClick={backToChooseSeat}
+                                className="text-brand-500 py-2 px-5 rounded flex items-center justify-center gap-x-2"
+                            >
+                                Quay lại
+                            </button>
+                            <button
+                                type="button"
+                                disabled={selectedSeats.length === 0 || isLoadingRedirect}
+                                onClick={proceedToPaymentSelection}
+                                className="disabled:bg-brand-200 bg-brand-500 py-2 px-5 rounded flex items-center justify-center text-white gap-x-2"
+                            >
+                                {isLoadingProducts ? 'Đang xử lý...' : 'Tiếp tục'}
+                            </button>
+                        </div>
+                    }
                 />
             </div>
         </div>
