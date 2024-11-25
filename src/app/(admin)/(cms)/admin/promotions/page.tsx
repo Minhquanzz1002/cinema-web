@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 import { ColumnDef } from '@tanstack/table-core';
 import Card from '@/components/Admin/Card';
 import Table from '@/components/Admin/Tables';
-import { exportToExcel } from '@/utils/exportToExcel';
 import { AdminPromotionOverview } from '@/modules/promotions/interface';
 import { formatDateToLocalDate } from '@/utils/formatDate';
 import { useAllPromotions, useDeletePromotion } from '@/modules/promotions/repository';
@@ -119,11 +118,6 @@ const PromotionPage = () => {
         ],
         [deleteModal],
     );
-    
-
-    const handleExportExcel = async () => {
-        await exportToExcel<AdminPromotionOverview>(promotions, 'promotions.xlsx');
-    };
 
     return (
         <>
@@ -133,8 +127,6 @@ const PromotionPage = () => {
 
                         <div className="flex gap-2 h-9">
                             <ButtonAction.Add onClick={ () => setShowModalAdd(true)} />
-                            <ButtonAction.Import />
-                            <ButtonAction.Export onClick={handleExportExcel} />
                         </div>
                     </div>
                 </Card>

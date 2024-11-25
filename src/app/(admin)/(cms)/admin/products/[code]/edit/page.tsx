@@ -38,7 +38,7 @@ const EditMoviePage = () => {
     const router = useRouter();
 
     useEffect(() => {
-        document.title = 'B&Q Cinema - Thêm sản phẩm';
+        document.title = 'B&Q Cinema - Cập nhật sản phẩm';
     }, []);
 
     if (isLoading) {
@@ -100,7 +100,7 @@ const EditMoviePage = () => {
                         <Card className={`p-[18px] col-span-3`}>
                             <Typography.Title level={4}>Mô tả</Typography.Title>
                             <div className="border rounded-[6px] border-[rgb(236, 243, 250)] py-4 px-4.5">
-                                <TextArea name="description" label="Mô tả" required readOnly={isReadOnly} />
+                                <TextArea name="description" placeholder="Nhập mô tả" label="Mô tả" required readOnly={isReadOnly} />
                             </div>
                         </Card>
                     </div>
@@ -119,7 +119,7 @@ const EditMoviePage = () => {
                             </ButtonIcon>
                         </Link>
                         <ButtonIcon icon={<FaSave />} type="submit" disabled={updateProduct.isPending}>
-                            Cập nhật
+                            {updateProduct.isPending ? 'Đang cập nhật...' : 'Cập nhật'}
                         </ButtonIcon>
                     </div>
                 </Form>

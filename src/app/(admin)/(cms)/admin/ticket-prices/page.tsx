@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 import { ColumnDef, Row } from '@tanstack/table-core';
 import Card from '@/components/Admin/Card';
 import Table from '@/components/Admin/Tables';
-import { exportToExcel } from '@/utils/exportToExcel';
 import { formatDateToLocalDate, formatTime } from '@/utils/formatDate';
 import {
     AdminTicketPriceLineOverview,
@@ -145,10 +144,6 @@ const TicketPricePage = () => {
         [deleteTicketPriceModal],
     );
 
-    const handleExportExcel = async () => {
-        await exportToExcel<AdminTicketPriceOverview>(ticketPrices, 'ticket-prices.xlsx');
-    };
-
     const renderSubComponent = React.useCallback(
         ({ row }: { row: Row<AdminTicketPriceOverview> }) => (
             <div className="bg-gray-100">
@@ -242,8 +237,6 @@ const TicketPricePage = () => {
 
                         <div className="flex gap-2 h-9">
                             <ButtonAction.Add onClick={() => setShowModalAddTicketPrice(true)} />
-                            <ButtonAction.Import />
-                            <ButtonAction.Export onClick={handleExportExcel} />
                         </div>
                     </div>
                 </Card>
