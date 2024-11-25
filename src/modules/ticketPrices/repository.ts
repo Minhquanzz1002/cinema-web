@@ -73,6 +73,35 @@ export const useCreateTicketPrice = () => {
 };
 
 /**
+ * Copy ticket price
+ */
+
+interface CopyTicketPriceData {
+    startDate: string;
+    endDate: string;
+}
+
+const copyTicketPrice = ({id, data} : {data: CopyTicketPriceData, id: number}): Promise<SuccessResponse<AdminTicketPriceOverview>> => {
+    return httpRepository.post<AdminTicketPriceOverview, CopyTicketPriceData>(`/admin/v1/ticket-prices/${id}/copy`, data);
+};
+
+export const useCopyTicketPrice = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationKey: [TICKET_PRICES_QUERY_KEY, 'copy'],
+        mutationFn: copyTicketPrice,
+        onSuccess: async (res) => {
+            await queryClient.invalidateQueries({ queryKey: [TICKET_PRICES_QUERY_KEY] });
+            toast.success(res.message);
+        },
+        onError: (error: ErrorResponse) => {
+            toast.error(error.message);
+            console.error('Copy ticket price error:', error);
+        },
+    });
+};
+
+/**
  * Update ticket price
  */
 
