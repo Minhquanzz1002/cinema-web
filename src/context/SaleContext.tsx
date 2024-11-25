@@ -11,7 +11,7 @@ import {
     useUpdateProductInOrderByEmployee,
     useUpdateSeatInOrderByEmployee,
 } from '@/modules/orders/repository';
-import { OrderResponseCreated } from '@/modules/orders/interface';
+import { OrderDetailInOrderCreated, OrderResponseCreated } from '@/modules/orders/interface';
 import { useLocalStorage } from 'usehooks-ts';
 
 export interface SelectedProduct {
@@ -25,6 +25,7 @@ interface SaleSate {
     selectedSeats: Seat[];
     selectedTempSeats: Seat[];
     selectedProducts: SelectedProduct[];
+    selectedProductGifts: SelectedProduct[];
 
     selectedCustomer: CustomerWithNameAndPhone | null;
     order: OrderResponseCreated | null;
@@ -32,6 +33,20 @@ interface SaleSate {
     isLoadingRedirect: boolean;
     zpAppTransId: string | null;
 }
+
+const convertOrderDetailToSelectedProduct = (orderDetail: OrderDetailInOrderCreated): SelectedProduct | null => {
+    if (orderDetail.type !== 'PRODUCT' || !orderDetail.product) {
+        return null;
+    }
+
+    return {
+        quantity: orderDetail.quantity,
+        product: {
+            ...orderDetail.product,
+            price: orderDetail.price,
+        },
+    };
+};
 
 interface SaleActions {
     // Movie & ShowTime actions
@@ -90,6 +105,7 @@ const SaleProvider = ({ children }: SaleProviderProps) => {
     const [selectedSeats, setSelectedSeats] = useLocalStorage<Seat[]>('selectedSeats', []);
     const [selectedTempSeats, setSelectedTempSeats] = useLocalStorage<Seat[]>('selectedTempSeats', []);
     const [selectedProducts, setSelectedProducts] = useLocalStorage<SelectedProduct[]>('selectedProducts', []);
+    const [selectedProductGifts, setSelectedProductGifts] = useLocalStorage<SelectedProduct[]>('selectedProductGifts', []);
     const [selectedCustomer, setSelectedCustomer] = useLocalStorage<CustomerWithNameAndPhone | null>('selectedCustomer', null);
     const [isLoadingRedirect, setIsLoadingRedirect] = useState<boolean>(false);
     const [totalDiscount, setTotalDiscount] = useLocalStorage<number>('totalDiscount', 0);
@@ -102,6 +118,7 @@ const SaleProvider = ({ children }: SaleProviderProps) => {
         selectedSeats,
         selectedTempSeats,
         selectedProducts,
+        selectedProductGifts,
         selectedCustomer,
 
         totalDiscount,
@@ -116,6 +133,37 @@ const SaleProvider = ({ children }: SaleProviderProps) => {
     const updateProductInOrder = useUpdateProductInOrderByEmployee();
     const updateCustomerInOrder = useUpdateCustomerInOrderByEmployee();
     const cancelOrder = useCancelOrderByEmployee();
+
+    const syncProductsWithOrder = useCallback(async () => {
+        console.log('order:', order);
+        if (!order) {
+            setSelectedProducts([]);
+            setSelectedProductGifts([]);
+            return;
+        }
+        const regularProducts: SelectedProduct[] = [];
+        const giftProducts: SelectedProduct[] = [];
+
+        order.orderDetails.forEach(detail => {
+            const selectedProduct = convertOrderDetailToSelectedProduct(detail);
+            console.log('selectedProduct:', selectedProduct);
+            if (selectedProduct) {
+                if (detail.isGift) {
+                    giftProducts.push(selectedProduct);
+                } else {
+                    regularProducts.push(selectedProduct);
+                }
+            }
+        });
+
+        setSelectedProducts(regularProducts);
+        setSelectedProductGifts(giftProducts);
+    }, [order]);
+
+    useEffect(() => {
+        console.log('order:', order);
+        syncProductsWithOrder();
+    }, [order, syncProductsWithOrder]);
 
     // Flow Navigation Logic
     const validFlowRoutes = useMemo(() => [
