@@ -30,7 +30,7 @@ interface FormValues {
 }
 
 const validationSchema = Yup.object().shape({
-    name: Yup.string().required(EMPLOYEE_MESSAGES.FORM.REQUIRED.NAME),
+    name: Yup.string().trim().required(EMPLOYEE_MESSAGES.FORM.REQUIRED.NAME),
     email: Yup.string()
         .email(EMPLOYEE_MESSAGES.FORM.INVALID.EMAIL)
         .required(EMPLOYEE_MESSAGES.FORM.REQUIRED.EMAIL),
