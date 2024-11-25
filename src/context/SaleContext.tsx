@@ -53,6 +53,9 @@ interface SaleActions {
     updateMovieAndShowTime: (movie: AdminMovie | null, showTime: AdminShowTimeForSale | null) => void;
 
     // Navigation actions
+    backToChooseMovie: () => void;
+    backToChooseSeat: () => void;
+    backToChooseCombo: () => void;
     proceedToSeatSelection: () => void;
     proceedToComboSelection: () => void;
     proceedToPaymentSelection: () => void;
@@ -221,6 +224,21 @@ const SaleProvider = ({ children }: SaleProviderProps) => {
     }, []);
 
     const navigationActions = {
+        backToChooseMovie: useCallback(async () => {
+            if (order) {
+                await cancelOrder.mutateAsync(order.id);
+            }
+            router.push('/admin/sales');
+        }, [router, order, cancelOrder]),
+
+        backToChooseSeat: useCallback(() => {
+            router.push('/admin/sales/choose-seat');
+        }, [router]),
+
+        backToChooseCombo: useCallback(() => {
+            router.push('/admin/sales/choose-combo');
+        }, [router]),
+
         proceedToPaymentSelection: useCallback(async () => {
             if (selectedMovie && selectedShowTime && selectedSeats.length > 0 && order) {
                 setIsLoadingRedirect(true);

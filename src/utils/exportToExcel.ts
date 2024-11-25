@@ -156,8 +156,8 @@ export const exportEmployeeSaleReport = async (groupedReports: GroupedEmployeeSa
         group.reports.forEach((report, reportIndex) => {
             const row = worksheet.addRow([
                 reportIndex === 0 ? groupIndex + 1 : '', // STT chỉ hiện ở dòng đầu
-                report.employeeCode,
-                report.employeeName,
+                reportIndex === 0 ? report.employeeCode : '',
+                reportIndex === 0 ? report.employeeName : '',
                 formatDateToLocalDate(report.date),
                 formatNumberToCurrency(report.totalDiscount),
                 formatNumberToCurrency(report.totalPrice),
