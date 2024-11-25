@@ -32,6 +32,7 @@ import ModalUpdateTicketPriceLine from '@/components/Admin/Pages/TicketPrice/Mod
 import dayjs from 'dayjs';
 import BaseStatusBadge from '@/components/Admin/Badge/BaseStatusBadge';
 import { DatePickerWithRange } from '@/components/Admin/DatePickerWithRange';
+import ModalCopyTicketPrice from '@/components/Admin/Pages/TicketPrice/ModalCopyTicketPrice';
 
 interface TicketPriceFilter extends PaginationState {
     name: string;
@@ -53,6 +54,7 @@ const TicketPricePage = () => {
     const [ticketPriceToUpdateTicketPriceLine, setTicketPriceToUpdateTicketPriceLine] = useState<AdminTicketPriceOverview | null>(null);
     const [ticketPriceLineToUpdate, setTicketPriceLineToUpdate] = useState<AdminTicketPriceLineOverview | null>(null);
     const [ticketPriceToAddNewLine, setTicketPriceToAddNewLine] = useState<AdminTicketPriceOverview | null>(null);
+    const [ticketPriceToCopy, setTicketPriceToCopy] = useState<AdminTicketPriceOverview | null>(null);
 
     const ticketPricesQuery = useAllTicketPrices({
         page: filters.page - 1,
@@ -134,6 +136,7 @@ const TicketPricePage = () => {
                 header: () => '',
                 cell: ({ row }) => (
                     <div className="flex gap-2 items-center justify-end">
+                        <ButtonAction.Copy onClick={() => setTicketPriceToCopy(row.original)} />
                         <ButtonAction.Update onClick={() => setTicketPriceToUpdate(row.original)} />
                         <ButtonAction.Delete onClick={() => deleteTicketPriceModal.openDeleteModal(row.original)} />
                     </div>
@@ -308,6 +311,12 @@ const TicketPricePage = () => {
             />
             <ModalUpdateTicketPrice onClose={() => setTicketPriceToUpdate(null)}
                                     ticketPrice={ticketPriceToUpdate} />
+
+            {
+                ticketPriceToCopy && (
+                    <ModalCopyTicketPrice onClose={() => setTicketPriceToCopy(null)} ticketPrice={ticketPriceToCopy} />
+                )
+            }
         </>
     );
 };

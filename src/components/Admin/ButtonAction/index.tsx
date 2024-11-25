@@ -4,6 +4,7 @@ import { FaEdit, FaEye } from 'react-icons/fa';
 import Link from 'next/link';
 import { FaFileImport, FaPlus } from 'react-icons/fa6';
 import { RiFileExcel2Line, RiRefund2Line } from 'react-icons/ri';
+import { MdOutlineContentCopy } from 'react-icons/md';
 
 type DeleteButtonProps = {
     onClick?: MouseEventHandler<HTMLButtonElement>;
@@ -11,6 +12,12 @@ type DeleteButtonProps = {
 }
 
 type UpdateButtonProps = {
+    href?: string;
+    onClick?: MouseEventHandler<HTMLButtonElement>;
+    disabled?: boolean;
+}
+
+type CopyButtonProps = {
     href?: string;
     onClick?: MouseEventHandler<HTMLButtonElement>;
     disabled?: boolean;
@@ -79,6 +86,21 @@ const ButtonAction = {
         return (
             <Link href={href} type="button" className="text-blue-400 hover:text-blue-600" title="Chỉnh sửa">
                 <FaEdit size={18} />
+            </Link>
+        );
+    },
+    Copy: ({ href = '#', onClick, disabled }: CopyButtonProps) => {
+        if (onClick) {
+            return (
+                <button type="button" onClick={onClick} disabled={disabled}
+                        className="text-gray-600 hover:text-gray-800" title="Sao chép">
+                    <MdOutlineContentCopy size={18} />
+                </button>
+            );
+        }
+        return (
+            <Link href={href} type="button" className="text-gray-600 hover:text-gray-800" title="Chỉnh sửa">
+                <MdOutlineContentCopy size={18} />
             </Link>
         );
     },
