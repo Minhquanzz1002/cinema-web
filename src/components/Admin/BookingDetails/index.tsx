@@ -11,7 +11,7 @@ import { SelectedProduct, useSaleContext } from '@/context/SaleContext';
 import { NOT_FOUND_MOVIE_IMAGE } from '@/variables/images';
 import CountdownTimer from '@/components/Admin/CountdownTimer';
 import CustomerSearch from '@/components/Admin/BookingDetails/CustomerSearch';
-import { IoClose } from 'react-icons/io5';
+import { IoClose, IoGiftOutline } from 'react-icons/io5';
 import { FaRegUser } from 'react-icons/fa';
 
 interface GroupedSeat {
@@ -36,7 +36,7 @@ const BookingDetails = ({
                             selectedProducts,
                             footer,
                         }: BookingDetailsProps) => {
-    const { selectedCustomer, totalDiscount, order, handleOrderExpired, handleClearCustomer } = useSaleContext();
+    const { selectedCustomer, selectedProductGifts, totalDiscount, order, handleOrderExpired, handleClearCustomer } = useSaleContext();
 
     const groupedSeats: GroupedSeat[] = map(
         groupBy(selectedSeats, 'type'),
@@ -132,7 +132,7 @@ const BookingDetails = ({
             </div>
 
             {
-                selectedProducts.length > 0 && (
+                (selectedProducts.length > 0 || selectedProductGifts.length > 0) && (
                     <div className="my-2 border-t border-dashed border-black/50" />
                 )
             }
@@ -141,9 +141,25 @@ const BookingDetails = ({
                 {
                     selectedProducts.map((product) => (
                         <div key={product.product.id} className="flex justify-between py-2">
-                            <div>
+                            <div className="flex items-center gap-1">
                                 <strong>{product.quantity}x </strong>
                                 <span>{product.product.name}</span>
+                            </div>
+                            <div>
+                                <strong
+                                    className="text-sm"
+                                >{formatNumberToCurrency(product.quantity * product.product.price!)}</strong>
+                            </div>
+                        </div>
+                    ))
+                }
+                {
+                    selectedProductGifts.map((product) => (
+                        <div key={product.product.id} className="flex justify-between py-2">
+                            <div className="flex gap-1 items-center">
+                                <strong>{product.quantity}x </strong>
+                                <span>{product.product.name}</span>
+                                <span className="text-brand-500"><IoGiftOutline size={23}/></span>
                             </div>
                             <div>
                                 <strong
