@@ -13,6 +13,7 @@ interface AuthContextType {
     user?: User;
     login: (response: LoginResponse) => void;
     logout: () => void;
+    updateUser: (newUser: User) => void;
 }
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
@@ -78,12 +79,17 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
         router.push('/admin/auth/login');
     };
 
+    const updateUser = (newUser: User) => {
+        setUser(newUser);
+    };
+
     const value = {
         isLoading: isLoading,
         accessToken: accessToken || '',
         refreshToken: refreshToken || '',
         login,
         logout,
+        updateUser,
         user,
     };
 

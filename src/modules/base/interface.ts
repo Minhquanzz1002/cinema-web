@@ -20,6 +20,11 @@ export interface Pageable {
 }
 
 export enum Gender {
-    MALE = "MALE",
-    FEMALE = "FEMALE"
+    MALE = 'MALE',
+    FEMALE = 'FEMALE'
 }
+
+export const GenderVietnamese: Record<Gender, string> = {
+    [Gender.MALE]: 'Nam',
+    [Gender.FEMALE]: 'Nữ',
+};
