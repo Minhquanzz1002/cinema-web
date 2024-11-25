@@ -42,7 +42,7 @@ const CountdownTimer = ({ orderDate, onExpired }: CountdownTimerProps) => {
         }, 1000);
 
         return () => clearInterval(timer);
-    }, [orderDate, onExpired]);
+    }, [orderDate, onExpired, isExpired]);
 
     const minutes = Math.floor(timeLeft / 60);
     const seconds = timeLeft % 60;

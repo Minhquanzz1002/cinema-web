@@ -89,7 +89,7 @@ const ModalUpdateTicketPrice = ({ onClose, ticketPrice }: ModalUpdateTicketPrice
 
     return (
         <>
-            <Modal title="Cập nhật" open={true} onClose={onClose}>
+            <Modal title="Cập nhật bảng giá vé" open={true} onClose={onClose}>
                 <Formik initialValues={initialValues} onSubmit={handleSubmit} validationSchema={validationSchema}>
                     <FormikContent />
                 </Formik>
