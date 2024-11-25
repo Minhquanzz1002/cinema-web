@@ -102,7 +102,7 @@ const NewProductPage = () => {
                         <Card className={`p-[18px] col-span-3`}>
                             <Typography.Title level={4}>Mô tả</Typography.Title>
                             <div className="border rounded-[6px] border-[rgb(236, 243, 250)] py-4 px-4.5">
-                                <TextArea name="description" label="Mô tả" required />
+                                <TextArea name="description" label="Mô tả" required placeholder="Nhập mô tả" />
                             </div>
                         </Card>
                     </div>
@@ -123,7 +123,7 @@ const NewProductPage = () => {
                             </ButtonIcon>
                         </Link>
                         <ButtonIcon icon={<FaSave />} type="submit" disabled={createProduct.isPending}>
-                            Lưu
+                            {createProduct.isPending ? 'Đang lưu...' : 'Lưu'}
                         </ButtonIcon>
                     </div>
                 </Form>
