@@ -24,3 +24,8 @@ export enum UserStatus {
     ACTIVE = 'ACTIVE',
     INACTIVE = 'INACTIVE',
 }
+
+export const UserStatusVietnamese: Record<UserStatus, string> = {
+    [UserStatus.ACTIVE]: 'Hoạt động',
+    [UserStatus.INACTIVE]: 'Ngưng hoạt động',
+};
