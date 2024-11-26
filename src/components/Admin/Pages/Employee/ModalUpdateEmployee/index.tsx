@@ -103,7 +103,7 @@ const FormikContent = ({ onClose, roles, isLoading, isReadOnly, employee }:
 
             <div className="flex justify-end items-center gap-3 mt-3">
                 <ButtonAction.Cancel onClick={onClose} />
-                <ButtonAction.Submit isLoading={isLoading} />
+                <ButtonAction.Submit isLoading={isLoading} text="Cập nhật" />
             </div>
         </Form>
     );
