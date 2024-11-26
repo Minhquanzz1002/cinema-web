@@ -84,9 +84,13 @@ const adminRoutes: IAdminRoute[] = [
         icon: <RiMoneyDollarCircleLine />,
     },
     {
-        name: 'Nhân viên',
-        path: '/admin/employees',
+        name: 'Tài khoản',
+        path: '/admin/accounts',
         icon: <FiUsers />,
+        children: [
+            { name: 'Nhân viên', path: '/admin/accounts/employees' },
+            { name: 'Khách hàng', path: '/admin/accounts/customers' },
+        ]
     },
 ];
 
