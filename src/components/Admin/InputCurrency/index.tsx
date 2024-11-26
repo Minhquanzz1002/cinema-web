@@ -84,7 +84,7 @@ const InputCurrency = ({
     };
 
     return (
-        <div className={wrapperClassName ? 'mb-3' : wrapperClassName}>
+        <div className={wrapperClassName ? wrapperClassName : 'mb-3'}>
             {
                 label && (
                     <div className="mb-1 inline-flex gap-x-1 h-6">
