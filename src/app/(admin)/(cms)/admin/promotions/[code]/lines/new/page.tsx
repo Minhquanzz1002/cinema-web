@@ -1,7 +1,7 @@
 'use client';
 import React, { useEffect } from 'react';
 import { FieldArray, FieldArrayRenderProps, Form, Formik, useFormikContext } from 'formik';
-import { date, object, string } from 'yup';
+import { array, date, number, object, string } from 'yup';
 import Card from '@/components/Admin/Card';
 import Typography from '@/components/Admin/Typography';
 import Input from '@/components/Admin/Input';
@@ -25,6 +25,7 @@ import { formatDateToLocalDate } from '@/utils/formatDate';
 import dayjs from 'dayjs';
 import Table from '@/components/Admin/Pages/PromotionLine/Table';
 import { useAllProductActive } from '@/modules/products/repository';
+import { PROMOTION_MESSAGES } from '@/variables/messages/promotion.messages';
 
 const DetailFields = ({ index }: { index: number }) => {
     const { values } = useFormikContext<FormValues>();
@@ -36,91 +37,115 @@ const DetailFields = ({ index }: { index: number }) => {
         case PromotionLineType.CASH_REBATE:
             return (
                 <>
-                    <Table.Cell>
-                        <InputCurrency name={`promotionDetails.${index}.discountValue`} unit="VND"
-                                       placeholder="Nhập số tiền giảm" required />
+                    <Table.Cell className="align-top">
+                        <InputCurrency
+                            name={`promotionDetails.${index}.discountValue`} unit="VND"
+                            placeholder="Nhập số tiền giảm" required
+                        />
                     </Table.Cell>
-                    <Table.Cell>
-                        <InputCurrency name={`promotionDetails.${index}.minOrderValue`} unit="VND"
-                                       placeholder="Nhập số tiền đơn hàng tối thiểu" />
+                    <Table.Cell className="align-top">
+                        <InputCurrency
+                            name={`promotionDetails.${index}.minOrderValue`} unit="VND"
+                            placeholder="Nhập số tiền đơn hàng tối thiểu"
+                        />
                     </Table.Cell>
-                    <Table.Cell>
-                        <Input name={`promotionDetails.${index}.usageLimit`}
-                               placeholder="Nhập số lượng áp dụng tối đa" required />
+                    <Table.Cell className="align-top">
+                        <Input
+                            name={`promotionDetails.${index}.usageLimit`}
+                            placeholder="Nhập số lượng áp dụng tối đa" required
+                        />
                     </Table.Cell>
-                    <Table.Cell>
-                        <Select name={`promotionDetails.${index}.status`} options={[
+                    <Table.Cell className="align-top">
+                        <Select
+                            name={`promotionDetails.${index}.status`} options={[
                             ...Object.keys(BaseStatus).map((status) => ({
                                 label: BaseStatusVietnamese[status as BaseStatus],
                                 value: status,
                             })),
-                        ]} />
+                        ]}
+                        />
                     </Table.Cell>
                 </>
             );
         case PromotionLineType.PRICE_DISCOUNT:
             return (
                 <>
-                    <Table.Cell>
-                        <InputCurrency name={`promotionDetails.${index}.discountValue`} unit="%"
-                                       placeholder="Nhập phần trăm giảm" required />
+                    <Table.Cell className="align-top">
+                        <InputCurrency
+                            name={`promotionDetails.${index}.discountValue`} unit="%"
+                            placeholder="Nhập phần trăm giảm" required
+                        />
                     </Table.Cell>
-                    <Table.Cell>
-                        <InputCurrency name={`promotionDetails.${index}.maxDiscountValue`} unit="VND"
-                                       placeholder="Nhập số tiền giảm tối đa" />
+                    <Table.Cell className="align-top">
+                        <InputCurrency
+                            name={`promotionDetails.${index}.maxDiscountValue`} unit="VND"
+                            placeholder="Nhập số tiền giảm tối đa"
+                        />
                     </Table.Cell>
-                    <Table.Cell>
-                        <InputCurrency name={`promotionDetails.${index}.minOrderValue`} unit="VND"
-                                       placeholder="Nhập số tiền đơn hàng tối thiểu" />
+                    <Table.Cell className="align-top">
+                        <InputCurrency
+                            name={`promotionDetails.${index}.minOrderValue`} unit="VND"
+                            placeholder="Nhập số tiền đơn hàng tối thiểu"
+                        />
                     </Table.Cell>
-                    <Table.Cell>
-                        <InputCurrency name={`promotionDetails.${index}.usageLimit`}
-                                       placeholder="Nhập số lượng áp dụng tối đa" required />
+                    <Table.Cell className="align-top">
+                        <InputCurrency
+                            name={`promotionDetails.${index}.usageLimit`}
+                            placeholder="Nhập số lượng áp dụng tối đa" required
+                        />
                     </Table.Cell>
-                    <Table.Cell>
-                        <Select name={`promotionDetails.${index}.status`} options={[
+                    <Table.Cell className="align-top">
+                        <Select
+                            name={`promotionDetails.${index}.status`} options={[
                             ...Object.keys(BaseStatus).map((status) => ({
                                 label: BaseStatusVietnamese[status as BaseStatus],
                                 value: status,
                             })),
-                        ]} />
+                        ]}
+                        />
                     </Table.Cell>
                 </>
             );
         case PromotionLineType.BUY_TICKETS_GET_PRODUCTS:
             return (
                 <>
-                    <Table.Cell>
-                        <Select name={`promotionDetails.${index}.requiredSeatType`} options={[
+                    <Table.Cell className="align-top">
+                        <Select
+                            name={`promotionDetails.${index}.requiredSeatType`} options={[
                             ...Object.keys(SeatType).map((seatType) => ({
                                 label: SeatTypeVietnamese[seatType as SeatType],
                                 value: seatType,
                             })),
-                        ]} />
+                        ]}
+                        />
                     </Table.Cell>
-                    <Table.Cell className="max-w-32">
+                    <Table.Cell className="max-w-32 align-top">
                         <Input name={`promotionDetails.${index}.requiredSeatQuantity`} />
                     </Table.Cell>
-                    <Table.Cell className="min-w-96">
-                        <Select name={`promotionDetails.${index}.giftProduct`}
-                                options={products?.map(product => ({
-                                    label: `#${product.code} - ${product.name}`,
-                                    value: product.id,
-                                })) ?? []} />
+                    <Table.Cell className="min-w-96 align-top">
+                        <Select
+                            name={`promotionDetails.${index}.giftProduct`}
+                            options={products?.map(product => ({
+                                label: `#${product.code} - ${product.name}`,
+                                value: product.id,
+                            })) ?? []}
+                        />
                     </Table.Cell>
-                    <Table.Cell className="max-w-32">
+                    <Table.Cell className="max-w-32 align-top">
                         <Input name={`promotionDetails.${index}.giftQuantity`} />
                     </Table.Cell>
-                    <Table.Cell className="max-w-32">
+                    <Table.Cell className="max-w-32 align-top">
                         <Input name={`promotionDetails.${index}.usageLimit`} required />
                     </Table.Cell>
-                    <Table.Cell>
-                        <Select name={`promotionDetails.${index}.status`} options={[
+                    <Table.Cell className="align-top">
+                        <Select
+                            name={`promotionDetails.${index}.status`} options={[
                             ...Object.keys(BaseStatus).map((status) => ({
                                 label: BaseStatusVietnamese[status as BaseStatus],
                                 value: status,
                             })),
-                        ]} />
+                        ]}
+                        />
                     </Table.Cell>
                 </>
             );
@@ -128,39 +153,49 @@ const DetailFields = ({ index }: { index: number }) => {
             return (
                 <>
                     <Table.Cell>
-                        <Select name={`promotionDetails.${index}.requiredSeatType`} options={[
+                        <Select
+                            name={`promotionDetails.${index}.requiredSeatType`} options={[
                             ...Object.keys(SeatType).map((seatType) => ({
                                 label: SeatTypeVietnamese[seatType as SeatType],
                                 value: seatType,
                             })),
-                        ]} />
+                        ]}
+                        />
                     </Table.Cell>
                     <Table.Cell>
-                        <Input name={`promotionDetails.${index}.requiredSeatQuantity`}
-                               placeholder="Nhập số lượng yêu cầu" />
+                        <Input
+                            name={`promotionDetails.${index}.requiredSeatQuantity`}
+                            placeholder="Nhập số lượng yêu cầu"
+                        />
                     </Table.Cell>
                     <Table.Cell>
-                        <Select name={`promotionDetails.${index}.giftSeatType`} options={[
+                        <Select
+                            name={`promotionDetails.${index}.giftSeatType`} options={[
                             ...Object.keys(SeatType).map((seatType) => ({
                                 label: SeatTypeVietnamese[seatType as SeatType],
                                 value: seatType,
                             })),
-                        ]} />
+                        ]}
+                        />
                     </Table.Cell>
                     <Table.Cell>
-                        <Input name={`promotionDetails.${index}.giftSeatQuantity`}
-                               placeholder="Nhập số lượng vé tặng" />
+                        <Input
+                            name={`promotionDetails.${index}.giftSeatQuantity`}
+                            placeholder="Nhập số lượng vé tặng"
+                        />
                     </Table.Cell>
                     <Table.Cell>
                         <Input name={`promotionDetails.${index}.usageLimit`} required />
                     </Table.Cell>
                     <Table.Cell>
-                        <Select name={`promotionDetails.${index}.status`} options={[
+                        <Select
+                            name={`promotionDetails.${index}.status`} options={[
                             ...Object.keys(BaseStatus).map((status) => ({
                                 label: BaseStatusVietnamese[status as BaseStatus],
                                 value: status,
                             })),
-                        ]} />
+                        ]}
+                        />
                     </Table.Cell>
                 </>
             );
@@ -242,7 +277,7 @@ const DynamicDetailsList = () => {
                         discountValue: 0,
                         usageLimit: 1,
                         minOrderValue: 0,
-                        maxDiscountValue: undefined,
+                        maxDiscountValue: 0,
                         status: BaseStatus.INACTIVE,
                     }];
                 case PromotionLineType.BUY_TICKETS_GET_TICKETS:
@@ -256,10 +291,10 @@ const DynamicDetailsList = () => {
                     }];
                 case PromotionLineType.BUY_TICKETS_GET_PRODUCTS:
                     return [{
-                        requiredSeatType: undefined,
-                        requiredSeatQuantity: undefined,
+                        requiredSeatType: SeatType.NORMAL,
+                        requiredSeatQuantity: 1,
                         giftProduct: undefined,
-                        giftQuantity: undefined,
+                        giftQuantity: 1,
                         usageLimit: 1,
                         status: BaseStatus.INACTIVE,
                     }];
@@ -280,7 +315,22 @@ const DynamicDetailsList = () => {
                 arrayHelper.push({ discountValue: 0, usageLimit: 1, minOrderValue: 0, status: BaseStatus.INACTIVE });
                 break;
             case PromotionLineType.PRICE_DISCOUNT:
-                arrayHelper.push({ discountValue: 0, usageLimit: 1, minOrderValue: 0, maxDiscountValue: undefined, status: BaseStatus.INACTIVE });
+                arrayHelper.push({
+                    discountValue: 0,
+                    usageLimit: 1,
+                    minOrderValue: 0,
+                    maxDiscountValue: undefined,
+                    status: BaseStatus.INACTIVE,
+                });
+                break;
+            case PromotionLineType.BUY_TICKETS_GET_PRODUCTS:
+                arrayHelper.push({
+                    requiredSeatType: SeatType.NORMAL,
+                    requiredSeatQuantity: 1,
+                    giftQuantity: 1,
+                    usageLimit: 1,
+                    status: BaseStatus.INACTIVE,
+                });
                 break;
             default:
                 arrayHelper.push({});
@@ -294,35 +344,38 @@ const DynamicDetailsList = () => {
             <DetailHeaders />
             </thead>
             <tbody>
-            <FieldArray name="promotionDetails"
-                        render={arrayHelper => (
-                            <>
-                                {
-                                    values.promotionDetails.map((detail, index) => (
-                                        <tr key={index} className="relative">
-                                            <DetailFields index={index} />
-                                            <Table.Cell>
-                                                {
-                                                    values.promotionDetails.length > 0 && (
-                                                        <div className="flex justify-center items-center mb-3">
-                                                            <button type="button" onClick={() => arrayHelper.remove(index)}>
-                                                                <IoMdRemoveCircleOutline size={25} />
-                                                            </button>
-                                                        </div>
-                                                    )
-                                                }
-                                            </Table.Cell>
-                                        </tr>
-                                    ))
-                                }
-                                <tr>
-                                    <Table.Cell>
-                                        <ButtonAction.Add onClick={() => handleAddDetail(arrayHelper)}
-                                                          text="Thêm chi tiết" />
+            <FieldArray
+                name="promotionDetails"
+                render={arrayHelper => (
+                    <>
+                        {
+                            values.promotionDetails.map((detail, index) => (
+                                <tr key={index} className="relative">
+                                    <DetailFields index={index} />
+                                    <Table.Cell className="align-top pt-3">
+                                        {
+                                            values.promotionDetails.length > 0 && (
+                                                <div className="flex justify-center items-center mb-3">
+                                                    <button type="button" disabled={values.promotionDetails.length <= 1} onClick={() => arrayHelper.remove(index)}>
+                                                        <IoMdRemoveCircleOutline size={25} />
+                                                    </button>
+                                                </div>
+                                            )
+                                        }
                                     </Table.Cell>
                                 </tr>
-                            </>
-                        )}
+                            ))
+                        }
+                        <tr>
+                            <Table.Cell>
+                                <ButtonAction.Add
+                                    onClick={() => handleAddDetail(arrayHelper)}
+                                    text="Thêm chi tiết"
+                                />
+                            </Table.Cell>
+                        </tr>
+                    </>
+                )}
             />
             </tbody>
         </table>
@@ -331,53 +384,68 @@ const DynamicDetailsList = () => {
 };
 
 const basePromotionLineSchema = object({
-    code: string().required('Mã chương trình là bắt buộc')
-        .min(4, 'Mã chương trình phải có ít nhất 4 ký tự'),
-    name: string().required('Tên chương trình là bắt buộc'),
-    type: string().required('Loại chương trình là bắt buộc').oneOf(
+    code: string().trim().required(PROMOTION_MESSAGES.FORM.REQUIRED.CODE),
+    name: string().trim().required(PROMOTION_MESSAGES.FORM.REQUIRED.NAME),
+    type: string().required(PROMOTION_MESSAGES.FORM.REQUIRED.TYPE).oneOf(
         Object.values(PromotionLineType),
         'Loại chương trình không hợp lệ',
     ),
-    startDate: date().required('Ngày bắt đầu là bắt buộc'),
-    endDate: date().required('Ngày kết thúc là bắt buộc'),
+    startDate: date().required(PROMOTION_MESSAGES.FORM.REQUIRED.START_DATE),
+    endDate: date().required(PROMOTION_MESSAGES.FORM.REQUIRED.END_DATE),
     status: string().required('Trạng thái là bắt buộc'),
 });
 
-// const cashRebateDetailSchema = object({
-//     discountValue: number().required('Số tiền giảm là bắt buộc').min(0),
-//     minOrderValue: number().optional().min(0),
-//     usageLimit: number().required('Số lượng áp dụng tối đa là bắt buộc').min(1),
-// });
-//
-// const priceDiscountDetailSchema = object({
-//     discountValue: number().required('Phần trăm giảm là bắt buộc').min(0).max(100),
-//     maxDiscountValue: number().optional().min(0),
-//     minOrderValue: number().optional().min(0),
-//     usageLimit: number().required('Số lượng áp dụng tối đa là bắt buộc').min(1),
-// });
+const cashRebateDetailSchema = object({
+    discountValue: number().required(PROMOTION_MESSAGES.FORM.REQUIRED.DISCOUNT_VALUE)
+        .min(0, 'Tối thiểu là 0'),
+    minOrderValue: number().required(PROMOTION_MESSAGES.FORM.REQUIRED.MIN_ORDER_VALUE)
+        .min(0, 'Tối thiểu là 0'),
+    usageLimit: number().required(PROMOTION_MESSAGES.FORM.REQUIRED.USAGE_LIMIT)
+        .min(1, 'Tối thiểu là 1'),
+});
 
-// const getPromotionLineSchema = (type: PromotionLineType) => {
-//     const detailSchema = (() => {
-//         switch (type) {
-//             case PromotionLineType.CASH_REBATE:
-//                 return cashRebateDetailSchema;
-//             case PromotionLineType.PRICE_DISCOUNT:
-//                 return priceDiscountDetailSchema;
-//             case PromotionLineType.BUY_TICKETS_GET_TICKETS:
-//                 return buyTicketsGetTicketsDetailSchema;
-//             case PromotionLineType.BUY_TICKETS_GET_PRODUCTS:
-//                 return buyTicketsGetProductsDetailSchema;
-//             default:
-//                 return object({});
-//         }
-//     })();
-//
-//     return basePromotionLineSchema.shape({
-//         promotionDetails: object().shape({
-//             details: detailSchema,
-//         }),
-//     });
-// };
+const priceDiscountDetailSchema = object({
+    discountValue: number().required('Phần trăm giảm là bắt buộc').min(0).max(100),
+    maxDiscountValue: number().required(PROMOTION_MESSAGES.FORM.REQUIRED.MAX_DISCOUNT_VALUE).min(0),
+    minOrderValue: number().required(PROMOTION_MESSAGES.FORM.REQUIRED.MIN_ORDER_VALUE).min(0),
+    usageLimit: number().required(PROMOTION_MESSAGES.FORM.REQUIRED.USAGE_LIMIT).min(1),
+});
+
+const buyTicketsGetProductsDetailSchema = object({
+    requiredSeatQuantity: number()
+        .required(PROMOTION_MESSAGES.FORM.REQUIRED.REQUIRED_SEAT_QUANTITY)
+        .min(1, 'Tối thiểu là 1'),
+    usageLimit: number()
+        .required(PROMOTION_MESSAGES.FORM.REQUIRED.USAGE_LIMIT)
+        .min(1, 'Tối thiểu là 1'),
+    giftQuantity: number()
+        .required(PROMOTION_MESSAGES.FORM.REQUIRED.GIFT_QUANTITY)
+        .min(1, 'Tối thiểu là 1'),
+    giftProduct: number().required('Sản phẩm tặng là bắt buộc'),
+});
+
+
+const getPromotionLineSchema = (type: PromotionLineType) => {
+    const detailSchema = (() => {
+        switch (type) {
+            case PromotionLineType.CASH_REBATE:
+                return cashRebateDetailSchema;
+            case PromotionLineType.PRICE_DISCOUNT:
+                return priceDiscountDetailSchema;
+            case PromotionLineType.BUY_TICKETS_GET_PRODUCTS:
+                return buyTicketsGetProductsDetailSchema;
+            default:
+                return object({});
+        }
+    })();
+
+    return basePromotionLineSchema.shape({
+        promotionDetails: array()
+            .of(detailSchema)
+            .min(1, 'Phải có ít nhất một chi tiết khuyến mãi')
+            .required('Chi tiết khuyến mãi là bắt buộc'),
+    });
+};
 
 interface CashRebateDetail {
     discountValue?: number;
@@ -424,9 +492,20 @@ interface FormValues {
     promotionDetails: PromotionDetail[];
 }
 
+const UpdatePromotionType = ({updateType} : {updateType: (type: PromotionLineType) => void}) => {
+    const { values } = useFormikContext<FormValues>();
+
+    useEffect(() => {
+        updateType(values.type);
+    }, [values.type, updateType]);
+
+    return null;
+};
+
 const NewPromotionLinePage = () => {
     const router = useRouter();
     const { code } = useParams<{ code: string }>();
+    const [promotionType, setPromotionType] = React.useState<PromotionLineType>(PromotionLineType.CASH_REBATE);
     const { data: promotion, isLoading: isLoadingPromotion } = usePromotionByCode(code);
     const createPromotionLine = useCreatePromotionLine();
 
@@ -475,21 +554,29 @@ const NewPromotionLinePage = () => {
                 <Typography.Title level={4}>Thông tin chiến dịch</Typography.Title>
                 <div className="flex flex-col gap-3">
                     <ItemInfo label="Tên" value={promotion.name} />
-                    <ItemInfo label="Thời gian"
-                              value={`${formatDateToLocalDate(promotion.startDate)} - ${formatDateToLocalDate(promotion.endDate)}`} />
+                    <ItemInfo
+                        label="Thời gian"
+                        value={`${formatDateToLocalDate(promotion.startDate)} - ${formatDateToLocalDate(promotion.endDate)}`}
+                    />
                 </div>
             </Card>
-            <Formik initialValues={initialFormValues} onSubmit={handleSubmit}
-                    validationSchema={basePromotionLineSchema}>
+            <Formik
+                initialValues={initialFormValues} onSubmit={handleSubmit}
+                validationSchema={getPromotionLineSchema(promotionType)}
+            >
                 <Form>
+                    <UpdatePromotionType updateType={setPromotionType} />
                     <div className="flex flex-col gap-5">
                         <div className="grid grid-cols-2 gap-5">
                             <Card className="p-4">
                                 <Typography.Title level={4}>Thông tin chung</Typography.Title>
-                                <Input name="code" label="Mã chương trình" placeholder="Nhập mã chương trình"
-                                       required uppercase />
+                                <Input
+                                    name="code" label="Mã chương trình" placeholder="Nhập mã chương trình"
+                                    required uppercase
+                                />
                                 <Input name="name" label="Tên" placeholder="Nhập tên chương trình" required />
-                                <Select name="type" label="Loại" placeholder="Chọn loại" options={[
+                                <Select
+                                    name="type" label="Loại" placeholder="Chọn loại" options={[
                                     {
                                         label: PromotionLineTypeVietnamese[PromotionLineType.CASH_REBATE],
                                         value: PromotionLineType.CASH_REBATE,
@@ -502,26 +589,29 @@ const NewPromotionLinePage = () => {
                                         label: PromotionLineTypeVietnamese[PromotionLineType.BUY_TICKETS_GET_PRODUCTS],
                                         value: PromotionLineType.BUY_TICKETS_GET_PRODUCTS,
                                     },
-                                    {
-                                        label: PromotionLineTypeVietnamese[PromotionLineType.BUY_TICKETS_GET_TICKETS],
-                                        value: PromotionLineType.BUY_TICKETS_GET_TICKETS,
-                                    },
-                                ]} />
+                                ]}
+                                />
                             </Card>
 
                             <Card className="p-4">
                                 <Typography.Title level={4}>Thời gian & Trạng thái</Typography.Title>
-                                <DatePicker name="startDate" label="Ngày bắt đầu" required
-                                            minDate={dayjs(promotion.startDate).toDate()}
-                                            maxDate={dayjs(promotion.endDate).toDate()} />
-                                <DatePicker name="endDate" label="Ngày kết thúc" required
-                                            minDate={dayjs(promotion.startDate).toDate()}
-                                            maxDate={dayjs(promotion.endDate).toDate()} />
-                                <Select name="status" label="Trạng thái" placeholder="Chọn trạng thái" options={[
+                                <DatePicker
+                                    name="startDate" label="Ngày bắt đầu" required
+                                    minDate={dayjs(promotion.startDate).toDate()}
+                                    maxDate={dayjs(promotion.endDate).toDate()}
+                                />
+                                <DatePicker
+                                    name="endDate" label="Ngày kết thúc" required
+                                    minDate={dayjs(promotion.startDate).toDate()}
+                                    maxDate={dayjs(promotion.endDate).toDate()}
+                                />
+                                <Select
+                                    name="status" label="Trạng thái" placeholder="Chọn trạng thái" options={[
                                     ...Object.keys(BaseStatus).map((status) => ({
                                         label: BaseStatusVietnamese[status as BaseStatus], value: status,
                                     })),
-                                ]} />
+                                ]}
+                                />
                             </Card>
                         </div>
 
@@ -531,8 +621,10 @@ const NewPromotionLinePage = () => {
                         </Card>
 
                         <div className="mb-10 flex justify-end items-center gap-4">
-                            <ButtonIcon icon={<TiArrowBackOutline />} variant="secondary" type="button"
-                                        onClick={() => router.back()}>
+                            <ButtonIcon
+                                icon={<TiArrowBackOutline />} variant="secondary" type="button"
+                                onClick={() => router.back()}
+                            >
                                 Hủy bỏ
                             </ButtonIcon>
                             <ButtonIcon icon={<FaSave />} type="submit" disabled={createPromotionLine.isPending}>

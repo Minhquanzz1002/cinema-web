@@ -10,6 +10,7 @@ const Table = {
         return (
             <td className={`px-2 py-1 first-of-type:pl-0 ${className}`}>
                 {children}
+
             </td>
         );
     },
