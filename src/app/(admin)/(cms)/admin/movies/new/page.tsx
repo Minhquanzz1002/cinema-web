@@ -19,6 +19,9 @@ import Link from '@/components/Link';
 import UploadImage, { ImageFile } from '@/components/Admin/UploadImage';
 import { useRouter } from 'next/navigation';
 import { countries } from '@/variables/countries';
+import ModalAddGenre from '@/components/Admin/Pages/Genre/ModalAddGenre';
+import { FaPlus } from 'react-icons/fa6';
+import ModalAddProducer from '@/components/Admin/Pages/Producers/ModalAddProducer';
 
 const MovieSchema = object({
     title: string().required('Tên không được để trống'),
@@ -69,6 +72,8 @@ const NewMoviePage = () => {
     const [actors, setActors] = useState<ActorFilter[]>([]);
     const [producers, setProducers] = useState<ProducerFilter[]>([]);
     const [directors, setDirectors] = useState<ProducerFilter[]>([]);
+    const [showAddGenreModal, setShowAddGenreModal] = useState<boolean>(false);
+    const [showAddProducerModal, setShowAddProducerModal] = useState<boolean>(false);
 
     const createMovieMutation = useCreateMovie();
 
@@ -144,101 +149,159 @@ const NewMoviePage = () => {
     };
 
     return (
-        <div className="mt-5">
-            <Formik initialValues={initialFormValues} onSubmit={handleSubmit}
-                    validationSchema={MovieSchema}>
-                <Form>
-                    <div className="flex flex-col gap-5">
-                        <div className="grid grid-cols-2 gap-4">
-                            <Card className={`p-[18px]`}>
-                                <Typography.Title level={4}>Thông tin chung</Typography.Title>
-                                <div className="border rounded-[6px] border-[rgb(236, 243, 250)] py-4 px-4.5">
-                                    <Input name="title" label="Tên" placeholder="Nhập tên phim" tooltip="Là tên phim"
-                                           required />
-                                    <Select name="ageRating" label="Nhãn" placeholder="Chọn nhãn phim" options={[
-                                        { label: AgeRating.T18, value: AgeRating.T18 },
-                                        { label: AgeRating.T16, value: AgeRating.T16 },
-                                        { label: AgeRating.T13, value: AgeRating.T13 },
-                                        { label: AgeRating.P, value: AgeRating.P },
-                                        { label: AgeRating.C, value: AgeRating.C },
-                                        { label: AgeRating.K, value: AgeRating.K },
-                                    ]} />
-                                    <Input name="trailer" label="Trailer" placeholder="Nhập URL trailer" />
-                                    <div className="grid grid-cols-2 gap-x-3">
-                                        <Input name="duration" label="Thời lượng" placeholder="Nhập thời lượng"
-                                               unit="Phút"
-                                               type="number" min={1} max={999} required />
-                                        <Select name="country" label="Quốc gia" placeholder="Chọn quốc gia" options={[
-                                            ...countries.map(country => ({ label: country, value: country })),
-                                        ]} />
+        <>
+            <div className="mt-5">
+                <Formik
+                    initialValues={initialFormValues} onSubmit={handleSubmit}
+                    validationSchema={MovieSchema}
+                >
+                    <Form>
+                        <div className="flex flex-col gap-5">
+                            <div className="grid grid-cols-2 gap-4">
+                                <Card className={`p-[18px]`}>
+                                    <Typography.Title level={4}>Thông tin chung</Typography.Title>
+                                    <div className="border rounded-[6px] border-[rgb(236, 243, 250)] py-4 px-4.5">
+                                        <Input
+                                            name="title" label="Tên" placeholder="Nhập tên phim" tooltip="Là tên phim"
+                                            required
+                                        />
+                                        <Select
+                                            name="ageRating" label="Nhãn" placeholder="Chọn nhãn phim" options={[
+                                            { label: AgeRating.T18, value: AgeRating.T18 },
+                                            { label: AgeRating.T16, value: AgeRating.T16 },
+                                            { label: AgeRating.T13, value: AgeRating.T13 },
+                                            { label: AgeRating.P, value: AgeRating.P },
+                                            { label: AgeRating.C, value: AgeRating.C },
+                                            { label: AgeRating.K, value: AgeRating.K },
+                                        ]}
+                                        />
+                                        <Input name="trailer" label="Trailer" placeholder="Nhập URL trailer" />
+                                        <div className="grid grid-cols-2 gap-x-3">
+                                            <Input
+                                                name="duration" label="Thời lượng" placeholder="Nhập thời lượng"
+                                                unit="Phút"
+                                                type="number" min={1} max={999} required
+                                            />
+                                            <Select
+                                                name="country" label="Quốc gia" placeholder="Chọn quốc gia" options={[
+                                                ...countries.map(country => ({ label: country, value: country })),
+                                            ]}
+                                            />
+                                        </div>
                                     </div>
-                                </div>
+                                </Card>
+
+                                <Card className={`p-[18px]`}>
+                                    <Typography.Title level={4}>Danh mục & Trạng thái</Typography.Title>
+                                    <div className="border rounded-[6px] border-[rgb(236, 243, 250)] py-4 px-4.5">
+                                        <div className="flex gap-2">
+                                            <div className="flex-1">
+                                                <Select
+                                                    name="genres" label="Thể loại" placeholder="Chọn thể loại" multiple
+                                                    options={genreOptions} required
+                                                />
+                                            </div>
+                                            <div className="flex items-start mt-7">
+                                                <ButtonIcon
+                                                    type="button"
+                                                    icon={<FaPlus />} className="h-10 w-10 mt-0.5"
+                                                    onClick={() => setShowAddGenreModal(true)}
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="flex gap-2">
+                                            <div className="flex-1">
+                                                <Select
+                                                    name="producers" label="Nhà sản xuất"
+                                                    placeholder="Chọn nhà sản xuất"
+                                                    multiple
+                                                    options={producerOptions}
+                                                />
+                                            </div>
+                                            <div className="flex items-start mt-7">
+                                                <ButtonIcon
+                                                    type="button"
+                                                    icon={<FaPlus />} className="h-10 w-10 mt-0.5"
+                                                    onClick={() => setShowAddProducerModal(true)}
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <Select
+                                            name="directors" label="Đạo diễn" placeholder="Chọn đạo diễn" multiple
+                                            options={directorOptions}
+                                        />
+
+                                        <Select
+                                            name="actors" label="Diễn viên" placeholder="Chọn diễn viên" multiple
+                                            options={actorOptions}
+                                        />
+
+                                        <Select
+                                            name="status" label="Trạng thái" options={[
+                                            {
+                                                label: MovieStatusVietnamese[MovieStatus.ACTIVE],
+                                                value: MovieStatus.ACTIVE,
+                                            },
+                                            {
+                                                label: MovieStatusVietnamese[MovieStatus.INACTIVE],
+                                                value: MovieStatus.INACTIVE,
+                                            },
+                                            {
+                                                label: MovieStatusVietnamese[MovieStatus.COMING_SOON],
+                                                value: MovieStatus.COMING_SOON,
+                                            },
+                                            {
+                                                label: MovieStatusVietnamese[MovieStatus.SUSPENDED],
+                                                value: MovieStatus.SUSPENDED,
+                                            },
+                                        ]}
+                                        />
+                                    </div>
+                                </Card>
+                            </div>
+
+                            <Card className={`p-[18px]`}>
+                                <Typography.Title level={4}>Ảnh bìa</Typography.Title>
+                                <UploadImage name="imagePortrait" />
                             </Card>
 
                             <Card className={`p-[18px]`}>
-                                <Typography.Title level={4}>Danh mục & Trạng thái</Typography.Title>
-                                <div className="border rounded-[6px] border-[rgb(236, 243, 250)] py-4 px-4.5">
-                                    <Select name="genres" label="Thể loại" placeholder="Chọn thể loại" multiple
-                                            options={genreOptions} required/>
-
-                                    <Select name="directors" label="Đạo diễn" placeholder="Chọn đạo diễn" multiple
-                                            options={directorOptions} />
-
-                                    <Select name="actors" label="Diễn viên" placeholder="Chọn diễn viên" multiple
-                                            options={actorOptions} />
-
-                                    <Select name="producers" label="Nhà sản xuất" placeholder="Chọn nhà sản xuất"
-                                            multiple
-                                            options={producerOptions} />
-
-                                    <Select name="status" label="Trạng thái" options={[
-                                        { label: MovieStatusVietnamese[MovieStatus.ACTIVE], value: MovieStatus.ACTIVE },
-                                        {
-                                            label: MovieStatusVietnamese[MovieStatus.INACTIVE],
-                                            value: MovieStatus.INACTIVE,
-                                        },
-                                        {
-                                            label: MovieStatusVietnamese[MovieStatus.COMING_SOON],
-                                            value: MovieStatus.COMING_SOON,
-                                        },
-                                        {
-                                            label: MovieStatusVietnamese[MovieStatus.SUSPENDED],
-                                            value: MovieStatus.SUSPENDED,
-                                        },
-                                    ]} />
-                                </div>
+                                <Typography.Title level={4}>Ảnh nền</Typography.Title>
+                                <UploadImage name="imageLandscape" />
                             </Card>
-                        </div>
 
-                        <Card className={`p-[18px]`}>
-                            <Typography.Title level={4}>Ảnh bìa</Typography.Title>
-                            <UploadImage name="imagePortrait" />
-                        </Card>
+                            <Card className={`p-[18px]`}>
+                                <Typography.Title level={4}>Mô tả</Typography.Title>
+                                <Editor name="summary" />
+                            </Card>
 
-                        <Card className={`p-[18px]`}>
-                            <Typography.Title level={4}>Ảnh nền</Typography.Title>
-                            <UploadImage name="imageLandscape" />
-                        </Card>
-
-                        <Card className={`p-[18px]`}>
-                            <Typography.Title level={4}>Mô tả</Typography.Title>
-                            <Editor name="summary"/>
-                        </Card>
-
-                        <div className="mb-10 flex justify-end items-center gap-4">
-                            <Link href={'/admin/movies'}>
-                                <ButtonIcon icon={<TiArrowBackOutline />} variant="secondary">
-                                    Hủy bỏ
+                            <div className="mb-10 flex justify-end items-center gap-4">
+                                <Link href={'/admin/movies'}>
+                                    <ButtonIcon icon={<TiArrowBackOutline />} variant="secondary">
+                                        Hủy bỏ
+                                    </ButtonIcon>
+                                </Link>
+                                <ButtonIcon icon={<FaSave />} type="submit" disabled={createMovieMutation.isPending}>
+                                    Lưu
                                 </ButtonIcon>
-                            </Link>
-                            <ButtonIcon icon={<FaSave />} type="submit" disabled={createMovieMutation.isPending}>
-                                Lưu
-                            </ButtonIcon>
+                            </div>
                         </div>
-                    </div>
-                </Form>
-            </Formik>
-        </div>
+                    </Form>
+                </Formik>
+            </div>
+            {
+                showAddGenreModal && (
+                    <ModalAddGenre onClose={() => setShowAddGenreModal(false)} />
+                )
+            }
+            {
+                showAddProducerModal && (
+                    <ModalAddProducer onClose={() => setShowAddProducerModal(false)} />
+                )
+            }
+        </>
     );
 };
 
