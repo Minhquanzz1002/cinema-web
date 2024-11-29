@@ -10,13 +10,17 @@ import { Director } from '@/modules/directors/interface';
 import ButtonAction from '@/components/Admin/ButtonAction';
 import useFilterPagination, { PaginationState } from '@/hook/useFilterPagination';
 import { BaseStatus, BaseStatusVietnamese } from '@/modules/base/interface';
-import { useAllDirectors } from '@/modules/directors/repository';
+import { useAllDirectors, useDeleteDirector } from '@/modules/directors/repository';
 import { Form, Formik } from 'formik';
 import Typography from '@/components/Admin/Typography';
 import Input from '@/components/Admin/Filters/Input';
 import Select from '@/components/Admin/Filters/Select';
 import AutoSubmitForm from '@/components/Admin/AutoSubmitForm';
 import BaseStatusBadge from '@/components/Admin/Badge/BaseStatusBadge';
+import ModalInfoDirector from '@/components/Admin/Pages/Directors/ModalInfoDirector';
+import useDeleteModal from '@/hook/useDeleteModal';
+import HighlightedText from '@/components/Admin/ModalDeleteAlert/HighlightedText';
+import ModalDeleteAlert from '@/components/Admin/ModalDeleteAlert';
 
 interface DirectorFilter extends PaginationState {
     search: string;
@@ -25,12 +29,15 @@ interface DirectorFilter extends PaginationState {
 }
 
 const DirectorPage = () => {
+    const [directorDetail, setDirectorDetail] = useState<Director | null>(null);
     const [filters, setFilters] = useState<DirectorFilter>({
         page: 1,
         search: '',
         country: '',
         status: 'ALL',
     });
+
+    const deleteDirectorMutation = useDeleteDirector();
 
     const directorsQuery = useAllDirectors({
         page: filters.page - 1,
@@ -52,6 +59,17 @@ const DirectorPage = () => {
         onFilterChange: setFilters,
     });
 
+    const deleteModal = useDeleteModal<Director>({
+        onDelete: async (director: Director) => {
+            await deleteDirectorMutation.mutateAsync(director.id);
+        },
+        onSuccess: () => {
+            setFilters((prev) => ({ ...prev, page: 1 }));
+        },
+        canDelete: (director: Director) => director.status !== BaseStatus.ACTIVE,
+        unableDeleteMessage: 'Không thể xóa đạo diễn đang hoạt động',
+    });
+
     useEffect(() => {
         document.title = 'B&Q Cinema - Đạo diễn';
     }, []);
@@ -69,12 +87,16 @@ const DirectorPage = () => {
                         <div className="w-14 h-14 relative rounded shadow overflow-hidden">
                             {
                                 row.original.image ?
-                                    <Image src={row.original.image} alt={row.original.name} fill
-                                           className="rounded-md object-cover"
-                                           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                                           priority /> :
-                                    <Image src={avatar} alt={row.original.name} fill className="object-cover"
-                                           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" priority />
+                                    <Image
+                                        src={row.original.image} alt={row.original.name} fill
+                                        className="rounded-md object-cover"
+                                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                        priority
+                                    /> :
+                                    <Image
+                                        src={avatar} alt={row.original.name} fill className="object-cover"
+                                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" priority
+                                    />
                             }
                         </div>
                     );
@@ -98,10 +120,11 @@ const DirectorPage = () => {
             {
                 id: 'actions',
                 header: '',
-                cell: () => (
-                    <div className="inline-flex gap-2 items-center">
-                        <ButtonAction.Update />
-                        <ButtonAction.Delete />
+                cell: ({ row }) => (
+                    <div className="flex justify-end gap-2 items-center">
+                        <ButtonAction.View onClick={() => setDirectorDetail(row.original)} />
+                        <ButtonAction.Update href={`/admin/movies/directors/${row.original.code}/edit`} />
+                        <ButtonAction.Delete onClick={() => deleteModal.openDeleteModal(row.original)} />
                     </div>
                 ),
             },
@@ -119,7 +142,7 @@ const DirectorPage = () => {
                 <Card extra={`mb-5 h-full w-full px-6 py-4`}>
                     <div className="flex items-center justify-end">
                         <div className="flex gap-2 h-9">
-                            <ButtonAction.Add />
+                            <ButtonAction.Add href={`/admin/movies/directors/new`} />
                             <ButtonAction.Import />
                             <ButtonAction.Export onClick={handleExportExcel} />
                         </div>
@@ -134,15 +157,16 @@ const DirectorPage = () => {
                                 <div className="grid grid-cols-3 gap-4">
                                     <Input name="search" placeholder="Mã hoặc tên đạo diễn" />
                                     <Input name="country" placeholder="Quốc gia" />
-                                    <Select name="status"
-                                            placeholder="Lọc theo trạng thái"
-                                            options={[
-                                                { label: 'Tất cả trạng thái', value: 'ALL' },
-                                                ...Object.values(BaseStatus).map(value => ({
-                                                    label: BaseStatusVietnamese[value],
-                                                    value,
-                                                }))
-                                            ]}
+                                    <Select
+                                        name="status"
+                                        placeholder="Lọc theo trạng thái"
+                                        options={[
+                                            { label: 'Tất cả trạng thái', value: 'ALL' },
+                                            ...Object.values(BaseStatus).map(value => ({
+                                                label: BaseStatusVietnamese[value],
+                                                value,
+                                            })),
+                                        ]}
                                     />
                                 </div>
                             </div>
@@ -152,9 +176,22 @@ const DirectorPage = () => {
                     <Table<Director> data={directors} columns={columns} currentPage={currentPage}
                                      totalPages={totalPages}
                                      isLoading={isLoading}
-                                     onChangePage={onPageChange} />
+                                     onChangePage={onPageChange}
+                    />
                 </Card>
             </div>
+            {
+                directorDetail && (
+                    <ModalInfoDirector onClose={() => setDirectorDetail(null)} director={directorDetail} />
+                )
+            }
+
+            <ModalDeleteAlert onConfirm={deleteModal.handleDelete}
+                              onClose={deleteModal.closeDeleteModal}
+                              isOpen={deleteModal.showDeleteModal}
+                              title="Xác nhận xóa?"
+                              content={<>Bạn có chắc chắn muốn xóa đạo diễn <HighlightedText>{deleteModal.selectedData?.name}</HighlightedText> không?</>}
+            />
         </>
     );
 };

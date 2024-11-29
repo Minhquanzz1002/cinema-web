@@ -30,6 +30,32 @@ export const breadcrumbs: IBreadcrumb[] = [
         ],
     },
     {
+        label: 'Thêm phim',
+        link: '^/admin/movies/directors$',
+        breadcrumbTrail: [
+            { label: 'Đạo diễn' },
+            { label: 'Danh sách đạo diễn', link: '/admin/movies/directors' },
+        ],
+    },
+    {
+        label: 'Thêm phim',
+        link: '^/admin/movies/directors/new$',
+        breadcrumbTrail: [
+            { label: 'Đạo diễn' },
+            { label: 'Danh sách đạo diễn', link: '/admin/movies/directors' },
+            { label: 'Thêm mới', link: '/admin/movies/directors/new' },
+        ],
+    },
+    {
+        label: 'Thêm phim',
+        link: '^/admin/movies/directors/[^/]+/edit$',
+        breadcrumbTrail: [
+            { label: 'Đạo diễn' },
+            { label: 'Danh sách đạo diễn', link: '/admin/movies/directors' },
+            { label: 'Cập nhật' },
+        ],
+    },
+    {
         label: 'Danh số bán hàng theo NVBH',
         link: '^/admin/reports/employee-sales$',
         breadcrumbTrail: [

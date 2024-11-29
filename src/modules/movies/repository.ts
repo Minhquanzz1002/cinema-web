@@ -7,6 +7,7 @@ import useDataFetching from '@/hook/useDataFetching';
 import { toast } from 'react-toastify';
 
 export const MOVIE_QUERY_KEY = 'movies';
+export const MOVIE_FILTER_QUERY_KEY = 'filters';
 
 /**
  * Fetch all movies
@@ -20,13 +21,7 @@ interface FetchAllMovieParams {
 }
 
 const fetchAllMovies = (params: FetchAllMovieParams): Promise<SuccessResponse<PageObject<AdminMovie>>> => {
-    return httpRepository.get<PageObject<AdminMovie>>('/admin/v1/movies', {
-        page: params.page?.toString() || '0',
-        country: params.country,
-        search: params.search,
-        ageRating: params.ageRating,
-        status: params.status,
-    });
+    return httpRepository.get<PageObject<AdminMovie>>('/admin/v1/movies', {...params});
 };
 
 export const useAllMovies = (params: FetchAllMovieParams) => {
@@ -59,7 +54,7 @@ const fetchMovieFilters = (): Promise<SuccessResponse<MovieFilter>> => {
 };
 
 export const useMovieFilters = () => {
-    return useQuery({ queryKey: ['movieFilters'], queryFn: fetchMovieFilters });
+    return useQuery({ queryKey: [MOVIE_QUERY_KEY, MOVIE_FILTER_QUERY_KEY], queryFn: fetchMovieFilters });
 };
 
 /**
