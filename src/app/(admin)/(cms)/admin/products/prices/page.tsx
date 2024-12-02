@@ -148,7 +148,7 @@ const ProductPricePage = () => {
                     <div className="flex items-center justify-end">
 
                         <div className="flex gap-2 h-9">
-                            <ButtonAction.Add onClick={() => setShowModalAddProductPrice(true)} />
+                            <ButtonAction.Add onClick={() => setShowModalAddProductPrice(true)} text="Thêm bảng giá" />
                             <ButtonAction.Import />
                             <ButtonAction.Export onClick={handleExportExcel} />
                         </div>

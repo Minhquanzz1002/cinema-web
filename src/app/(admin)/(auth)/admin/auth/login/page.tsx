@@ -7,6 +7,7 @@ import { LoginCredentials } from '@/modules/authentication/interface';
 import { useLogin } from '@/modules/authentication/repository';
 import { useRouter } from 'next/navigation';
 import { InputFieldValidation } from '@/components/Admin/Fields';
+import { LuLoader2 } from 'react-icons/lu';
 
 const LoginSchema = Yup.object().shape({
     email: Yup.string().email('Email không hợp lệ').required('Email không được để trống'),
@@ -77,6 +78,7 @@ const Login = () => {
                             <button type="submit"
                                     disabled={login.isPending}
                                     className="mt-5 w-full rounded-xl bg-brand-500 py-3 text-base font-medium text-white transition duration-200 hover:bg-brand-600 active:bg-brand-700 dark:bg-brand-400 dark:text-white dark:hover:bg-brand-300 dark:active:bg-brand-200">
+                                {login.isPending && (<LuLoader2 className="h-5 w-5 animate-spin"/>)}
                                 {login.isPending ? 'Đang xử lý...' : 'Đăng nhập'}
                             </button>
                         </Form>
