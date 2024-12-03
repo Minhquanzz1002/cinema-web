@@ -7,10 +7,12 @@ import Select from '@/components/Admin/Select';
 import Input from '@/components/Admin/Input';
 import { BaseStatus, BaseStatusVietnamese } from '@/modules/base/interface';
 import { CINEMA_MESSAGES } from '@/variables/messages/cinema.messages';
-import { useCreateCinema } from '@/modules/cinemas/repository';
+import { AdminCinemaOverview } from '@/modules/cinemas/interface';
+import { useUpdateCinema } from '@/modules/cinemas/repository';
 
-type ModalAddCinemaProps = {
+type ModalUpdateCinemaProps = {
     onClose: () => void;
+    cinema: AdminCinemaOverview;
 }
 
 interface FormValues {
@@ -67,13 +69,14 @@ const FormikContent = ({ onClose, isLoading }:
     );
 };
 
-const ModalAddCinema = ({ onClose }: ModalAddCinemaProps) => {
-    const createCinema = useCreateCinema();
+const ModalUpdateCinema = ({ onClose, cinema }: ModalUpdateCinemaProps) => {
+    const updateCinema = useUpdateCinema();
+
     const INITIAL_VALUES: FormValues = {
-        name: '',
-        hotline: '',
-        address: '',
-        status: BaseStatus.INACTIVE,
+        name: cinema.name,
+        hotline: cinema.hotline,
+        address: cinema.address,
+        status: cinema.status,
     };
 
     const handleSubmit = async (values: FormValues) => {
@@ -87,12 +90,12 @@ const ModalAddCinema = ({ onClose }: ModalAddCinemaProps) => {
     };
 
     return (
-        <Modal title="Thêm rạp" open={true} onClose={onClose}>
+        <Modal title="Cập nhật thông tin rạp" open={true} onClose={onClose}>
             <Formik initialValues={INITIAL_VALUES} onSubmit={handleSubmit} validationSchema={validationSchema}>
-                <FormikContent onClose={onClose} isLoading={createCinema.isPending} />
+                <FormikContent onClose={onClose} isLoading={updateCinema.isPending} />
             </Formik>
         </Modal>
     );
 };
 
-export default ModalAddCinema;
+export default ModalUpdateCinema;

@@ -4,7 +4,7 @@ import { ColumnDef } from '@tanstack/table-core';
 import Image from 'next/image';
 import Card from '@/components/Admin/Card';
 import Table from '@/components/Admin/Tables';
-import { exportToExcel } from '@/utils/exportToExcel';
+import { ExcelColumn, exportToExcel } from '@/utils/exportToExcel';
 import avatar from '/public/img/avatar/avt.png';
 import { Director } from '@/modules/directors/interface';
 import ButtonAction from '@/components/Admin/ButtonAction';
@@ -21,6 +21,31 @@ import ModalInfoDirector from '@/components/Admin/Pages/Directors/ModalInfoDirec
 import useDeleteModal from '@/hook/useDeleteModal';
 import HighlightedText from '@/components/Admin/ModalDeleteAlert/HighlightedText';
 import ModalDeleteAlert from '@/components/Admin/ModalDeleteAlert';
+import dayjs from 'dayjs';
+
+const exportColumns : ExcelColumn[] = [
+    {
+        field: 'code',
+        header: 'Mã đạo diễn',
+    },
+    {
+        field: 'name',
+        header: 'Tên đạo diễn',
+    },
+    {
+        field: 'birthday',
+        header: 'Ngày sinh',
+        formatter: (value: Date | undefined) => value ? dayjs(value).format('DD-MM-YYYY') : '',
+    },
+    {
+        field: 'country',
+        header: 'Quốc gia',
+    },
+    {
+        field: 'bio',
+        header: 'Tiểu sử',
+    },
+];
 
 interface DirectorFilter extends PaginationState {
     search: string;
@@ -133,7 +158,7 @@ const DirectorPage = () => {
     );
 
     const handleExportExcel = async () => {
-        await exportToExcel<Director>(directors, 'directors.xlsx');
+        await exportToExcel<Director>(directors, exportColumns, 'danh-sach-dao-dien.xlsx');
     };
 
     return (

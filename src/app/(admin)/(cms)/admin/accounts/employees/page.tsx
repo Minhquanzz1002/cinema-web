@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { ColumnDef } from '@tanstack/table-core';
 import Table from '@/components/Admin/Tables';
 import Card from '@/components/Admin/Card';
-import { exportToExcel } from '@/utils/exportToExcel';
+import { ExcelColumn, exportToExcel } from '@/utils/exportToExcel';
 import ButtonAction from '@/components/Admin/ButtonAction';
 import { Form, Formik } from 'formik';
 import Typography from '@/components/Admin/Typography';
@@ -37,6 +37,34 @@ const INITIAL_FILTERS: EmployeeFilter = {
     status: 'ALL',
     role: 'ALL',
 };
+
+const exportColumns : ExcelColumn[] = [
+    {
+        field: 'code',
+        header: 'Mã nhân viên',
+    },
+    {
+        field: 'name',
+        header: 'Tên nhân viên',
+    },
+    {
+        field: 'gender',
+        header: 'Giới tính',
+        formatter: (value: boolean) => value ? 'Nam' : 'Nữ'
+    },
+    {
+        field: 'phone',
+        header: 'Số điện thoại',
+    },
+    {
+        field: 'email',
+        header: 'Email'
+    },
+    {
+        field: 'role.description',
+        header: 'Chức vụ'
+    }
+];
 
 const EmployeePage: React.FC = () => {
     const { data: roles } = useListRoles();
@@ -165,7 +193,7 @@ const EmployeePage: React.FC = () => {
     ];
 
     const handleExportExcel = async () => {
-        await exportToExcel<AdminEmployeeOverview>(employees, 'DSNV', ['ID', 'Mã nhân viên', 'Tên', 'Giới tính', 'Email', 'Số điện thoại', 'Sinh nhật']);
+        await exportToExcel<AdminEmployeeOverview>(employees, exportColumns, 'danh-sach-nhan-vien.xlsx');
     };
 
     return (

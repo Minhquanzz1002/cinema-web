@@ -18,6 +18,7 @@ import BaseStatusBadge from '@/components/Admin/Badge/BaseStatusBadge';
 import { useAllCinemas, useDeleteCinema } from '@/modules/cinemas/repository';
 import { AdminCinemaOverview } from '@/modules/cinemas/interface';
 import ModalAddCinema from '@/components/Admin/Pages/Cinemas/ModalAddCinema';
+import ModalUpdateCinema from '@/components/Admin/Pages/Cinemas/ModalUpdateCinema';
 
 interface CinemaFilter extends PaginationState {
     search: string;
@@ -33,7 +34,7 @@ const INITIAL_FILTERS: CinemaFilter = {
 const CinemaPage: React.FC = () => {
     const [filters, setFilters] = useState<CinemaFilter>(INITIAL_FILTERS);
     const [showModalAddCinema, setShowModalAddCinema] = useState<boolean>(false);
-    // const [cinemaToUpdate, setCinemaToUpdate] = useState<AdminCinemaOverview | null>(null);
+    const [cinemaToUpdate, setCinemaToUpdate] = useState<AdminCinemaOverview | null>(null);
 
     const cinemaQuery = useAllCinemas({
         page: filters.page - 1,
@@ -89,7 +90,7 @@ const CinemaPage: React.FC = () => {
                         <div>{row.original.name}</div>
                         <div className="text-xs text-gray-800">{row.original.hotline}</div>
                     </div>
-                )
+                ),
             },
             {
                 id: 'address',
@@ -98,7 +99,7 @@ const CinemaPage: React.FC = () => {
                     <div className="max-w-96 w-96">
                         {`${row.original.address}, ${row.original.city.name}, ${row.original.district}, ${row.original.ward}`}
                     </div>
-                )
+                ),
             },
             {
                 accessorKey: 'status',
@@ -110,9 +111,7 @@ const CinemaPage: React.FC = () => {
                 header: '',
                 cell: ({ row }) => (
                     <div className="flex gap-2 items-center justify-end">
-                        <ButtonAction.Update
-                            // onClick={() => setCinemaToUpdate(row.original)}
-                        />
+                        <ButtonAction.Update onClick={() => setCinemaToUpdate(row.original)} />
                         <ButtonAction.Delete onClick={() => deleteModal.openDeleteModal(row.original)} />
                     </div>
                 ),
@@ -160,9 +159,9 @@ const CinemaPage: React.FC = () => {
                         </Form>
                     </Formik>
                     <Table<AdminCinemaOverview> data={cinemas} columns={columns} currentPage={currentPage}
-                                                  totalPages={totalPages}
-                                                  onChangePage={onPageChange}
-                                                  isLoading={isLoading}
+                                                totalPages={totalPages}
+                                                onChangePage={onPageChange}
+                                                isLoading={isLoading}
                     />
                 </Card>
             </div>
@@ -171,11 +170,17 @@ const CinemaPage: React.FC = () => {
                 onClose={deleteModal.closeDeleteModal}
                 isOpen={deleteModal.showDeleteModal}
                 title="Xác nhận xóa?"
-                content={<>Bạn có chắc chắn muốn xóa rạp <HighlightedText>{deleteModal.selectedData?.code} - {deleteModal.selectedData?.name}</HighlightedText> không?</>}
+                content={<>Bạn có chắc chắn muốn xóa
+                    rạp <HighlightedText>{deleteModal.selectedData?.code} - {deleteModal.selectedData?.name}</HighlightedText> không?</>}
             />
             {
                 showModalAddCinema && (
                     <ModalAddCinema onClose={() => setShowModalAddCinema(false)} />
+                )
+            }
+            {
+                cinemaToUpdate && (
+                    <ModalUpdateCinema onClose={() => setCinemaToUpdate(null)} cinema={cinemaToUpdate} />
                 )
             }
         </>

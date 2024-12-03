@@ -4,8 +4,8 @@ import { ColumnDef } from '@tanstack/table-core';
 import Card from '@/components/Admin/Card';
 import { RiFileExcel2Line } from 'react-icons/ri';
 import Table from '@/components/Admin/Tables';
-import { exportToExcel } from '@/utils/exportToExcel';
-import { BaseOrder, OrderOverview, OrderStatus } from '@/modules/orders/interface';
+import { ExcelColumn, exportToExcel } from '@/utils/exportToExcel';
+import { BaseOrder, OrderOverview, OrderStatus, OrderStatusVietnamese } from '@/modules/orders/interface';
 import { useAllOrders } from '@/modules/orders/repository';
 import { formatNumberToCurrency } from '@/utils/formatNumber';
 import { formatDateInOrder, timeFromNow } from '@/utils/formatDate';
@@ -19,6 +19,53 @@ import dayjs from 'dayjs';
 import { DatePickerWithRange } from '@/components/Admin/DatePickerWithRange';
 import ButtonAction from '@/components/Admin/ButtonAction';
 import ModalRefundOrder from '@/components/Admin/Pages/Bills/ModalRefundOrder';
+
+const exportColumns: ExcelColumn[] = [
+    {
+        field: 'code',
+        header: 'Mã đơn hàng',
+    },
+    {
+        field: 'user.name',
+        header: 'Tên khách hàng',
+        formatter: (value: string | undefined) => value || 'Khách vãng lai',
+    },
+    {
+        field: 'user.phone',
+        header: 'Số điện thoại',
+        formatter: (value: string | undefined) => value || '',
+    },
+    {
+        field: 'user.email',
+        header: 'Email',
+        formatter: (value: string | undefined) => value || '',
+    },
+    {
+        field: 'orderDate',
+        header: 'Ngày đặt',
+        formatter: (value: Date) => formatDateInOrder(value),
+    },
+    {
+        field: 'totalPrice',
+        header: 'Tổng tiền',
+        formatter: (value: number) => formatNumberToCurrency(value),
+    },
+    {
+        field: 'totalDiscount',
+        header: 'Giảm giá',
+        formatter: (value: number) => formatNumberToCurrency(value),
+    },
+    {
+        field: 'finalAmount',
+        header: 'Thành tiền',
+        formatter: (value: number) => formatNumberToCurrency(value),
+    },
+    {
+        field: 'status',
+        header: 'Trạng thái',
+        formatter: (value: OrderStatus) => OrderStatusVietnamese[value],
+    },
+];
 
 interface BillFilter extends PaginationState {
     code: string;
@@ -126,7 +173,7 @@ const BillCompletePage = () => {
     );
 
     const handleExportExcel = async () => {
-        await exportToExcel<BaseOrder>(orders, 'bills.xlsx');
+        await exportToExcel<BaseOrder>(orders, exportColumns, 'danh-sach-hoa-don.xlsx');
     };
 
     return (
@@ -136,9 +183,11 @@ const BillCompletePage = () => {
                     <div className="flex items-center justify-end">
 
                         <div className="flex gap-2 h-9">
-                            <button type="button"
-                                    onClick={handleExportExcel}
-                                    className="bg-brand-500 py-1.5 px-2 rounded flex items-center justify-center text-white gap-x-2 text-sm">
+                            <button
+                                type="button"
+                                onClick={handleExportExcel}
+                                className="bg-brand-500 py-1.5 px-2 rounded flex items-center justify-center text-white gap-x-2 text-sm"
+                            >
                                 <RiFileExcel2Line className="h-5 w-5" /> Export
                             </button>
                         </div>
@@ -160,7 +209,8 @@ const BillCompletePage = () => {
                     <Table<OrderOverview> data={orders} columns={columns} currentPage={currentPage}
                                           totalPages={totalPages}
                                           isLoading={isLoading}
-                                          onChangePage={onPageChange} />
+                                          onChangePage={onPageChange}
+                    />
                 </Card>
             </div>
 
