@@ -77,7 +77,7 @@ const Login = () => {
                                                   type="password" placeholder="Tối thiểu 8 ký tự" extra="mb-5" />
                             <button type="submit"
                                     disabled={login.isPending}
-                                    className="mt-5 w-full rounded-xl bg-brand-500 py-3 text-base font-medium text-white transition duration-200 hover:bg-brand-600 active:bg-brand-700 dark:bg-brand-400 dark:text-white dark:hover:bg-brand-300 dark:active:bg-brand-200">
+                                    className="mt-5 w-full flex gap-2 items-center justify-center rounded-xl bg-brand-500 py-3 text-base font-medium text-white transition duration-200 hover:bg-brand-600 active:bg-brand-700 dark:bg-brand-400 dark:text-white dark:hover:bg-brand-300 dark:active:bg-brand-200">
                                 {login.isPending && (<LuLoader2 className="h-5 w-5 animate-spin"/>)}
                                 {login.isPending ? 'Đang xử lý...' : 'Đăng nhập'}
                             </button>
