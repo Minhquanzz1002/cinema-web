@@ -24,6 +24,43 @@ import ModalDeleteAlert from '@/components/Admin/ModalDeleteAlert';
 import HighlightedText from '@/components/Admin/ModalDeleteAlert/HighlightedText';
 import ModalUpdateProductPrice from '../../../../../../components/Admin/Pages/ProductPrice/ModalUpdateProductPrice';
 import { NOT_FOUND_PRODUCT_IMAGE } from '@/variables/images';
+import { ExcelColumn, exportToExcel } from '@/utils/exportToExcel';
+
+const exportColumns : ExcelColumn[] = [
+    {
+        field: 'product.code',
+        header: 'Mã sản phẩm',
+    },
+    {
+        field: 'product.name',
+        header: 'Tên sản phẩm',
+    },
+    {
+        field: 'price',
+        header: 'Giá',
+        formatter: (value: number) => formatNumberToCurrency(value)
+    },
+    {
+        field: 'startDate',
+        header: 'Ngày bắt đầu',
+        formatter: (value: Date) => formatDateToLocalDate(value)
+    },
+    {
+        field: 'endDate',
+        header: 'Ngày kết thúc',
+        formatter: (value: Date) => formatDateToLocalDate(value)
+    },
+    {
+        field: 'product.status',
+        header: 'Trạng thái sản phẩm',
+        formatter: (value: BaseStatus) => BaseStatusVietnamese[value]
+    },
+    {
+        field: 'status',
+        header: 'Trạng thái giá',
+        formatter: (value: BaseStatus) => BaseStatusVietnamese[value]
+    }
+];
 
 interface ProductPriceFilter extends PaginationState {
     status: BaseStatus | 'ALL';
@@ -139,6 +176,7 @@ const ProductPricePage = () => {
     );
 
     const handleExportExcel = async () => {
+        await exportToExcel<AdminProductPriceOverview>(products, exportColumns, 'danh-sach-gia.xlsx');
     };
 
     return (

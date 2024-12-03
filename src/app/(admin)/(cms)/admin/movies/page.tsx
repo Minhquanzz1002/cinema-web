@@ -6,7 +6,7 @@ import Card from '@/components/Admin/Card';
 import { BsGrid3X3Gap } from 'react-icons/bs';
 import { PiListBold } from 'react-icons/pi';
 import ImportModal from '@/components/Admin/Pages/Movies/ImportModal';
-import { exportToExcel } from '@/utils/exportToExcel';
+import { ExcelColumn, exportToExcel } from '@/utils/exportToExcel';
 import { AdminMovie, AgeRating, MovieStatus, MovieStatusVietnamese } from '@/modules/movies/interface';
 import { useAllMovies, useDeleteMovie } from '@/modules/movies/repository';
 import Image from 'next/image';
@@ -23,6 +23,61 @@ import useDeleteModal from '@/hook/useDeleteModal';
 import ModalDeleteAlert from '@/components/Admin/ModalDeleteAlert';
 import HighlightedText from '@/components/Admin/ModalDeleteAlert/HighlightedText';
 import { NOT_FOUND_MOVIE_IMAGE } from '@/variables/images';
+import dayjs from 'dayjs';
+
+const exportColumns : ExcelColumn[] = [
+    {
+        field: 'code',
+        header: 'Mã phim',
+    },
+    {
+        field: 'title',
+        header: 'Tên phim',
+    },
+    {
+        field: 'releaseDate',
+        header: 'Ngày phát hành',
+        formatter: (value: Date | undefined) => value ? dayjs(value).format('DD-MM-YYYY') : '',
+    },
+    {
+        field: 'duration',
+        header: 'Thời lượng',
+        formatter: (value: number) => `${value} phút`
+    },
+    {
+        field: 'country',
+        header: 'Quốc gia',
+        formatter: (value: string | undefined) => value || ''
+    },
+    {
+        field: 'ageRating',
+        header: 'Giới hạn độ tuổi',
+        formatter: (value: AgeRating) => {
+            switch (value) {
+                case AgeRating.P:
+                    return 'P - Phim dành cho mọi độ tuổi';
+                case AgeRating.T13:
+                    return 'T13 - Phim cấm khán giả dưới 13 tuổi';
+                case AgeRating.T16:
+                    return 'T16 - Phim cấm khán giả dưới 16 tuổi';
+                case AgeRating.T18:
+                    return 'T18 - Phim cấm khán giả dưới 18 tuổi';
+                default:
+                    return '';
+            }
+        }
+    },
+    {
+        field: 'rating',
+        header: 'Đánh giá',
+        formatter: (value: number) => value.toFixed(1)
+    },
+    {
+        field: 'summary',
+        header: 'Tóm tắt',
+        formatter: (value: string | undefined) => value || ''
+    },
+];
 
 interface MovieFilter extends PaginationState {
     search: string;
@@ -154,7 +209,7 @@ const MoviePage = () => {
 
 
     const handleExportExcel = async () => {
-        await exportToExcel<AdminMovie>(movies);
+        await exportToExcel<AdminMovie>(movies, exportColumns, 'danh-sach-phim.xlsx');
     };
 
     return (

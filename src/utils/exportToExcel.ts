@@ -11,21 +11,34 @@ import lodash from 'lodash';
 import { PromotionLineType, PromotionLineTypeVietnamese } from '@/modules/promotions/interface';
 import { SeatType, SeatTypeVietnamese } from '@/modules/seats/interface';
 
+function getNestedValue(obj: any, path: string): any {
+    return path.split('.').reduce((current, key) => {
+        return current ? current[key] : undefined;
+    }, obj);
+}
+
+export interface ExcelColumn {
+    field: string;
+    header: string;
+    width?: number;
+    formatter?: (value: any) => string | number;
+}
+
 export async function exportToExcel<T extends Record<string, any>>(
     data: T[],
+    columns: ExcelColumn[],
     filename: string = 'export.xlsx',
-    headers?: string[],
 ): Promise<void> {
     if (data.length === 0) {
         throw new Error('Data array is empty');
     }
 
-    const actualHeaders = headers || Object.keys(data[0]);
-
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Sheet1');
 
-    const headerRow = worksheet.addRow(actualHeaders);
+    const headers = columns.map(col => col.header);
+    const headerRow = worksheet.addRow(headers);
+
     headerRow.eachCell((cell) => {
         cell.fill = {
             type: 'pattern',
@@ -49,8 +62,12 @@ export async function exportToExcel<T extends Record<string, any>>(
     });
 
     data.forEach((item) => {
-        const row = Object.keys(data[0]).map((header) => item[header] ?? '');
-        const dataRow = worksheet.addRow(row);
+        const rowData = columns.map(col => {
+            const value = getNestedValue(item, col.field);
+            return col.formatter ? col.formatter(value) : (value ?? '');
+        });
+
+        const dataRow = worksheet.addRow(rowData);
 
         dataRow.eachCell((cell) => {
             cell.alignment = {
@@ -65,10 +82,11 @@ export async function exportToExcel<T extends Record<string, any>>(
         });
     });
 
-    const columnCount = worksheet.columnCount;
-    for (let i = 1; i <= columnCount; i++) {
-        const column = worksheet.getColumn(i);
-        if (column) {
+    columns.forEach((col, index) => {
+        const column = worksheet.getColumn(index + 1);
+        if (col.width) {
+            column.width = col.width;
+        } else {
             let maxLength = 0;
             column.eachCell({ includeEmpty: true }, (cell) => {
                 const columnLength = cell.value ? cell.value.toString().length : 10;
@@ -78,7 +96,7 @@ export async function exportToExcel<T extends Record<string, any>>(
             });
             column.width = maxLength < 10 ? 10 : maxLength + 2;
         }
-    }
+    });
 
     worksheet.eachRow((row) => {
         row.height = 25;

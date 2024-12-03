@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { Actor } from '@/modules/actors/interface';
 import Card from '@/components/Admin/Card';
 import Table from '@/components/Admin/Tables';
-import { exportToExcel } from '@/utils/exportToExcel';
+import { ExcelColumn, exportToExcel } from '@/utils/exportToExcel';
 import { useAllActors, useDeleteActor } from '@/modules/actors/repository';
 import avatar from '/public/img/avatar/avt.png';
 import ButtonAction from '@/components/Admin/ButtonAction';
@@ -23,6 +23,34 @@ import useDeleteModal from '@/hook/useDeleteModal';
 import ModalDeleteAlert from '@/components/Admin/ModalDeleteAlert';
 import HighlightedText from '@/components/Admin/ModalDeleteAlert/HighlightedText';
 import BaseStatusBadge from '@/components/Admin/Badge/BaseStatusBadge';
+import dayjs from 'dayjs';
+
+const exportColumns : ExcelColumn[] = [
+    {
+        field: 'code',
+        header: 'Mã diễn viên',
+    },
+    {
+        field: 'name',
+        header: 'Tên diễn viên',
+    },
+    {
+        field: 'birthday',
+        header: 'Ngày sinh',
+        formatter: (value: Date | undefined) => value ? dayjs(value).format('DD-MM-YYYY') : '',
+    },
+    {
+        field: 'country',
+        header: 'Quốc gia',
+        formatter: (value: string | undefined) => value || ''
+    },
+    {
+        field: 'bio',
+        header: 'Tiểu sử',
+        width: 50,
+        formatter: (value: string | undefined) => value || ''
+    },
+];
 
 interface ActorFilter extends PaginationState {
     search: string;
@@ -126,7 +154,7 @@ const ActorPage = () => {
     );
 
     const handleExportExcel = useCallback(async () => {
-        await exportToExcel<Actor>(actors, 'actors.xlsx');
+        await exportToExcel<Actor>(actors, exportColumns, 'danh-sach-dien-vien.xlsx');
     }, [actors]);
 
     return (

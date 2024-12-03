@@ -4,7 +4,7 @@ import { ColumnDef } from '@tanstack/table-core';
 import Card from '@/components/Admin/Card';
 import { RiFileExcel2Line } from 'react-icons/ri';
 import Table from '@/components/Admin/Tables';
-import { exportToExcel } from '@/utils/exportToExcel';
+import { ExcelColumn, exportToExcel } from '@/utils/exportToExcel';
 import { formatNumberToCurrency } from '@/utils/formatNumber';
 import { formatDateInOrder } from '@/utils/formatDate';
 import useFilterPagination, { PaginationState } from '@/hook/useFilterPagination';
@@ -15,9 +15,45 @@ import AutoSubmitForm from '@/components/Admin/AutoSubmitForm';
 import ButtonAction from '@/components/Admin/ButtonAction';
 import RefundStatusBadge from '@/components/Admin/Badge/RefundStatusBadge';
 import { useAllRefunds } from '@/modules/refunds/repository';
-import { AdminRefundOverview, RefundMethodVietnamese } from '@/modules/refunds/interface';
+import { AdminRefundOverview, RefundMethod, RefundMethodVietnamese } from '@/modules/refunds/interface';
+import { RefundStatus, RefundStatusVietnamese } from '@/modules/orders/interface';
 
-interface BillFilter extends PaginationState{
+const exportColumns: ExcelColumn[] = [
+    {
+        field: 'code',
+        header: 'Mã đơn hoàn',
+    },
+    {
+        field: 'order.code',
+        header: 'Mã hóa đơn',
+    },
+    {
+        field: 'refundMethod',
+        header: 'Phương thức hoàn tiền',
+        formatter: (value: RefundMethod) => RefundMethodVietnamese[value],
+    },
+    {
+        field: 'reason',
+        header: 'Lý do',
+    },
+    {
+        field: 'refundDate',
+        header: 'Ngày hoàn tiền',
+        formatter: (value: Date) => value ? formatDateInOrder(value) : '',
+    },
+    {
+        field: 'amount',
+        header: 'Tổng hoàn tiền',
+        formatter: (value: number) => formatNumberToCurrency(value),
+    },
+    {
+        field: 'status',
+        header: 'Trạng thái',
+        formatter: (value: RefundStatus) => RefundStatusVietnamese[value],
+    },
+];
+
+interface BillFilter extends PaginationState {
     refundCode?: string;
     orderCode?: string;
     fromDate?: Date;
@@ -42,11 +78,11 @@ const BillRefundPage = () => {
         totalPages,
         isLoading,
         onFilterChange,
-        onPageChange
+        onPageChange,
     } = useFilterPagination({
         queryResult: productsQuery,
         initialFilters: filters,
-        onFilterChange: setFilters
+        onFilterChange: setFilters,
     });
 
     useEffect(() => {
@@ -90,9 +126,9 @@ const BillRefundPage = () => {
             {
                 id: 'actions',
                 header: () => '',
-                cell: ({row}) => (
+                cell: ({ row }) => (
                     <div className="flex gap-2 items-center justify-end">
-                        <ButtonAction.View href={`/admin/bills/refund/${row.original.code}`}/>
+                        <ButtonAction.View href={`/admin/bills/refund/${row.original.code}`} />
                     </div>
                 ),
             },
@@ -101,7 +137,7 @@ const BillRefundPage = () => {
     );
 
     const handleExportExcel = async () => {
-        await exportToExcel<AdminRefundOverview>(refunds,'refunds.xlsx');
+        await exportToExcel<AdminRefundOverview>(refunds, exportColumns, 'danh-sach-hoan-don.xlsx');
     };
 
     return (
@@ -111,9 +147,11 @@ const BillRefundPage = () => {
                     <div className="flex items-center justify-end">
 
                         <div className="flex gap-2 h-9">
-                            <button type="button"
-                                    onClick={handleExportExcel}
-                                    className="bg-brand-500 py-1.5 px-2 rounded flex items-center justify-center text-white gap-x-2 text-sm">
+                            <button
+                                type="button"
+                                onClick={handleExportExcel}
+                                className="bg-brand-500 py-1.5 px-2 rounded flex items-center justify-center text-white gap-x-2 text-sm"
+                            >
                                 <RiFileExcel2Line className="h-5 w-5" /> Export
                             </button>
                         </div>
@@ -133,9 +171,10 @@ const BillRefundPage = () => {
                         </Form>
                     </Formik>
                     <Table<AdminRefundOverview> data={refunds} columns={columns} currentPage={currentPage}
-                                      totalPages={totalPages}
-                                      isLoading={isLoading}
-                                      onChangePage={onPageChange} />
+                                                totalPages={totalPages}
+                                                isLoading={isLoading}
+                                                onChangePage={onPageChange}
+                    />
                 </Card>
             </div>
         </>
