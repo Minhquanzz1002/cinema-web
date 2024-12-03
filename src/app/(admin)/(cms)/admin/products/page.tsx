@@ -7,7 +7,7 @@ import { ButtonSquare } from '@/components/Admin/Button';
 import { BsGrid3X3Gap } from 'react-icons/bs';
 import { PiListBold } from 'react-icons/pi';
 import Table from '@/components/Admin/Tables';
-import { exportToExcel } from '@/utils/exportToExcel';
+import { ExcelColumn, exportToExcel } from '@/utils/exportToExcel';
 import { BaseProductWithPrice, ProductStatus, ProductStatusVietnamese } from '@/modules/products/interface';
 import { useAllProducts, useDeleteProduct } from '@/modules/products/repository';
 import { formatNumberToCurrency } from '@/utils/formatNumber';
@@ -23,6 +23,26 @@ import useDeleteModal from '@/hook/useDeleteModal';
 import ModalDeleteAlert from '@/components/Admin/ModalDeleteAlert';
 import HighlightedText from '@/components/Admin/ModalDeleteAlert/HighlightedText';
 import { NOT_FOUND_PRODUCT_IMAGE } from '@/variables/images';
+
+const exportColumns : ExcelColumn[] = [
+    {
+        field: 'code',
+        header: 'Mã sản phẩm',
+    },
+    {
+        field: 'name',
+        header: 'Tên sản phẩm',
+    },
+    {
+        field: 'price',
+        header: 'Giá',
+        formatter: (value: number | undefined) => value ? formatNumberToCurrency(value) : '',
+    },
+    {
+        field: 'description',
+        header: 'Mô tả',
+    },
+];
 
 interface ProductFilter extends PaginationState {
     search: string;
@@ -85,9 +105,11 @@ const ProductPage = () => {
                 cell: ({ row }) => {
                     return (
                         <div className="w-20 h-20 relative rounded shadow overflow-hidden">
-                            <Image src={row.original.image || NOT_FOUND_PRODUCT_IMAGE} alt={row.original.name} fill
-                                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                                   priority className="rounded-md object-cover w-20 h-20" />
+                            <Image
+                                src={row.original.image || NOT_FOUND_PRODUCT_IMAGE} alt={row.original.name} fill
+                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                priority className="rounded-md object-cover w-20 h-20"
+                            />
                         </div>
                     );
                 },
@@ -129,7 +151,7 @@ const ProductPage = () => {
     );
 
     const handleExportExcel = async () => {
-        await exportToExcel<BaseProductWithPrice>(products, 'products.xlsx');
+        await exportToExcel<BaseProductWithPrice>(products, exportColumns, 'danh-sach-san-pham.xlsx');
     };
 
     return (
@@ -138,8 +160,10 @@ const ProductPage = () => {
                 <Card extra={`mb-5 h-full w-full px-6 py-4`}>
                     <div className="flex items-center justify-between">
                         <div className="flex gap-x-2">
-                            <ButtonSquare title={displayType !== 'Grid' ? 'Hiển thị dạng thẻ' : 'Hiển thị dạng bảng'}
-                                          onClick={() => setDisplayType(displayType === 'Grid' ? 'Table' : 'Grid')}>
+                            <ButtonSquare
+                                title={displayType !== 'Grid' ? 'Hiển thị dạng thẻ' : 'Hiển thị dạng bảng'}
+                                onClick={() => setDisplayType(displayType === 'Grid' ? 'Table' : 'Grid')}
+                            >
                                 {
                                     displayType !== 'Grid' ? <BsGrid3X3Gap /> : <PiListBold />
                                 }
@@ -161,18 +185,19 @@ const ProductPage = () => {
                                 <Typography.Title level={4}>Bộ lọc</Typography.Title>
                                 <div className="grid grid-cols-3 gap-4">
                                     <Input name="search" placeholder="Tìm theo mã hoặc tên" />
-                                    <Select name="status"
-                                            options={[
-                                                { label: 'Tất cả', value: 'ALL' },
-                                                {
-                                                    label: ProductStatusVietnamese[ProductStatus.ACTIVE],
-                                                    value: ProductStatus.ACTIVE,
-                                                },
-                                                {
-                                                    label: ProductStatusVietnamese[ProductStatus.INACTIVE],
-                                                    value: ProductStatus.INACTIVE,
-                                                },
-                                            ]}
+                                    <Select
+                                        name="status"
+                                        options={[
+                                            { label: 'Tất cả', value: 'ALL' },
+                                            {
+                                                label: ProductStatusVietnamese[ProductStatus.ACTIVE],
+                                                value: ProductStatus.ACTIVE,
+                                            },
+                                            {
+                                                label: ProductStatusVietnamese[ProductStatus.INACTIVE],
+                                                value: ProductStatus.INACTIVE,
+                                            },
+                                        ]}
                                     />
                                 </div>
                             </div>
@@ -185,18 +210,20 @@ const ProductPage = () => {
                     <Table<BaseProductWithPrice> data={products} columns={columns} currentPage={currentPage}
                                                  isLoading={isLoading}
                                                  totalPages={totalPages}
-                                                 onChangePage={onPageChange} />
+                                                 onChangePage={onPageChange}
+                    />
                 </Card>
             </div>
 
-            <ModalDeleteAlert onClose={deleteModal.closeDeleteModal}
-                              onConfirm={deleteModal.handleDelete}
-                              isOpen={deleteModal.showDeleteModal}
-                              title="Xóa sản phẩm?"
-                              content={
-                                  <>Bạn có chắc chắn muốn xóa sản
-                                      phẩm <HighlightedText>{deleteModal.selectedData?.name}</HighlightedText> không?</>
-                              }
+            <ModalDeleteAlert
+                onClose={deleteModal.closeDeleteModal}
+                onConfirm={deleteModal.handleDelete}
+                isOpen={deleteModal.showDeleteModal}
+                title="Xóa sản phẩm?"
+                content={
+                    <>Bạn có chắc chắn muốn xóa sản
+                        phẩm <HighlightedText>{deleteModal.selectedData?.name}</HighlightedText> không?</>
+                }
             />
         </>
     );

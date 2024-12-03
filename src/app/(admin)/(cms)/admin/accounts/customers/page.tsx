@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { ColumnDef } from '@tanstack/table-core';
 import Table from '@/components/Admin/Tables';
 import Card from '@/components/Admin/Card';
-import { exportToExcel } from '@/utils/exportToExcel';
+import { ExcelColumn, exportToExcel } from '@/utils/exportToExcel';
 import ButtonAction from '@/components/Admin/ButtonAction';
 import { Form, Formik } from 'formik';
 import Typography from '@/components/Admin/Typography';
@@ -22,6 +22,36 @@ import Image from 'next/image';
 import { AVATAR_DEFAULT_IMAGE } from '@/variables/images';
 import ModalUpdateCustomer from '@/components/Admin/Pages/Customers/ModalUpdateCustomer';
 import UserStatusBadge from '@/components/Admin/Badge/UserStatusBadge';
+import dayjs from 'dayjs';
+
+const exportColumns: ExcelColumn[] = [
+    {
+        field: 'code',
+        header: 'Mã khách hàng',
+    },
+    {
+        field: 'name',
+        header: 'Họ và tên',
+    },
+    {
+        field: 'gender',
+        header: 'Giới tính',
+        formatter: (value: boolean) => value ? 'Nam' : 'Nữ',
+    },
+    {
+        field: 'birthday',
+        header: 'Ngày sinh',
+        formatter: (value: Date | undefined) => value ? dayjs(value).format('DD-MM-YYYY') : '',
+    },
+    {
+        field: 'phone',
+        header: 'Số điện thoại',
+    },
+    {
+        field: 'email',
+        header: 'Email',
+    },
+];
 
 interface CustomerFilter extends PaginationState {
     search: string;
@@ -152,7 +182,7 @@ const CustomerPage: React.FC = () => {
     ];
 
     const handleExportExcel = async () => {
-        await exportToExcel<AdminCustomerOverview>(customers, 'DSNV', ['ID', 'Mã nhân viên', 'Tên', 'Giới tính', 'Email', 'Số điện thoại', 'Sinh nhật']);
+        await exportToExcel<AdminCustomerOverview>(customers, exportColumns, 'danh-sach-khach-hang.xlsx');
     };
 
     return (

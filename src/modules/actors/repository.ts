@@ -1,4 +1,4 @@
-import { SuccessResponse } from '@/core/repository/interface';
+import { ErrorResponse, SuccessResponse } from '@/core/repository/interface';
 import { PageObject } from '@/core/pagination/interface';
 import httpRepository from '@/core/repository/http';
 import { Actor, ActorInsertPayload, ActorUpdatePayload } from '@/modules/actors/interface';
@@ -6,6 +6,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import { BaseStatus } from '@/modules/base/interface';
 import useDataFetching from '@/hook/useDataFetching';
+import { API_MESSAGES } from '@/variables/messages';
 
 export const ACTOR_QUERY_KEY = 'actors';
 
@@ -45,10 +46,16 @@ const createActor = (payload: ActorInsertPayload): Promise<SuccessResponse<Actor
 };
 
 export const useCreateActor = () => {
+
     return useMutation({
+        mutationKey: [ACTOR_QUERY_KEY, 'create'],
         mutationFn: createActor,
         onSuccess: () => {
             toast.success('Thêm diễn viên thành công');
+        },
+        onError: (error: ErrorResponse) => {
+            toast.error(error.message || API_MESSAGES.ERROR.CREATE.ACTOR);
+            console.error('Create actor error:', error);
         },
     });
 };
@@ -64,10 +71,17 @@ const updateActor = ({ id, payload }: {
 };
 
 export const useUpdateActor = () => {
+    const queryClient = useQueryClient();
     return useMutation({
+        mutationKey: [ACTOR_QUERY_KEY, 'update'],
         mutationFn: updateActor,
-        onSuccess: (res) => {
+        onSuccess: async (res) => {
             toast.success(res.message);
+            await queryClient.invalidateQueries({ queryKey: [ACTOR_QUERY_KEY] });
+        },
+        onError: (error: ErrorResponse) => {
+            toast.error(error.message || API_MESSAGES.ERROR.UPDATE.ACTOR);
+            console.error('Create actor error:', error);
         },
     });
 };

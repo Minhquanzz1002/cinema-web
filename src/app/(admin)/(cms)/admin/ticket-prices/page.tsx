@@ -155,14 +155,14 @@ const TicketPricePage = () => {
                         <thead>
                         <tr className="h-10 border-t">
                             <td className="text-tiny font-bold text-gray-800 dark:text-white uppercase border-gray-200 px-4 py-2 first-of-type:pr-0">Mã</td>
-                            <td className="text-tiny font-bold text-gray-800 dark:text-white uppercase border-gray-200 px-4 py-2 first-of-type:pr-0">Ngày
-                                áp dụng
+                            <td className="text-tiny font-bold text-gray-800 dark:text-white uppercase border-gray-200 px-4 py-2 first-of-type:pr-0">
+                                Thứ áp dụng
                             </td>
-                            <td className="text-tiny font-bold text-gray-800 dark:text-white uppercase border-gray-200 px-4 py-2 first-of-type:pr-0">Bắt
-                                đầu
+                            <td className="text-tiny font-bold text-gray-800 dark:text-white uppercase border-gray-200 px-4 py-2 first-of-type:pr-0">
+                                Bắt đầu
                             </td>
-                            <td className="text-tiny font-bold text-gray-800 dark:text-white uppercase border-gray-200 px-4 py-2 first-of-type:pr-0">Kết
-                                thúc
+                            <td className="text-tiny font-bold text-gray-800 dark:text-white uppercase border-gray-200 px-4 py-2 first-of-type:pr-0">
+                                Kết thúc
                             </td>
                             <td className="text-tiny font-bold text-gray-800 dark:text-white uppercase border-gray-200 px-4 py-2 first-of-type:pr-0">Giá</td>
                             <td className="text-tiny font-bold text-gray-800 dark:text-white uppercase border-gray-200 px-4 py-2 first-of-type:pr-0">

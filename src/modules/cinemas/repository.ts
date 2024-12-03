@@ -45,6 +45,80 @@ export const useAllCinemas = (params: FetchAllCinemaParams) => {
 };
 
 /**
+ * Create cinema
+ */
+
+interface CinemaCreatePayload {
+    name: string;
+    address: string;
+    ward: string;
+    district: string;
+    city: string;
+    hotline: string;
+    status: BaseStatus;
+    images?: string[];
+}
+
+const createCinema = ({ id, payload }: {
+    id: number,
+    payload: CinemaCreatePayload
+}): Promise<SuccessResponse<void>> => {
+    return httpRepository.post<void, CinemaCreatePayload>(`/admin/v1/cinemas/${id}`, payload);
+};
+
+export const useCreateCinema = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationKey: [CINEMA_QUERY_KEY, 'create'],
+        mutationFn: createCinema,
+        onSuccess: async (res) => {
+            await queryClient.invalidateQueries({ queryKey: [CINEMA_QUERY_KEY] });
+            toast.success(res.message);
+        },
+        onError: (error: ErrorResponse) => {
+            toast.error(error.message || API_MESSAGES.ERROR.CREATE.CINEMA);
+        }
+    });
+};
+
+/**
+ * Update cinema
+ */
+
+interface CinemaUpdatePayload {
+    name: string;
+    address: string;
+    ward: string;
+    district: string;
+    city: string;
+    hotline: string;
+    status: BaseStatus;
+    images?: string[];
+}
+
+const updateCinema = ({ id, payload }: {
+    id: number,
+    payload: CinemaUpdatePayload
+}): Promise<SuccessResponse<void>> => {
+    return httpRepository.put<void, CinemaUpdatePayload>(`/admin/v1/cinemas/${id}`, payload);
+};
+
+export const useUpdateCinema = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationKey: [CINEMA_QUERY_KEY, 'update'],
+        mutationFn: updateCinema,
+        onSuccess: async (res) => {
+            await queryClient.invalidateQueries({ queryKey: [CINEMA_QUERY_KEY] });
+            toast.success(res.message);
+        },
+        onError: (error: ErrorResponse) => {
+            toast.error(error.message || API_MESSAGES.ERROR.UPDATE.CINEMA);
+        }
+    });
+};
+
+/**
  * Delete cinema
  */
 const deleteCinema = (id: number): Promise<SuccessResponse<void>> => {
@@ -54,9 +128,10 @@ const deleteCinema = (id: number): Promise<SuccessResponse<void>> => {
 export const useDeleteCinema = () => {
     const queryClient = useQueryClient();
     return useMutation({
+        mutationKey: [CINEMA_QUERY_KEY, 'delete'],
         mutationFn: deleteCinema,
         onSuccess: async (res) => {
-            await queryClient.invalidateQueries({ queryKey: [CINEMA_QUERY_KEY, 'delete'] });
+            await queryClient.invalidateQueries({ queryKey: [CINEMA_QUERY_KEY] });
             toast.success(res.message);
         },
         onError: (error: ErrorResponse) => {
@@ -65,3 +140,4 @@ export const useDeleteCinema = () => {
         },
     });
 };
+
