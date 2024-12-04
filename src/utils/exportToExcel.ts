@@ -277,97 +277,6 @@ export const exportEmployeeSaleReport = async (groupedReports: GroupedEmployeeSa
         }
     });
 
-    worksheet.addRow([]);
-
-    worksheet.addRow([
-        null,
-        'Mô tả báo cáo doanh số bán hàng theo ngày',
-    ]).eachCell((cell) => {
-        cell.font = {
-            name: 'Times New Roman',
-            size: 11,
-        };
-    });
-
-    worksheet.addRow([
-        null,
-        '- Mã nhân viên, tên, ngày bán.',
-    ]).eachCell((cell) => {
-        cell.font = {
-            name: 'Times New Roman',
-            size: 11,
-        };
-    });
-    worksheet.addRow([
-        null,
-        '- Chiết khấu: bao gồm khuyến mãi giảm tiền trực tiếp và khuyến mãi % trên hóa đơn.',
-    ]).eachCell((cell) => {
-        cell.font = {
-            name: 'Times New Roman',
-            size: 11,
-        };
-    });
-    worksheet.addRow([
-        null,
-        '- Doanh số trước chiết khấu: tổng tiền chưa trừ chiết khấu.',
-    ]).eachCell((cell) => {
-        cell.font = {
-            name: 'Times New Roman',
-            size: 11,
-        };
-    });
-    worksheet.addRow([
-        null,
-        '- Doanh số sau chiết khấu: tổng tiền đã trừ chiết khấu.',
-    ]).eachCell((cell) => {
-        cell.font = {
-            name: 'Times New Roman',
-            size: 11,
-        };
-    });
-    worksheet.addRow([]);
-
-    const tableDescRow = worksheet.addRow(['']);
-    const descCell = tableDescRow.getCell(2);
-    descCell.value = {
-        richText: [
-            {
-                text: 'Lấy dữ liệu từ bảng nhân viên, hóa đơn bán hàng ',
-                font: {
-                    name: 'Times New Roman',
-                    size: 11,
-                },
-            },
-            {
-                text: '(không tính các hóa đơn mua đã trả)',
-                font: {
-                    name: 'Times New Roman',
-                    size: 11,
-                    italic: true,  // In nghiêng phần trong ngoặc
-                },
-            },
-            {
-                text: '.',
-                font: {
-                    name: 'Times New Roman',
-                    size: 11,
-                },
-            },
-        ],
-    };
-
-    // Filter row
-    const filterRow = worksheet.addRow([
-        '',
-        'Filter: Từ ngày - Đến ngày',
-    ]);
-    filterRow.eachCell((cell) => {
-        cell.font = {
-            name: 'Times New Roman',
-            size: 11,
-        };
-    });
-
     worksheet.columns = [
         { width: 10 },  // STT
         { width: 22 }, // NVBH
@@ -531,32 +440,6 @@ export const exportPromotionSummaryReport = async (reports: PromotionSummaryRepo
                 cell.alignment = { horizontal: columnAlignments[colNumber] || 'left' };
             });
         });
-    });
-
-    worksheet.addRow([]);
-
-    worksheet.addRow([]);
-
-    worksheet.addRow([
-        '',
-        'Lấy dữ liệu từ bảng CTKM, chi tiết CTKM, sản phẩm',
-    ]).eachCell((cell) => {
-        cell.font = {
-            name: 'Times New Roman',
-            size: 11,
-        };
-    });
-
-    // Filter row
-    const filterRow = worksheet.addRow([
-        '',
-        'Filter: Từ ngày - Đến ngày (CTKM nào có ngày bắt đầu hoặc kết thúc trong khoảng thời gian này sẽ xuất ra)',
-    ]);
-    filterRow.eachCell((cell) => {
-        cell.font = {
-            name: 'Times New Roman',
-            size: 11,
-        };
     });
 
     worksheet.columns = [
@@ -749,49 +632,6 @@ export const exportMovieSaleReport = async (groupedReports: GroupedMovieSalesRep
         if (colNumber > 4) {
             cell.alignment = { horizontal: 'right' };
         }
-    });
-
-    worksheet.addRow([]);
-
-    const tableDescRow = worksheet.addRow(['']);
-    const descCell = tableDescRow.getCell(2);
-    descCell.value = {
-        richText: [
-            {
-                text: 'Lấy dữ liệu từ bảng lịch chiếu, hóa đơn, chi tiết hóa đơn',
-                font: {
-                    name: 'Times New Roman',
-                    size: 11,
-                },
-            },
-            {
-                text: '(không tính các hóa đơn mua đã trả)',
-                font: {
-                    name: 'Times New Roman',
-                    size: 11,
-                    italic: true,  // In nghiêng phần trong ngoặc
-                },
-            },
-            {
-                text: '.',
-                font: {
-                    name: 'Times New Roman',
-                    size: 11,
-                },
-            },
-        ],
-    };
-
-    // Filter row
-    const filterRow = worksheet.addRow([
-        '',
-        'Filter: Từ ngày - Đến ngày',
-    ]);
-    filterRow.eachCell((cell) => {
-        cell.font = {
-            name: 'Times New Roman',
-            size: 11,
-        };
     });
 
     worksheet.columns = [
