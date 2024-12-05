@@ -19,6 +19,7 @@ import { useAllCinemas, useDeleteCinema } from '@/modules/cinemas/repository';
 import { AdminCinemaOverview } from '@/modules/cinemas/interface';
 import ModalAddCinema from '@/components/Admin/Pages/Cinemas/ModalAddCinema';
 import ModalUpdateCinema from '@/components/Admin/Pages/Cinemas/ModalUpdateCinema';
+import { removeCityPrefix, removeDistrictPrefix, removeWardPrefix } from '@/utils/formatString';
 
 interface CinemaFilter extends PaginationState {
     search: string;
@@ -97,7 +98,7 @@ const CinemaPage: React.FC = () => {
                 header: 'Địa chỉ',
                 cell: ({ row }) => (
                     <div className="max-w-96 w-96">
-                        {`${row.original.address}, ${row.original.city.name}, ${row.original.district}, ${row.original.ward}`}
+                        {`${row.original.address}, ${removeWardPrefix(row.original.ward)}, ${removeDistrictPrefix(row.original.district)}, ${removeCityPrefix(row.original.city)}`}
                     </div>
                 ),
             },

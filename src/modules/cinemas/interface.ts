@@ -5,10 +5,7 @@ export interface AdminCinemaOverview {
     code: string;
     name: string;
     address: string;
-    city: {
-        id: number;
-        name: string;
-    };
+    city: string;
     district: string;
     ward: string;
     status: BaseStatus;

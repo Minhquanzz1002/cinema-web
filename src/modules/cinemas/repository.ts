@@ -52,18 +52,18 @@ interface CinemaCreatePayload {
     name: string;
     address: string;
     ward: string;
+    wardCode: string;
     district: string;
+    districtCode: string;
     city: string;
+    cityCode: string;
     hotline: string;
     status: BaseStatus;
     images?: string[];
 }
 
-const createCinema = ({ id, payload }: {
-    id: number,
-    payload: CinemaCreatePayload
-}): Promise<SuccessResponse<void>> => {
-    return httpRepository.post<void, CinemaCreatePayload>(`/admin/v1/cinemas/${id}`, payload);
+const createCinema = (payload: CinemaCreatePayload): Promise<SuccessResponse<void>> => {
+    return httpRepository.post<void, CinemaCreatePayload>(`/admin/v1/cinemas`, payload);
 };
 
 export const useCreateCinema = () => {
