@@ -3,14 +3,11 @@ import React, { useEffect, useState } from 'react';
 import { ColumnDef } from '@tanstack/table-core';
 import Table from '@/components/Admin/Tables';
 import Card from '@/components/Admin/Card';
-import { BsGrid3X3Gap } from 'react-icons/bs';
-import { PiListBold } from 'react-icons/pi';
 import ImportModal from '@/components/Admin/Pages/Movies/ImportModal';
 import { ExcelColumn, exportToExcel } from '@/utils/exportToExcel';
 import { AdminMovie, AgeRating, MovieStatus, MovieStatusVietnamese } from '@/modules/movies/interface';
 import { useAllMovies, useDeleteMovie } from '@/modules/movies/repository';
 import Image from 'next/image';
-import { ButtonSquare } from '@/components/Admin/Button';
 import MovieStatusBadge from '@/components/Admin/Badge/MovieStatusBadge';
 import ButtonAction from '@/components/Admin/ButtonAction';
 import { Form, Formik } from 'formik';
@@ -134,7 +131,6 @@ const MoviePage = () => {
         unableDeleteMessage: 'Không thể xóa phim đang chiếu',
     });
 
-    const [displayType, setDisplayType] = useState<'Grid' | 'Table'>('Table');
     const [showImportModal, setShowImportModal] = useState<boolean>(false);
 
     useEffect(() => {
@@ -216,17 +212,7 @@ const MoviePage = () => {
         <>
             <div className="mt-3">
                 <Card extra={`mb-5 h-full w-full px-6 py-4`}>
-                    <div className="flex items-center justify-between">
-                        <div className="flex gap-x-2">
-                            <ButtonSquare title={displayType !== 'Grid' ? 'Hiển thị dạng thẻ' : 'Hiển thị dạng bảng'}
-                                          onClick={() => setDisplayType(displayType === 'Grid' ? 'Table' : 'Grid')}>
-                                {
-                                    displayType !== 'Grid' ? <BsGrid3X3Gap /> : <PiListBold />
-                                }
-                            </ButtonSquare>
-
-                        </div>
-
+                    <div className="flex items-center justify-end">
                         <div className="flex gap-2 h-9">
                             <ButtonAction.Add text="Thêm phim mới" href="/admin/movies/new" />
                             <ButtonAction.Import onClick={() => setShowImportModal(true)} />
