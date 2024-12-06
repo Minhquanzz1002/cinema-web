@@ -6,8 +6,16 @@ export interface AdminCinemaOverview {
     name: string;
     address: string;
     city: string;
+    cityCode: string;
     district: string;
+    districtCode: string;
     ward: string;
+    wardCode: string;
     status: BaseStatus;
     hotline: string;
+    rooms: {
+        id: number;
+        name: string;
+        status: BaseStatus;
+    }[];
 }

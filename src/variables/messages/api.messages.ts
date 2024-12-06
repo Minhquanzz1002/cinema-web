@@ -7,6 +7,7 @@ export const API_MESSAGES = {
             EMPLOYEE: 'Cấp tài khoản không thành công. Hãy thử lại',
             GENRE: 'Tạo thể loại không thành công. Hãy thử lại sau',
             PRODUCER: 'Tạo nhà sản xuất không thành công. Hãy thử lại sau',
+            ROOM: 'Tạo phòng chiếu không thành công. Hãy thử lại sau',
         },
         UPDATE: {
             ACTOR: 'Cập nhật diễn viên không thành công. Hãy thử lại sau',
@@ -21,6 +22,7 @@ export const API_MESSAGES = {
             CUSTOMER: 'Xóa khách hàng không thành công. Hãy thử lại sau',
             DIRECTOR: 'Xóa đạo diễn không thành công. Hãy thử lại sau',
             EMPLOYEE: 'Xóa nhân viên không thành công. Hãy thử lại sau',
+            ROOM: 'Xóa phòng chiếu không thành công. Hãy thử lại sau',
         },
     },
 };

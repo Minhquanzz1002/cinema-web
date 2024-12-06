@@ -3,12 +3,13 @@ import Modal from '@/components/Admin/Modal';
 import { Form, Formik } from 'formik';
 import * as Yup from 'yup';
 import ButtonAction from '@/components/Admin/ButtonAction';
-import Select from '@/components/Admin/Select';
+import Select, { SelectProps } from '@/components/Admin/Select';
 import Input from '@/components/Admin/Input';
 import { BaseStatus, BaseStatusVietnamese } from '@/modules/base/interface';
 import { CINEMA_MESSAGES } from '@/variables/messages/cinema.messages';
 import { AdminCinemaOverview } from '@/modules/cinemas/interface';
 import { useUpdateCinema } from '@/modules/cinemas/repository';
+import { useAddress } from '@/hook/useAddress';
 
 type ModalUpdateCinemaProps = {
     onClose: () => void;
@@ -20,19 +21,33 @@ interface FormValues {
     address: string;
     hotline: string;
     status: BaseStatus;
+    city: string;
+    cityCode: string;
+    district: string;
+    districtCode: string;
+    ward: string;
+    wardCode: string;
 }
 
 const validationSchema = Yup.object().shape({
     name: Yup.string().required(CINEMA_MESSAGES.FORM.REQUIRED.NAME),
     address: Yup.string().required(CINEMA_MESSAGES.FORM.REQUIRED.ADDRESS),
-    hotline: Yup.string().nullable()
+    hotline: Yup.string().nullable(),
 });
 
-const FormikContent = ({ onClose, isLoading }:
-                       {
-                           onClose: () => void;
-                           isLoading: boolean
-                       }) => {
+interface FormikContentProps {
+    onClose: () => void;
+    isLoading: boolean;
+}
+
+const FormikContent = ({ onClose, isLoading }: FormikContentProps) => {
+    const { cityOptions, districtOptions, wardOptions } = useAddress();
+
+    const statusOptions: SelectProps['options'] = Object.values(BaseStatus).map(status => ({
+        label: BaseStatusVietnamese[status],
+        value: status,
+    }));
+
     return (
         <Form>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -42,24 +57,24 @@ const FormikContent = ({ onClose, isLoading }:
             <Input name="address" label="Địa chỉ" placeholder="Nhập địa chỉ" required />
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <Select
-                    name="city" label="Thành phố"
-                    options={[]}
+                    name="cityCode" label="Thành phố"
+                    options={cityOptions}
                 />
                 <Select
-                    name="district" label="Quận/Huyện"
-                    options={[]}
+                    name="districtCode" label="Quận/Huyện"
+                    options={districtOptions}
                 />
                 <Select
-                    name="ward" label="Phường/Xã"
-                    options={[]}
+                    name="wardCode" label="Phường/Xã"
+                    options={wardOptions}
                 />
             </div>
             <Select
-                readOnly
                 name="status" required
                 placeholder="Chọn trạng thái"
                 label="Trạng thái"
-                options={Object.values(BaseStatus).map(status => ({label: BaseStatusVietnamese[status], value: status}))} />
+                options={statusOptions}
+            />
 
             <div className="flex justify-end items-center gap-3 mt-3">
                 <ButtonAction.Cancel onClick={onClose} />
@@ -77,12 +92,32 @@ const ModalUpdateCinema = ({ onClose, cinema }: ModalUpdateCinemaProps) => {
         hotline: cinema.hotline,
         address: cinema.address,
         status: cinema.status,
+        cityCode: cinema.cityCode,
+        city: cinema.city,
+        districtCode: cinema.districtCode,
+        district: cinema.district,
+        wardCode: cinema.wardCode,
+        ward: cinema.ward,
     };
 
     const handleSubmit = async (values: FormValues) => {
         console.table(values);
         try {
-
+            await updateCinema.mutateAsync({
+                id: cinema.id,
+                payload: {
+                    name: values.name,
+                    hotline: values.hotline,
+                    address: values.address,
+                    cityCode: values.cityCode,
+                    city: values.city,
+                    districtCode: values.districtCode,
+                    district: values.district,
+                    wardCode: values.wardCode,
+                    ward: values.ward,
+                    status: values.status,
+                }
+            });
             onClose();
         } catch (error) {
             console.log(error);

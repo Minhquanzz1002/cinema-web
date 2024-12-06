@@ -1,6 +1,6 @@
 'use client';
-import React, { useEffect, useState } from 'react';
-import { ColumnDef } from '@tanstack/table-core';
+import React, { useCallback, useEffect, useState } from 'react';
+import { ColumnDef, Row } from '@tanstack/table-core';
 import Table from '@/components/Admin/Tables';
 import Card from '@/components/Admin/Card';
 import ButtonAction from '@/components/Admin/ButtonAction';
@@ -20,10 +20,20 @@ import { AdminCinemaOverview } from '@/modules/cinemas/interface';
 import ModalAddCinema from '@/components/Admin/Pages/Cinemas/ModalAddCinema';
 import ModalUpdateCinema from '@/components/Admin/Pages/Cinemas/ModalUpdateCinema';
 import { removeCityPrefix, removeDistrictPrefix, removeWardPrefix } from '@/utils/formatString';
+import { FaPlus } from 'react-icons/fa6';
+import ModalAddRoom from '@/components/Admin/Pages/Room/ModalAddRoom';
+import ModalUpdateRoom from '@/components/Admin/Pages/Room/ModalUpdateRoom';
+import { useDeleteRoom } from '@/modules/rooms/repository';
 
 interface CinemaFilter extends PaginationState {
     search: string;
     status: 'ALL' | BaseStatus;
+}
+
+interface Room {
+    id: number;
+    name: string;
+    status: BaseStatus;
 }
 
 const INITIAL_FILTERS: CinemaFilter = {
@@ -35,6 +45,9 @@ const INITIAL_FILTERS: CinemaFilter = {
 const CinemaPage: React.FC = () => {
     const [filters, setFilters] = useState<CinemaFilter>(INITIAL_FILTERS);
     const [showModalAddCinema, setShowModalAddCinema] = useState<boolean>(false);
+    const [roomToUpdate, setRoomToUpdate] = useState<{ id: number; name: string, status: BaseStatus } | null>(null);
+    const [cinemaToAddRoom, setCinemaToAddRoom] = useState<{ id: number; name: string } | null>(null);
+    const [cinemaToUpdateRoom, setCinemaToUpdateRoom] = useState<{ id: number; name: string } | null>(null);
     const [cinemaToUpdate, setCinemaToUpdate] = useState<AdminCinemaOverview | null>(null);
 
     const cinemaQuery = useAllCinemas({
@@ -44,6 +57,7 @@ const CinemaPage: React.FC = () => {
     });
 
     const deleteCinemaMutation = useDeleteCinema();
+    const deleteRoomMutation = useDeleteRoom();
 
     const {
         data: cinemas,
@@ -67,6 +81,17 @@ const CinemaPage: React.FC = () => {
         },
         canDelete: (cinema: AdminCinemaOverview) => cinema.status !== BaseStatus.ACTIVE,
         unableDeleteMessage: 'Rạp đang hoạt động không thể xóa',
+    });
+
+    const deleteRoomModal = useDeleteModal<Room>({
+        onDelete: async (room: Room) => {
+            await deleteRoomMutation.mutateAsync(room.id);
+        },
+        onSuccess: () => {
+            setFilters((prev) => ({ ...prev, page: 1 }));
+        },
+        canDelete: (room: Room) => room.status !== BaseStatus.ACTIVE,
+        unableDeleteMessage: 'Phòng chiếu phim đang hoạt động không thể xóa',
     });
 
     useEffect(() => {
@@ -129,6 +154,59 @@ const CinemaPage: React.FC = () => {
         })),
     ];
 
+    const renderSubComponent = useCallback(({ row }: { row: Row<AdminCinemaOverview> }) => {
+        return (
+            <div>
+                <div className="bg-white">
+                    <div className="grid grid-cols-6 px-3 py-5 gap-3">
+                        {
+                            row.original.rooms.map(room => (
+                                <div
+                                    className="border rounded relative h-16 flex flex-col items-start justify-center px-3"
+                                    key={`cinema-${row.original.id}-room-${room.id}`}
+                                >
+                                    <div className="line-clamp-1" title={room.name}>#{room.id} - {room.name}</div>
+                                    <div
+                                        className={`text-xs w-fit px-1 py-0.5 rounded text-nowrap ${room.status === BaseStatus.ACTIVE ? 'text-green-700 bg-green-100' : 'text-red-500 bg-red-100'}`}
+                                    >
+                                        {BaseStatusVietnamese[room.status]}
+                                    </div>
+
+                                    <div
+                                        className="absolute inset-0 opacity-0 hover:opacity-100 flex justify-center items-center bg-gray-50/50"
+                                    >
+                                        <div className="flex gap-3">
+                                            <ButtonAction.Update
+                                                onClick={() => {
+                                                    setRoomToUpdate({
+                                                        id: room.id,
+                                                        name: room.name,
+                                                        status: room.status,
+                                                    });
+                                                    setCinemaToUpdateRoom({
+                                                        id: row.original.id,
+                                                        name: row.original.name,
+                                                    });
+                                                }}
+                                            />
+                                            <ButtonAction.Delete onClick={() => deleteRoomModal.openDeleteModal(room)} />
+                                        </div>
+                                    </div>
+                                </div>
+                            ))
+                        }
+                        <button
+                            className="border rounded flex justify-center items-center bg-gray-50 hover:opacity-80 h-16"
+                            onClick={() => setCinemaToAddRoom({ id: row.original.id, name: row.original.name })}
+                        >
+                            <FaPlus size={25} className="text-brand-500" />
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    }, []);
+
     return (
         <>
             <div className="mt-3">
@@ -163,6 +241,8 @@ const CinemaPage: React.FC = () => {
                                                 totalPages={totalPages}
                                                 onChangePage={onPageChange}
                                                 isLoading={isLoading}
+                                                isExpandable={true}
+                                                renderSubComponent={renderSubComponent}
                     />
                 </Card>
             </div>
@@ -174,6 +254,14 @@ const CinemaPage: React.FC = () => {
                 content={<>Bạn có chắc chắn muốn xóa
                     rạp <HighlightedText>{deleteModal.selectedData?.code} - {deleteModal.selectedData?.name}</HighlightedText> không?</>}
             />
+            <ModalDeleteAlert
+                onConfirm={deleteRoomModal.handleDelete}
+                onClose={deleteRoomModal.closeDeleteModal}
+                isOpen={deleteRoomModal.showDeleteModal}
+                title="Xác nhận xóa?"
+                content={<>Bạn có chắc chắn muốn xóa
+                    phòng chiếu <HighlightedText>{deleteModal.selectedData?.code} - {deleteModal.selectedData?.name}</HighlightedText> không?</>}
+            />
             {
                 showModalAddCinema && (
                     <ModalAddCinema onClose={() => setShowModalAddCinema(false)} />
@@ -182,6 +270,22 @@ const CinemaPage: React.FC = () => {
             {
                 cinemaToUpdate && (
                     <ModalUpdateCinema onClose={() => setCinemaToUpdate(null)} cinema={cinemaToUpdate} />
+                )
+            }
+
+            {
+                cinemaToAddRoom && (
+                    <ModalAddRoom onClose={() => setCinemaToAddRoom(null)} cinema={cinemaToAddRoom} />
+                )
+            }
+            {
+                roomToUpdate && cinemaToUpdateRoom && (
+                    <ModalUpdateRoom
+                        onClose={() => {
+                            setRoomToUpdate(null);
+                            setCinemaToUpdateRoom(null);
+                        }} cinema={cinemaToUpdateRoom} room={roomToUpdate}
+                    />
                 )
             }
         </>

@@ -89,8 +89,11 @@ interface CinemaUpdatePayload {
     name: string;
     address: string;
     ward: string;
+    wardCode: string;
     district: string;
+    districtCode: string;
     city: string;
+    cityCode: string;
     hotline: string;
     status: BaseStatus;
     images?: string[];
