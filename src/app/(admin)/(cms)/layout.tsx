@@ -9,13 +9,17 @@ import isBetween from 'dayjs/plugin/isBetween';
 import 'dayjs/locale/vi';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import durationPlugin from 'dayjs/plugin/duration';
+import timezone from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
 
 dayjs.extend(relativeTime);
 dayjs.extend(isBetween);
 dayjs.locale('vi');
 dayjs.extend(customParseFormat);
 dayjs.extend(durationPlugin);
-
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.tz.setDefault('Asia/Ho_Chi_Minh');
 
 export default function AdminLayout({
                                         children,
