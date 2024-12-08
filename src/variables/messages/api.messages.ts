@@ -1,5 +1,6 @@
 export const API_MESSAGES = {
     ERROR: {
+        LOGIN: 'Đăng nhập không thành công. Hãy thử lại sau',
         CREATE: {
             ACTOR: 'Tạo diễn viên không thành công. Hãy thử lại sau',
             CINEMA: 'Tạo rạp chiếu phim không thành công. Hãy thử lại sau',

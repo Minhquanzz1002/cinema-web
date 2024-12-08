@@ -24,6 +24,9 @@ export const useLogin = () => {
             const { data } = response;
             login(data);
         },
+        onError: (error: ErrorResponse) => {
+            toast.error(error.message || API_MESSAGES.ERROR.LOGIN);
+        }
     });
 };
 
