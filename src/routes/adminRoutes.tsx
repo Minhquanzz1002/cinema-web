@@ -3,9 +3,10 @@ import React from 'react';
 import { RiMoneyDollarCircleLine, RiMovie2Line } from 'react-icons/ri';
 import { IoMdGift } from 'react-icons/io';
 import { FiCalendar, FiUsers } from 'react-icons/fi';
-import { GoPackage } from 'react-icons/go';
 import { IoTicketOutline } from 'react-icons/io5';
 import { MdOutlineLocationOn } from 'react-icons/md';
+import { PiPopcorn } from 'react-icons/pi';
+import { HiOutlineDocumentReport } from 'react-icons/hi';
 
 export type IAdminRoute = {
     name: string;
@@ -23,7 +24,7 @@ const adminRoutes: IAdminRoute[] = [
     {
         name: 'Báo cáo',
         path: '/admin/reports',
-        icon: <RiMovie2Line />,
+        icon: <HiOutlineDocumentReport />,
         children: [
             { name: 'DSBH theo NVBH', path: '/admin/reports/employee-sales' },
             { name: 'DSBH theo phim', path: '/admin/reports/movie-sales' },
@@ -72,7 +73,7 @@ const adminRoutes: IAdminRoute[] = [
     {
         name: 'Sản phẩm',
         path: '/admin/products',
-        icon: <GoPackage />,
+        icon: <PiPopcorn />,
         children: [
             { name: 'Tất cả sản phẩm', path: '/admin/products' },
             { name: 'Bảng giá', path: '/admin/products/prices' },
