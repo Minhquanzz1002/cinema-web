@@ -110,7 +110,7 @@ const CinemaRevenueChart = () => {
 
     return (
         <Card extra="w-full py-6 px-2 text-center">
-            <div className="mb-auto flex items-center justify-between px-6">
+            <div className="mb-auto flex items-center justify-between px-6 sm-max:flex-col sm-max:items-start sm-max:px-0">
                 <h2 className="text-lg font-bold text-navy-700 dark:text-white">
                     Top 10 doanh thu theo rạp
                 </h2>
