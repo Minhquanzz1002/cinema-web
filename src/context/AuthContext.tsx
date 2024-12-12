@@ -14,6 +14,7 @@ interface AuthContextType {
     login: (response: LoginResponse) => void;
     logout: () => void;
     updateUser: (newUser: User) => void;
+    updateTokens: (newAccessToken: string, newRefreshToken: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
@@ -83,6 +84,15 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
         setUser(newUser);
     };
 
+    const updateTokens = (newAccessToken: string, newRefreshToken: string) => {
+        setAccessToken(newAccessToken);
+        setRefreshToken(newRefreshToken);
+        setAccessTokenForAxios(newAccessToken);
+
+        Cookies.set('accessTokenAdmin', newAccessToken, { expires: 1 });
+        Cookies.set('refreshTokenAdmin', newRefreshToken, { expires: 14 });
+    };
+
     const value = {
         isLoading: isLoading,
         accessToken: accessToken || '',
@@ -91,6 +101,7 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
         logout,
         updateUser,
         user,
+        updateTokens,
     };
 
     return (

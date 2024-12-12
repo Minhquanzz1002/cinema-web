@@ -7,11 +7,13 @@ import Image from 'next/image';
 import Link from '@/components/Link';
 import { AVATAR_DEFAULT_IMAGE } from '@/variables/images';
 import ModalProfile from '@/components/Admin/Pages/Profile/ModalProfile';
+import ModalChangePassword from '@/components/Admin/Pages/Profile/ModalChangePassword';
 
 function Navbar() {
     const { user, logout } = useAuth();
     const [darkMode, setDarkMode] = useState<boolean>(false);
     const [showModalProfile, setShowModalProfile] = useState<boolean>(false);
+    const [showModalChangePassword, setShowModalChangePassword] = useState<boolean>(false);
 
     useEffect(() => {
         setDarkMode(document.body.classList.contains('dark'));
@@ -72,6 +74,12 @@ function Navbar() {
                                 >
                                     Thông tin cá nhân
                                 </button>
+                                <button
+                                    type="button" onClick={() => setShowModalChangePassword(true)}
+                                    className="text-sm text-gray-800 dark:text-white text-start"
+                                >
+                                    Đổi mật khẩu
+                                </button>
                                 <Link href="#" className="text-sm text-gray-800 dark:text-white">Cài đặt</Link>
                                 <button
                                     className="text-sm font-medium text-red-500 text-start dark:text-white"
@@ -86,6 +94,11 @@ function Navbar() {
             {
                 showModalProfile && user && (
                     <ModalProfile onClose={() => setShowModalProfile(false)} profile={user} />
+                )
+            }
+            {
+                showModalChangePassword && (
+                    <ModalChangePassword onClose={() => setShowModalChangePassword(false)} />
                 )
             }
         </>

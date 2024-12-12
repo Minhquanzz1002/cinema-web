@@ -29,3 +29,8 @@ export const UserStatusVietnamese: Record<UserStatus, string> = {
     [UserStatus.ACTIVE]: 'Hoạt động',
     [UserStatus.INACTIVE]: 'Ngưng hoạt động',
 };
+
+export interface ChangePasswordResponse {
+    accessToken: string;
+    refreshToken: string;
+}

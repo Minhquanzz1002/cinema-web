@@ -72,7 +72,7 @@ const ModalRefundOrder = ({ onClose, order }: ModalRefundOrderProps) => {
                 {showReasonOther && <TextArea name="reasonOther" label="Lý do khác" placeholder="Nhập lý do" />}
                 <div className="flex justify-end items-center gap-3">
                     <ButtonAction.Cancel onClick={onClose} />
-                    <ButtonAction.Submit />
+                    <ButtonAction.Submit isLoading={refundOrder.isPending} />
                 </div>
             </Form>
         );

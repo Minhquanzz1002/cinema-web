@@ -85,7 +85,7 @@ const ModalUpdateProductPrice = ({onClose, productPrice} : ModalAddProductPriceP
                 ]}/>
                 <div className="flex justify-end items-center gap-3">
                     <ButtonAction.Cancel onClick={onClose} />
-                    <ButtonAction.Submit />
+                    <ButtonAction.Submit isLoading={updateProductPrice.isPending} />
                 </div>
             </Form>
         );

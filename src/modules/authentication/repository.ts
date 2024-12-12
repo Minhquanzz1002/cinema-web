@@ -1,7 +1,7 @@
 import { ErrorResponse, SuccessResponse } from '@/core/repository/interface';
 import httpRepository from '@/core/repository/http';
 import { useMutation, useQuery, useQueryClient, UseQueryOptions } from '@tanstack/react-query';
-import { LoginCredentials, LoginResponse, User } from '@/modules/authentication/interface';
+import { ChangePasswordResponse, LoginCredentials, LoginResponse, User } from '@/modules/authentication/interface';
 import { useAuth } from '@/hook/useAuth';
 import { toast } from 'react-toastify';
 import { API_MESSAGES } from '@/variables/messages';
@@ -69,6 +69,34 @@ export const useUpdateProfile = () => {
         onError: (error: ErrorResponse) => {
             toast.error(error.message || API_MESSAGES.ERROR.UPDATE.PROFILE);
             console.error('Update profile error:', error);
+        },
+    });
+};
+
+/**
+ * Change password
+ */
+interface ChangePasswordPayload {
+    currentPassword: string;
+    newPassword: string;
+}
+
+const changePassword = (payload: ChangePasswordPayload): Promise<SuccessResponse<ChangePasswordResponse>> => {
+    return httpRepository.post<ChangePasswordResponse, ChangePasswordPayload>(`/admin/v1/auth/change-password`, payload);
+};
+
+export const useChangePassword = () => {
+    const { updateTokens } = useAuth();
+    return useMutation({
+        mutationFn: changePassword,
+        mutationKey: [PROFILE_QUERY_KEY, 'change-password'],
+        onSuccess: async (res) => {
+            updateTokens(res.data.accessToken, res.data.refreshToken);
+            toast.success(res.message);
+        },
+        onError: (error: ErrorResponse) => {
+            toast.error(error.message || API_MESSAGES.ERROR.CHANGE_PASSWORD);
+            console.error('Change password error:', error);
         },
     });
 };
