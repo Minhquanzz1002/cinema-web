@@ -15,6 +15,7 @@ import TextArea from '@/components/Admin/TextArea';
 import UploadImage, { ImageFile } from '@/components/Admin/UploadImage';
 import { useCreateProduct } from '@/modules/products/repository';
 import { useRouter } from 'next/navigation';
+import { PRODUCT_MESSAGES } from '@/variables/messages/product.messages';
 
 const ProductSchema = object({
     code: string().test('valid-code', 'Mã không hợp lệ', function(value) {
@@ -23,8 +24,10 @@ const ProductSchema = object({
         if (!/^[A-Z0-9]+$/.test(value)) return this.createError({ message: 'Mã phải chỉ chứa chữ in hoa và số' });
         return true;
     }),
-    name: string().required('Tên không được để trống'),
-    description: string().required('Mô tả không được để trống'),
+    name: string().trim().required(PRODUCT_MESSAGES.FORM.REQUIRED.NAME),
+    description: string().trim()
+        .max(500, PRODUCT_MESSAGES.FORM.MAX.DESCRIPTION)
+        .required(PRODUCT_MESSAGES.FORM.REQUIRED.DESCRIPTION),
 });
 
 interface FormValues {
