@@ -35,7 +35,7 @@ const MovieDetailPage = () => {
                 </div>
             </Card>
 
-            <div className="grid grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                 <Card className="p-[18px]">
                     <Typography.Title level={4}>Hình ảnh</Typography.Title>
                     <div className="relative w-full aspect-[3/4] rounded overflow-hidden">
@@ -47,7 +47,7 @@ const MovieDetailPage = () => {
                         </div>
                     </div>
                 </Card>
-                <Card className="p-[18px] col-span-4">
+                <Card className="p-[18px] md:col-span-4">
                     <Typography.Title level={4}>Thông tin chung</Typography.Title>
                     <div className="flex flex-col gap-3">
                         <ItemInfo label="Tên" value={movie.title} />
