@@ -55,12 +55,12 @@ const PromotionSummaryReportPage = () => {
                     <Formik initialValues={filters} onSubmit={handleSubmit} enableReinitialize>
                         <Form>
                             <div className="px-4 pb-3">
-                                <div className="flex justify-between">
+                                <div className="flex justify-between mb-3">
                                     <Typography.Title level={4}>Bộ lọc</Typography.Title>
                                     <ButtonAction.Export disabled={isLoading || reports?.length === 0}
                                                          text="Xuất báo cáo" onClick={handleExportExcel} />
                                 </div>
-                                <div className="grid grid-cols-3 gap-4">
+                                <div className="grid sm-max:grid-cols-1 grid-cols-3 gap-4">
                                     <DatePickerWithRange fromName="fromDate" toName="toDate" />
                                 </div>
                             </div>

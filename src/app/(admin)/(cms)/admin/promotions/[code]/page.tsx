@@ -463,7 +463,7 @@ const ViewPromotionPage = () => {
                             <Form>
                                 <div className="px-4 pb-3 border-t py-3">
                                     <Typography.Title level={4}>Bộ lọc</Typography.Title>
-                                    <div className="grid grid-cols-3 gap-4">
+                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                                         <DatePickerWithRange fromName="startDate" toName="endDate" />
                                         <Select name="status"
                                                 options={[

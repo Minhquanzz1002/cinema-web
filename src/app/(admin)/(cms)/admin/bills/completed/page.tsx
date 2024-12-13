@@ -13,7 +13,7 @@ import OrderStatusBadge from '@/components/Admin/Badge/OrderStatusBadge';
 import useFilterPagination, { PaginationState } from '@/hook/useFilterPagination';
 import { Form, Formik } from 'formik';
 import Typography from '@/components/Admin/Typography';
-import Input from '@/components/Admin/Filters/Input';
+import Input from '@/components/Admin/Input';
 import AutoSubmitForm from '@/components/Admin/AutoSubmitForm';
 import dayjs from 'dayjs';
 import { DatePickerWithRange } from '@/components/Admin/DatePickerWithRange';
@@ -198,7 +198,7 @@ const BillCompletePage = () => {
                         <Form>
                             <div className="px-4 pb-3">
                                 <Typography.Title level={4}>Bộ lọc</Typography.Title>
-                                <div className="grid grid-cols-3 gap-4">
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <Input name="code" placeholder="Mã hóa đơn" />
                                     <DatePickerWithRange fromName="fromDate" toName="toDate" />
                                 </div>

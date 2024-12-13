@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import routes from '@/routes/adminRoutes';
 import SidebarLink from '@/components/Admin/Layouts/Sidebar/SidebarLink';
 import SidebarLinkDropdown from '@/components/Admin/Layouts/Sidebar/SidebarLinkDropdown';
@@ -14,6 +14,18 @@ const MobileMenu = ({ isOpen, onClose }: MobileMenuProps) => {
     const handleToggle = (path: string) => {
         setOpenDropdown(openDropdown === path ? null : path);
     };
+
+    useEffect(() => {
+        if (isOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'auto';
+        }
+
+        return () => {
+            document.body.style.overflow = 'auto';
+        };
+    }, [isOpen]);
 
     return (
         <>
@@ -34,7 +46,7 @@ const MobileMenu = ({ isOpen, onClose }: MobileMenuProps) => {
                     ${isOpen ? 'translate-x-0' : '-translate-x-full'}
                 `}
             >
-                <div className="no-scrollbar overflow-y-auto duration-300 ease-linear">
+                <div className="no-scrollbar h-svh max-h-svh overflow-y-auto duration-300 ease-linear">
                     <nav className="p-3 ">
                         <div className="text-sm font-semibold ml-4 mb-3 text-brand-500 dark:text-white">MENU</div>
                         <ul className="flex flex-col gap-y-2">
