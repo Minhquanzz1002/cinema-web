@@ -39,8 +39,8 @@ const FormikContent = ({ onClose, isLoading }:
 
     return (
         <Form>
-            <DatePicker name="startDate" label="Ngày bắt đầu" required />
-            <DatePicker name="endDate" label="Ngày kết thúc" required />
+            <DatePicker name="startDate" label="Ngày bắt đầu" required minDate={new Date()} />
+            <DatePicker name="endDate" label="Ngày kết thúc" required minDate={new Date()} />
 
             <div className="flex justify-end items-center gap-3 mt-3">
                 <ButtonAction.Cancel onClick={onClose} />
@@ -52,10 +52,16 @@ const FormikContent = ({ onClose, isLoading }:
 
 const ModalCopyTicketPrice = ({ onClose, ticketPrice }: ModalCopyTicketPriceProps) => {
     const copyTicketPrice = useCopyTicketPrice();
+    const currentDate = dayjs().startOf('day');
+
+    const getInitialDate = (oldDate: Date | string) => {
+        const oldDateDayjs = dayjs(oldDate);
+        return oldDateDayjs.isAfter(currentDate) ? oldDateDayjs.toDate() : currentDate.toDate();
+    };
 
     const INITIAL_VALUES: FormValues = {
-        startDate: dayjs(ticketPrice.startDate).toDate() || new Date(),
-        endDate: dayjs(ticketPrice.endDate).toDate() || new Date(),
+        startDate: getInitialDate(ticketPrice.startDate),
+        endDate: getInitialDate(ticketPrice.endDate),
     };
 
     const handleSubmit = async (values: FormValues) => {
