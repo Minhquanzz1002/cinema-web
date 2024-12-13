@@ -74,7 +74,7 @@ const ModalUpdateShowTime = ({
                                  movies,
                                  showTime,
                              }: ModalUpdateShowTimeProps) => {
-    const [selectedCinema, setSelectedCinema] = useState<number>();
+    const [selectedCinema, setSelectedCinema] = useState<number>(showTime?.cinema.id || 0);
     const updateShowTime = useUpdateShowTime();
     const { data: rooms } = useAllRoomsByCinemaId(selectedCinema);
 
@@ -112,7 +112,7 @@ const ModalUpdateShowTime = ({
         const { values, setFieldValue } = useFormikContext<FormValues>();
 
         useEffect(() => {
-            if (values.cinema !== selectedCinema) {
+            if (values.cinema && values.cinema !== selectedCinema) {
                 setSelectedCinema(values.cinema);
                 // Reset room khi đổi cinema
                 setFieldValue('room', undefined);

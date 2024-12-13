@@ -76,11 +76,11 @@ const SalePage = () => {
 
     return (
         <div className="mt-2">
-            <div className="flex gap-2">
-                <div className="border w-3/5 p-3 bg-white rounded-lg">
+            <div className="flex sm-max:flex-col gap-2">
+                <div className="border w-3/5 sm-max:w-full p-3 bg-white rounded-lg">
                     <Typography.Title level={3}>Phim đang chiếu</Typography.Title>
                     <div className="overflow-auto max-h-[700px]">
-                        <div className="grid grid-cols-4 gap-2">
+                        <div className="grid sm-max:grid-cols-2 grid-cols-4 gap-2">
                             {
                                 movies && movies.length > 0 ? (
                                     movies.map((movie) => (
@@ -148,7 +148,7 @@ const SalePage = () => {
                         </div>
                     </div>
 
-                    <div className="flex-1 relative my-2">
+                    <div className="flex-1 relative my-2 sm-max:min-h-[300px]">
                         <div className="absolute inset-0 border rounded-lg p-3">
                             <div className="overflow-y-auto max-h-full">
                                 {

@@ -260,12 +260,6 @@ const UpdateMoviePage = () => {
                                         />
 
                                         <Select
-                                            name="producers" label="Nhà sản xuất" placeholder="Chọn nhà sản xuất"
-                                            multiple
-                                            options={producerOptions}
-                                        />
-
-                                        <Select
                                             name="status" label="Trạng thái" options={[
                                             {
                                                 label: MovieStatusVietnamese[MovieStatus.ACTIVE],
