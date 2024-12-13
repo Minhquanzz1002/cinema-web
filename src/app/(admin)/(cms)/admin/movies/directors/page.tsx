@@ -168,7 +168,6 @@ const DirectorPage = () => {
                     <div className="flex items-center justify-end">
                         <div className="flex gap-2 h-9">
                             <ButtonAction.Add href={`/admin/movies/directors/new`} />
-                            <ButtonAction.Import />
                             <ButtonAction.Export onClick={handleExportExcel} />
                         </div>
                     </div>

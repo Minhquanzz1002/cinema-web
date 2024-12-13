@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { RiMoonFill, RiSunFill } from 'react-icons/ri';
+import { RiMenuLine, RiMoonFill, RiSunFill } from 'react-icons/ri';
 import Breadcrumb from '@/components/Admin/Breadcrumb';
 import { useAuth } from '@/hook/useAuth';
 import Dropdown from '@/components/Admin/Layouts/Navbar/Dropdown';
@@ -9,7 +9,11 @@ import { AVATAR_DEFAULT_IMAGE } from '@/variables/images';
 import ModalProfile from '@/components/Admin/Pages/Profile/ModalProfile';
 import ModalChangePassword from '@/components/Admin/Pages/Profile/ModalChangePassword';
 
-function Navbar() {
+interface NavbarProps {
+    onToggleMobileMenu: () => void;
+}
+
+function Navbar({onToggleMobileMenu} : NavbarProps) {
     const { user, logout } = useAuth();
     const [darkMode, setDarkMode] = useState<boolean>(false);
     const [showModalProfile, setShowModalProfile] = useState<boolean>(false);
@@ -24,6 +28,9 @@ function Navbar() {
             <nav
                 className="sticky top-0 z-40 h-10 border-b flex flex-row flex-wrap items-center justify-between bg-white/50 py-1 px-3 backdrop-blur-xl dark:bg-[#0b14374d]"
             >
+                <button onClick={onToggleMobileMenu} type="button" className="sm:hidden text-gray-600 p-1">
+                    <RiMenuLine className="h-5 w-5" />
+                </button>
                 <Breadcrumb />
 
                 <div className="flex gap-3 items-center">

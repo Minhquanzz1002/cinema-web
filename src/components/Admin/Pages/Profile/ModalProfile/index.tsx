@@ -110,7 +110,7 @@ const ModalProfile = ({ onClose, profile }: ModalProfileProps) => {
 
     return (
         <Modal title="Thông tin cá nhân" open={true} onClose={onClose}>
-            <div className="grid grid-cols-4 gap-5">
+            <div className="grid sm-max:grid-cols-1 grid-cols-4 gap-5">
                 <div className="flex justify-center">
                     <div>
                         <div

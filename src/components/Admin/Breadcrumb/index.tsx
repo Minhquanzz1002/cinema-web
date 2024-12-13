@@ -31,7 +31,7 @@ const Breadcrumb = () => {
     const matchedBreadcrumb = breadcrumbs.find(breadcrumb => isMath(breadcrumb.link));
 
     return (
-        <div className="h-6 pt-1 flex items-center gap-x-2">
+        <div className="h-6 pt-1 flex items-center gap-x-2 sm-max:hidden">
             {
                 matchedBreadcrumb?.breadcrumbTrail.map((trail, index) => (
                     <React.Fragment key={trail.label + index}>

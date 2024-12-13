@@ -77,7 +77,7 @@ const ModalChangePassword = ({ onClose }: ModalProfileProps) => {
     };
 
     return (
-        <Modal title="Thay đổi mật khẩu" open={true} onClose={onClose} className="!w-1/3">
+        <Modal title="Thay đổi mật khẩu" open={true} onClose={onClose} className="!w-1/3 sm-max:!w-full">
             <Formik initialValues={INITIAL_VALUES} onSubmit={handleSubmit} validationSchema={validationSchema}>
                 {({ values }) => (
                     <FormikContent
