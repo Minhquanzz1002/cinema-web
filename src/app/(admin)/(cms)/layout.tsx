@@ -11,6 +11,7 @@ import customParseFormat from 'dayjs/plugin/customParseFormat';
 import durationPlugin from 'dayjs/plugin/duration';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
+import MobileMenu from '@/components/Admin/Layouts/Sidebar/MobileMenu';
 
 dayjs.extend(relativeTime);
 dayjs.extend(isBetween);
@@ -26,6 +27,8 @@ export default function AdminLayout({
                                     }: Readonly<{
     children: React.ReactNode;
 }>) {
+    const [showMobileMenu, setShowMobileMenu] = React.useState(false);
+
     return (
 
         <div className="w-full h-full flex bg-background-100 dark:bg-background-900">
@@ -33,7 +36,8 @@ export default function AdminLayout({
             <div className="h-full w-full dark:bg-navy-900">
                 <main className="flex-none transition-all dark:bg-navy-900 xl:ml-[213px]">
                     <div className="min-h-screen">
-                        <Navbar />
+                        <Navbar onToggleMobileMenu={() => setShowMobileMenu(true)} />
+                        <MobileMenu isOpen={showMobileMenu} onClose={() => setShowMobileMenu(false)} />
                         <div className="mx-3 p-2 !pt-[10px] md:p-2">
                             {children}
                         </div>
