@@ -135,7 +135,7 @@ const EmployeePage: React.FC = () => {
                             <div className="flex gap-3">
                                 {row.original.name}
                                 {
-                                    user?.id === row.original.id && (<div className="bg-brand-500 text-white rounded px-1 py-0.5 text-xs">Me</div>)
+                                    user?.id === row.original.id && (<div className="bg-brand-500 text-white rounded px-1 py-0.5 text-xs h-fit">Me</div>)
                                 }
                             </div>
                             <div className="text-xs text-gray-800">{row.original.role.description}</div>
@@ -215,7 +215,7 @@ const EmployeePage: React.FC = () => {
                         <Form>
                             <div className="px-4 pb-3">
                                 <Typography.Title level={4}>Bộ lọc</Typography.Title>
-                                <div className="grid grid-cols-4 gap-4">
+                                <div className="grid sm-max:grid-cols-1 grid-cols-4 gap-4">
                                     <Input name="search" placeholder="Mã hoặc tên nhân viên" />
                                     <Select
                                         name="status"

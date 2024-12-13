@@ -59,7 +59,12 @@ const validationSchema = Yup.object().shape({
     ).min(1, 'Vui lòng chọn ít nhất 1 phim'),
 });
 
-const FormContent = ({ cinemas } : {cinemas: { id: number; name: string }[]}) => {
+interface FormContentProps {
+    cinemas: { id: number; name: string }[];
+    isLoading: boolean;
+}
+
+const FormContent = ({ cinemas, isLoading } : FormContentProps) => {
     const [search, setSearch] = useState<string>('');
     const { values, setFieldValue, errors, touched } = useFormikContext<FormValues>();
     const [showListMovie, setShowListMovie] = useState<boolean>(false);
@@ -237,7 +242,7 @@ const FormContent = ({ cinemas } : {cinemas: { id: number; name: string }[]}) =>
                 </div>
             </div>
             <div className="mt-3 flex justify-end">
-                <ButtonAction.Submit text="tiếp tục"/>
+                <ButtonAction.Submit text="tiếp tục" isLoading={isLoading}/>
             </div>
         </Form>
     );
@@ -275,7 +280,7 @@ const ModalGenerateShowTime = ({ onClose, cinemas, onSuccess, defaultCinemaId, d
     return (
         <Modal onClose={onClose} open={true} title="Tạo lịch chiếu tự động" className="!w-5/6">
             <Formik initialValues={initialValues} onSubmit={handleSubmit} validationSchema={validationSchema} enableReinitialize={true}>
-                <FormContent cinemas={cinemas}/>
+                <FormContent cinemas={cinemas} isLoading={generateShowTimeMutation.isPending}/>
             </Formik>
         </Modal>
     );

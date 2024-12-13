@@ -26,7 +26,7 @@ type ModalAddShowTimeProps = {
     movies: { id: number, title: string, duration: number } [];
     cinemas: Cinema[];
     defaultRoom?: Room;
-    defaultCinemaId?: number;
+    defaultCinemaId: number;
     defaultStartDate?: Date;
     defaultStartTime?: Date;
 }
@@ -83,7 +83,7 @@ const ModalAddShowTime = ({
                               defaultStartTime,
                               defaultStartDate,
                           }: ModalAddShowTimeProps) => {
-    const [selectedCinema, setSelectedCinema] = useState<number>();
+    const [selectedCinema, setSelectedCinema] = useState<number>(defaultCinemaId);
     const createShowTime = useCreateShowTime();
     const { data: rooms } = useAllRoomsByCinemaId(selectedCinema);
 
@@ -91,7 +91,7 @@ const ModalAddShowTime = ({
         const { values, setFieldValue } = useFormikContext<FormValues>();
 
         useEffect(() => {
-            if (values.cinema !== selectedCinema) {
+            if (values.cinema && values.cinema !== selectedCinema) {
                 setSelectedCinema(values.cinema);
                 // Reset room khi đổi cinema
                 setFieldValue('room', undefined);

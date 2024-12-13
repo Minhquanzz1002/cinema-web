@@ -130,7 +130,7 @@ const ButtonAction = {
         if (onClick) {
             return (
                 <button type="button" onClick={onClick}
-                        className="bg-brand-500 py-1.5 px-2 rounded flex items-center justify-center text-white gap-x-2 text-sm">
+                        className="bg-brand-500 py-1.5 px-2 rounded flex items-center justify-center text-white gap-x-2 text-sm text-nowrap">
                     <FaPlus className="h-4 w-4" /> {text}
                 </button>
             );
@@ -147,7 +147,8 @@ const ButtonAction = {
             <button type="button"
                     onClick={onClick}
                     className="bg-brand-500 py-1.5 px-2 rounded flex items-center justify-center text-white gap-x-2 text-sm">
-                <FaFileImport className="h-4 w-4" /> Import
+                <FaFileImport className="h-4 w-4" />
+                <span className="sm-max:hidden">Import</span>
             </button>
         );
     },
@@ -157,7 +158,8 @@ const ButtonAction = {
                     onClick={onClick}
                     {...props}
                     className="bg-brand-500 py-1.5 px-2 rounded flex items-center justify-center text-white gap-x-2 text-sm disabled:bg-brand-400">
-                <RiFileExcel2Line className="h-5 w-5" /> {text}
+                <RiFileExcel2Line className="h-5 w-5" />
+                <span className="sm-max:hidden">{text}</span>
             </button>
         );
     },
