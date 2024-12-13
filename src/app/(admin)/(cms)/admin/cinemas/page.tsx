@@ -225,7 +225,7 @@ const CinemaPage: React.FC = () => {
                         <Form>
                             <div className="px-4 pb-3">
                                 <Typography.Title level={4}>Bộ lọc</Typography.Title>
-                                <div className="grid grid-cols-4 gap-4">
+                                <div className="grid sm-max:grid-cols-1 grid-cols-4 gap-4">
                                     <Input name="search" placeholder="Mã hoặc tên rạp" />
                                     <Select
                                         name="status"

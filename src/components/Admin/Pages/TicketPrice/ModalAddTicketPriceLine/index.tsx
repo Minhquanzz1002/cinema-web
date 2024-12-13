@@ -114,8 +114,8 @@ const ModalAddTicketPriceLine = ({ onClose, ticketPrice }: ModalAddTicketPriceLi
                 </div>
 
                 <InputCurrency min={0} max={10000000} name="normalPrice" label="Giá ghế thường" unit="VND" required />
-                <InputCurrency min={0} name="vipPrice" label="Giá VIP" unit="VND" required />
-                <InputCurrency min={0} name="couplePrice" label="Giá ghế đôi" unit="VND" required />
+                <InputCurrency min={0} max={10000000} name="vipPrice" label="Giá VIP" unit="VND" required />
+                <InputCurrency min={0} max={10000000} name="couplePrice" label="Giá ghế đôi" unit="VND" required />
                
 
                 <div className="flex justify-end items-center gap-3 mt-3">
