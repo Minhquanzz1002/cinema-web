@@ -215,7 +215,6 @@ const MoviePage = () => {
                     <div className="flex items-center justify-end">
                         <div className="flex gap-2 h-9">
                             <ButtonAction.Add text="Thêm phim mới" href="/admin/movies/new" />
-                            <ButtonAction.Import onClick={() => setShowImportModal(true)} />
                             <ButtonAction.Export onClick={handleExportExcel} />
                         </div>
                     </div>
