@@ -36,7 +36,7 @@ const Input = ({ name, label, placeholder = '', tooltip, type = 'text', unit, au
     };
 
     return (
-        <div className="mb-3">
+        <div className="mb-3 sm-max:mb-0">
             {
                 label && (
                     <div className="mb-1 inline-flex gap-x-1 h-6">

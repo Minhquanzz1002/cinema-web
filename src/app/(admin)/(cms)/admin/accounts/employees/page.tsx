@@ -7,7 +7,7 @@ import { ExcelColumn, exportToExcel } from '@/utils/exportToExcel';
 import ButtonAction from '@/components/Admin/ButtonAction';
 import { Form, Formik } from 'formik';
 import Typography from '@/components/Admin/Typography';
-import Input from '@/components/Admin/Filters/Input';
+import Input from '@/components/Admin/Input';
 import Select from '@/components/Admin/Filters/Select';
 import AutoSubmitForm from '@/components/Admin/AutoSubmitForm';
 import useFilterPagination, { PaginationState } from '@/hook/useFilterPagination';

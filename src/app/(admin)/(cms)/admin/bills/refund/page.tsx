@@ -10,7 +10,7 @@ import { formatDateInOrder } from '@/utils/formatDate';
 import useFilterPagination, { PaginationState } from '@/hook/useFilterPagination';
 import { Form, Formik } from 'formik';
 import Typography from '@/components/Admin/Typography';
-import Input from '@/components/Admin/Filters/Input';
+import Input from '@/components/Admin/Input';
 import AutoSubmitForm from '@/components/Admin/AutoSubmitForm';
 import ButtonAction from '@/components/Admin/ButtonAction';
 import RefundStatusBadge from '@/components/Admin/Badge/RefundStatusBadge';
@@ -162,7 +162,7 @@ const BillRefundPage = () => {
                         <Form>
                             <div className="px-4 pb-3">
                                 <Typography.Title level={4}>Bộ lọc</Typography.Title>
-                                <div className="grid grid-cols-3 gap-4">
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <Input name="refundCode" placeholder="Mã đơn hoàn" />
                                     <Input name="orderCode" placeholder="Mã hóa đơn mua" />
                                 </div>

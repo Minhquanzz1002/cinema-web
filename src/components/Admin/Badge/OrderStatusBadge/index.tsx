@@ -13,7 +13,7 @@ const OrderStatusBadge = ({ status }: { status: OrderStatus }) => {
     const colorClass = statusColors[status] || 'text-gray-500';
 
     return (
-        <span className={`px-2 py-1 rounded font-medium ${colorClass} bg-opacity-50`}>
+        <span className={`px-2 py-1 rounded font-medium text-nowrap ${colorClass} bg-opacity-50`}>
             {OrderStatusVietnamese[status] || status}
         </span>
     );

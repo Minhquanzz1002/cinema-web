@@ -59,13 +59,13 @@ const FilterSection = (
     return (
         <Form>
             <div className="px-4 pb-3">
-                <div className="flex justify-between">
+                <div className="flex justify-between mb-3">
                     <Typography.Title level={4}>Bộ lọc</Typography.Title>
                     <ButtonAction.Export
                         disabled={isLoading || !hasData} text="Xuất báo cáo"
                         onClick={onExport} />
                 </div>
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid sm-max:grid-cols-1 grid-cols-3 gap-4">
                     <DatePickerWithRange fromName="fromDate" toName="toDate" />
                     <Input name="search" placeholder="Mã hoặc tên phim" />
                 </div>
