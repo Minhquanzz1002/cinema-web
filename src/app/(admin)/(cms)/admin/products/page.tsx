@@ -11,7 +11,7 @@ import { formatNumberToCurrency } from '@/utils/formatNumber';
 import ProductStatusBadge from '@/components/Admin/Badge/ProductStatusBadge';
 import ButtonAction from '@/components/Admin/ButtonAction';
 import { Form, Formik } from 'formik';
-import Input from '@/components/Admin/Filters/Input';
+import Input from '@/components/Admin/Input';
 import Typography from '@/components/Admin/Typography';
 import AutoSubmitForm from '@/components/Admin/AutoSubmitForm';
 import Select from '@/components/Admin/Filters/Select';

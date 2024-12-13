@@ -6,7 +6,7 @@ import Table from '@/components/Admin/Tables';
 import { formatNumberToCurrency } from '@/utils/formatNumber';
 import ButtonAction from '@/components/Admin/ButtonAction';
 import { Form, Formik } from 'formik';
-import Input from '@/components/Admin/Filters/Input';
+import Input from '@/components/Admin/Input';
 import Typography from '@/components/Admin/Typography';
 import AutoSubmitForm from '@/components/Admin/AutoSubmitForm';
 import Select from '@/components/Admin/Filters/Select';
@@ -197,7 +197,7 @@ const ProductPricePage = () => {
                         <Form>
                             <div className="px-4 pb-3">
                                 <Typography.Title level={4}>Bộ lọc</Typography.Title>
-                                <div className="grid grid-cols-3 gap-4">
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <Input name="search" placeholder="Tìm theo tên hoặc mã sản phẩm" />
                                     <Select name="status"
                                             options={[

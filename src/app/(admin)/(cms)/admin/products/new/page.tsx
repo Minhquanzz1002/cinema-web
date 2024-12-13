@@ -88,8 +88,8 @@ const NewProductPage = () => {
             <Formik initialValues={initialFormValues} onSubmit={handleSubmit}
                     validationSchema={ProductSchema}>
                 <Form>
-                    <div className="grid grid-cols-5 gap-x-3">
-                        <Card className={`p-[18px] col-span-2`}>
+                    <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+                        <Card className={`p-[18px] md:col-span-2`}>
                             <Typography.Title level={4}>Thông tin chung</Typography.Title>
                             <div className="border rounded-[6px] border-[rgb(236, 243, 250)] py-4 px-4.5">
                                 <Input name="code" label="Mã sản phẩm" placeholder="Tạo tự động nếu không nhập"
@@ -102,14 +102,14 @@ const NewProductPage = () => {
                             </div>
                         </Card>
 
-                        <Card className={`p-[18px] col-span-3`}>
+                        <Card className={`p-[18px] md:col-span-3`}>
                             <Typography.Title level={4}>Mô tả</Typography.Title>
                             <div className="border rounded-[6px] border-[rgb(236, 243, 250)] py-4 px-4.5">
                                 <TextArea name="description" label="Mô tả" required placeholder="Nhập mô tả" />
                             </div>
                         </Card>
                     </div>
-                    <div className="mt-5">
+                    <div className="mt-3">
                         <Card className={`p-[18px]`}>
                             <Typography.Title level={4}>Hình ảnh</Typography.Title>
                             <div>

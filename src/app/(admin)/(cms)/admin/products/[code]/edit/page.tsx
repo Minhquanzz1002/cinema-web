@@ -84,8 +84,8 @@ const EditMoviePage = () => {
                             <div className="text-brand-500">#{product.code}</div>
                         </div>
                     </Card>
-                    <div className="grid grid-cols-5 gap-x-3 mt-4">
-                        <Card className={`p-[18px] col-span-2`}>
+                    <div className="grid grid-cols-1 md:grid-cols-5 gap-3 mt-4">
+                        <Card className={`p-[18px] md:col-span-2`}>
                             <Typography.Title level={4}>Thông tin chung</Typography.Title>
                             <div className="border rounded-[6px] border-[rgb(236, 243, 250)] py-4 px-4.5">
                                 <Input name="name" label="Tên sản phẩm" placeholder="Nhập tên sản phẩm" required
@@ -97,14 +97,14 @@ const EditMoviePage = () => {
                             </div>
                         </Card>
 
-                        <Card className={`p-[18px] col-span-3`}>
+                        <Card className={`p-[18px] md:col-span-3`}>
                             <Typography.Title level={4}>Mô tả</Typography.Title>
                             <div className="border rounded-[6px] border-[rgb(236, 243, 250)] py-4 px-4.5">
                                 <TextArea name="description" placeholder="Nhập mô tả" label="Mô tả" required readOnly={isReadOnly} />
                             </div>
                         </Card>
                     </div>
-                    <div className="mt-5">
+                    <div className="mt-3">
                         <Card className={`p-[18px]`}>
                             <Typography.Title level={4}>Hình ảnh</Typography.Title>
                             <div>
