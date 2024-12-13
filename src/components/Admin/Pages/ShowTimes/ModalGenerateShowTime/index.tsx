@@ -134,7 +134,7 @@ const FormContent = ({ cinemas, isLoading } : FormContentProps) => {
 
     return (
         <Form>
-            <div className="grid grid-cols-4 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                 <DatePicker name="startDate" />
                 <DatePicker name="endDate" />
                 <Select name="cinema" options={cinemas.map(cinema => ({ value: cinema.id, label: cinema.name }))}

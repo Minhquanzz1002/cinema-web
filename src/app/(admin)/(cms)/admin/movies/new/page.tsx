@@ -157,7 +157,7 @@ const NewMoviePage = () => {
                 >
                     <Form>
                         <div className="flex flex-col gap-5">
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <Card className={`p-[18px]`}>
                                     <Typography.Title level={4}>Thông tin chung</Typography.Title>
                                     <div className="border rounded-[6px] border-[rgb(236, 243, 250)] py-4 px-4.5">

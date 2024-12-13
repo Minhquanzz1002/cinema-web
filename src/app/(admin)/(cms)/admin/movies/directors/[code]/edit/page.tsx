@@ -127,8 +127,8 @@ const UpdateDirectorPage = () => {
             >
                 {({ isSubmitting }) => (
                     <Form>
-                        <div className="grid grid-cols-5 gap-x-3">
-                            <Card className={`p-[18px] col-span-2`}>
+                        <div className="grid grid-cols-1 md:grid-cols-5 gap-x-3">
+                            <Card className={`p-[18px] md:col-span-2`}>
                                 <Typography.Title level={4}>Thông tin chung</Typography.Title>
                                 <div className="border rounded-[6px] border-[rgb(236, 243, 250)] py-4 px-4.5">
                                     <Input name="name" label="Tên" placeholder="Nhập tên diễn viên" required />
@@ -142,7 +142,7 @@ const UpdateDirectorPage = () => {
                                 </div>
                             </Card>
 
-                            <Card className={`p-[18px] col-span-3`}>
+                            <Card className={`p-[18px] md:col-span-3`}>
                                 <Typography.Title level={4}>Mô tả & Trạng thái</Typography.Title>
                                 <div className="border rounded-[6px] border-[rgb(236, 243, 250)] py-4 px-4.5">
                                     <TextArea name="bio" label="Mô tả" placeholder="Nhập mô tả" />
