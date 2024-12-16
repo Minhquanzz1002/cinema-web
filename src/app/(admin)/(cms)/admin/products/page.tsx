@@ -14,7 +14,7 @@ import { Form, Formik } from 'formik';
 import Input from '@/components/Admin/Input';
 import Typography from '@/components/Admin/Typography';
 import AutoSubmitForm from '@/components/Admin/AutoSubmitForm';
-import Select from '@/components/Admin/Filters/Select';
+import Select from '@/components/Admin/Select';
 import useFilterPagination, { PaginationState } from '@/hook/useFilterPagination';
 import useDeleteModal from '@/hook/useDeleteModal';
 import ModalDeleteAlert from '@/components/Admin/ModalDeleteAlert';
@@ -168,8 +168,9 @@ const ProductPage = () => {
                             <div className="px-4 pb-3">
                                 <Typography.Title level={4}>Bộ lọc</Typography.Title>
                                 <div className="grid sm-max:grid-cols-1 grid-cols-3 gap-4">
-                                    <Input name="search" placeholder="Tìm theo mã hoặc tên" />
+                                    <Input label="Tìm theo tên hoặc mã" name="search" placeholder="Tìm theo mã hoặc tên" />
                                     <Select
+                                        label="Tìm theo trạng thái"
                                         name="status"
                                         options={[
                                             { label: 'Tất cả', value: 'ALL' },

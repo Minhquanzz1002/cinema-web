@@ -6,7 +6,7 @@ import { useDashboardMovieRevenue } from '@/modules/dashboard/repository';
 import dayjs from 'dayjs';
 import dynamic from 'next/dynamic';
 import { Form, Formik } from 'formik';
-import Select, { SelectProps } from '@/components/Admin/Filters/Select';
+import Select, { SelectProps } from '@/components/Admin/Select';
 import AutoSubmitForm from '@/components/Admin/AutoSubmitForm';
 
 const ReactApexChart = dynamic(() => import('react-apexcharts'), {
