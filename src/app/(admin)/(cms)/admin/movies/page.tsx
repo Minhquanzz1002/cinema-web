@@ -12,7 +12,7 @@ import MovieStatusBadge from '@/components/Admin/Badge/MovieStatusBadge';
 import ButtonAction from '@/components/Admin/ButtonAction';
 import { Form, Formik } from 'formik';
 import Typography from '@/components/Admin/Typography';
-import Select from '@/components/Admin/Filters/Select';
+import Select from '@/components/Admin/Select';
 import AutoSubmitForm from '@/components/Admin/AutoSubmitForm';
 import useFilterPagination, { PaginationState } from '@/hook/useFilterPagination';
 import useDeleteModal from '@/hook/useDeleteModal';
@@ -225,9 +225,16 @@ const MoviePage = () => {
                             <div className="px-4 pb-3">
                                 <Typography.Title level={4}>Bộ lọc</Typography.Title>
                                 <div className="grid sm-max:grid-cols-1 grid-cols-4 gap-4">
-                                    <Input name="search" placeholder="Mã hoặc tên phim" />
-                                    <Input name="country" placeholder="Quốc gia" />
+                                    <Input name="search"
+                                           label="Mã hoặc tên phim"
+                                           placeholder="Mã hoặc tên phim"
+                                    />
+                                    <Input name="country"
+                                           label="Quốc gia"
+                                           placeholder="Quốc gia"
+                                    />
                                     <Select name="status"
+                                            label="Trạng thái"
                                             placeholder="Lọc theo trạng thái"
                                             options={[
                                                 { label: 'Tất cả trạng thái', value: 'ALL' },
@@ -238,6 +245,7 @@ const MoviePage = () => {
                                             ]}
                                     />
                                     <Select name="ageRating"
+                                            label="Phân loại độ tuổi"
                                             placeholder="Phân loại tuổi"
                                             options={[
                                                 { label: 'Tất cả nhãn', value: 'ALL' },

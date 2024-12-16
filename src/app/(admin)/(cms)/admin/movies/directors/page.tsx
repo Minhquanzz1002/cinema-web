@@ -14,7 +14,7 @@ import { useAllDirectors, useDeleteDirector } from '@/modules/directors/reposito
 import { Form, Formik } from 'formik';
 import Typography from '@/components/Admin/Typography';
 import Input from '@/components/Admin/Input';
-import Select from '@/components/Admin/Filters/Select';
+import Select from '@/components/Admin/Select';
 import AutoSubmitForm from '@/components/Admin/AutoSubmitForm';
 import BaseStatusBadge from '@/components/Admin/Badge/BaseStatusBadge';
 import ModalInfoDirector from '@/components/Admin/Pages/Directors/ModalInfoDirector';

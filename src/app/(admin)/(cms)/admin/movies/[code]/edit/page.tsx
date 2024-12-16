@@ -197,7 +197,7 @@ const UpdateMoviePage = () => {
                                         ]}
                                         />
                                         <Input name="trailer" label="Trailer" placeholder="Nhập URL trailer" />
-                                        <div className="grid grid-cols-2 gap-x-3">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                             <Input
                                                 name="duration" label="Thời lượng" placeholder="Nhập thời lượng"
                                                 unit="Phút"
