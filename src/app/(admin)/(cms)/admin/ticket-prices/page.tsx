@@ -17,7 +17,7 @@ import ModalUpdateTicketPrice from '@/components/Admin/Pages/TicketPrice/ModalUp
 import { Form, Formik } from 'formik';
 import Typography from '@/components/Admin/Typography';
 import Input from '@/components/Admin/Input';
-import Select from '@/components/Admin/Filters/Select';
+import Select from '@/components/Admin/Select';
 import AutoSubmitForm from '@/components/Admin/AutoSubmitForm';
 import useFilterPagination, { PaginationState } from '@/hook/useFilterPagination';
 import { BaseStatus, BaseStatusVietnamese } from '@/modules/base/interface';

@@ -9,7 +9,7 @@ import { Form, Formik } from 'formik';
 import Input from '@/components/Admin/Input';
 import Typography from '@/components/Admin/Typography';
 import AutoSubmitForm from '@/components/Admin/AutoSubmitForm';
-import Select from '@/components/Admin/Filters/Select';
+import Select from '@/components/Admin/Select';
 import useFilterPagination, { PaginationState } from '@/hook/useFilterPagination';
 import { BaseStatus, BaseStatusVietnamese } from '@/modules/base/interface';
 import { useAllProductPrices, useDeleteProductPrice } from '@/modules/productPrices/repository';
@@ -198,8 +198,12 @@ const ProductPricePage = () => {
                             <div className="px-4 pb-3">
                                 <Typography.Title level={4}>Bộ lọc</Typography.Title>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <Input name="search" placeholder="Tìm theo tên hoặc mã sản phẩm" />
+                                    <Input name="search"
+                                           label="Tìm theo tên hoặc mã"
+                                           placeholder="Tìm theo tên hoặc mã sản phẩm"
+                                    />
                                     <Select name="status"
+                                            label="Tìm theo trạng thái"
                                             options={[
                                                 { label: 'Tất cả trạng thái', value: 'ALL' },
                                                 ...Object.keys(BaseStatus).map(status => ({

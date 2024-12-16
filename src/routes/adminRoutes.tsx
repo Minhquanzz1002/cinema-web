@@ -17,7 +17,7 @@ export type IAdminRoute = {
 
 const adminRoutes: IAdminRoute[] = [
     {
-        name: 'Dashboard',
+        name: 'Tổng quan',
         path: '/admin/dashboard',
         icon: <LuLayoutGrid />,
     },
@@ -80,7 +80,7 @@ const adminRoutes: IAdminRoute[] = [
         ]
     },
     {
-        name: 'Bán hàng',
+        name: 'Bán vé',
         path: '/admin/sales',
         icon: <RiMoneyDollarCircleLine />,
     },

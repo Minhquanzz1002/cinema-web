@@ -4,7 +4,7 @@ import Card from '@/components/Admin/Card';
 import ButtonAction from '@/components/Admin/ButtonAction';
 import { Form, Formik } from 'formik';
 import Typography from '@/components/Admin/Typography';
-import Select from '@/components/Admin/Filters/Select';
+import Select from '@/components/Admin/Select';
 import { BaseStatus, BaseStatusVietnamese } from '@/modules/base/interface';
 import AutoSubmitForm from '@/components/Admin/AutoSubmitForm';
 import { useAllShowTimeFilters, useAllShowTimes, useDeleteShowTime } from '@/modules/showTimes/repository';
@@ -203,12 +203,12 @@ const ShowTimePage = () => {
             <div className="flex flex-col gap-4">
                 <Card extra={`h-full w-full px-6 py-4`}>
                     <div className="flex items-center justify-end">
-                        <div className="flex gap-2 h-9">
+                        <div className="flex flex-wrap gap-2 min-h-9">
                             <ButtonAction.Add text="Thêm tự động" onClick={() => setShowModalGenerateShowTime(true)} />
                             <ButtonAction.Add text="Thêm thủ công" onClick={() => setShowModalAddShowTime(true)} />
                             <button
                                 type="button" onClick={() => setShowModalActiveMultipleShowTime(true)}
-                                className="bg-brand-500 py-1.5 px-2 rounded flex items-center justify-center text-white gap-x-2 text-sm">
+                                className="bg-brand-500 py-1.5 px-2 rounded flex items-center justify-center text-white gap-x-2 text-sm text-nowrap">
                                 Kích hoạt đồng loạt
                             </button>
                         </div>
@@ -222,6 +222,7 @@ const ShowTimePage = () => {
                                 <Typography.Title level={4}>Bộ lọc</Typography.Title>
                                 <div className="grid sm-max:grid-cols-1 grid-cols-4 gap-4">
                                     <Select
+                                        label="Tìm theo rạp"
                                         name="cinemaId"
                                         placeholder="Lọc theo rạp"
                                         options={
@@ -232,6 +233,7 @@ const ShowTimePage = () => {
                                         }
                                     />
                                     <Select
+                                        label="Tìm theo phim"
                                         name="movieId"
                                         placeholder="Lọc theo phim"
                                         options={[
@@ -243,6 +245,7 @@ const ShowTimePage = () => {
                                         ]}
                                     />
                                     <Select
+                                        label="Tìm theo trạng thái"
                                         name="status"
                                         placeholder="Lọc theo trạng thái"
                                         options={[
@@ -253,7 +256,7 @@ const ShowTimePage = () => {
                                             })),
                                         ]}
                                     />
-                                    <DatePicker name="startDate" />
+                                    <DatePicker label="Tìm theo ngày chiếu" name="startDate" />
                                 </div>
                             </div>
                             <AutoSubmitForm />

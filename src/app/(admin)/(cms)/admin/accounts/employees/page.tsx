@@ -8,7 +8,7 @@ import ButtonAction from '@/components/Admin/ButtonAction';
 import { Form, Formik } from 'formik';
 import Typography from '@/components/Admin/Typography';
 import Input from '@/components/Admin/Input';
-import Select from '@/components/Admin/Filters/Select';
+import Select from '@/components/Admin/Select';
 import AutoSubmitForm from '@/components/Admin/AutoSubmitForm';
 import useFilterPagination, { PaginationState } from '@/hook/useFilterPagination';
 import useDeleteModal from '@/hook/useDeleteModal';
@@ -216,13 +216,18 @@ const EmployeePage: React.FC = () => {
                             <div className="px-4 pb-3">
                                 <Typography.Title level={4}>Bộ lọc</Typography.Title>
                                 <div className="grid sm-max:grid-cols-1 grid-cols-4 gap-4">
-                                    <Input name="search" placeholder="Mã hoặc tên nhân viên" />
+                                    <Input name="search"
+                                           label="Mã hoặc tên"
+                                           placeholder="Mã hoặc tên nhân viên"
+                                    />
                                     <Select
+                                        label="Trạng thái"
                                         name="status"
                                         placeholder="Lọc theo trạng thái"
                                         options={statusOptions}
                                     />
                                     <Select
+                                        label="Chức vụ"
                                         name="role"
                                         placeholder="Lọc theo chức vụ"
                                         options={roleOptions}

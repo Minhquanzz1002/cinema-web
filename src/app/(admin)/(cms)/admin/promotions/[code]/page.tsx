@@ -13,7 +13,7 @@ import ItemInfo from '@/components/Admin/ItemInfo';
 import ButtonAction from '@/components/Admin/ButtonAction';
 import useFilterPagination, { PaginationState } from '@/hook/useFilterPagination';
 import { Form, Formik } from 'formik';
-import Select from '@/components/Admin/Filters/Select';
+import Select from '@/components/Admin/Select';
 import AutoSubmitForm from '@/components/Admin/AutoSubmitForm';
 import { BaseStatus, BaseStatusVietnamese } from '@/modules/base/interface';
 import {
