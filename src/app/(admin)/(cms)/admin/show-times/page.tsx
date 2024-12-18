@@ -222,7 +222,7 @@ const ShowTimePage = () => {
                                 <Typography.Title level={4}>Bộ lọc</Typography.Title>
                                 <div className="grid sm-max:grid-cols-1 grid-cols-4 gap-4">
                                     <Select
-                                        label="Tìm theo rạp"
+                                        label="Rạp"
                                         name="cinemaId"
                                         placeholder="Lọc theo rạp"
                                         options={
@@ -233,7 +233,7 @@ const ShowTimePage = () => {
                                         }
                                     />
                                     <Select
-                                        label="Tìm theo phim"
+                                        label="Phim"
                                         name="movieId"
                                         placeholder="Lọc theo phim"
                                         options={[
@@ -245,7 +245,7 @@ const ShowTimePage = () => {
                                         ]}
                                     />
                                     <Select
-                                        label="Tìm theo trạng thái"
+                                        label="Trạng thái"
                                         name="status"
                                         placeholder="Lọc theo trạng thái"
                                         options={[
@@ -256,7 +256,7 @@ const ShowTimePage = () => {
                                             })),
                                         ]}
                                     />
-                                    <DatePicker label="Tìm theo ngày chiếu" name="startDate" />
+                                    <DatePicker label="Ngày chiếu" name="startDate" />
                                 </div>
                             </div>
                             <AutoSubmitForm />

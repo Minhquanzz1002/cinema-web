@@ -250,9 +250,10 @@ const TicketPricePage = () => {
                             <div className="px-4 pb-3">
                                 <Typography.Title level={4}>Bộ lọc</Typography.Title>
                                 <div className="grid sm-max:grid-cols-1 grid-cols-3 gap-4">
-                                    <Input name="name" placeholder="Tên bảng giá" />
-                                    <DatePickerWithRange />
+                                    <Input label="Tên" name="name" placeholder="Tên bảng giá" />
+                                    <DatePickerWithRange label="Ngày" />
                                     <Select name="status"
+                                            label="Trạng thái"
                                             options={[
                                                 { label: 'Tất cả', value: 'ALL' },
                                                 ...Object.keys(BaseStatus).map((status) => ({

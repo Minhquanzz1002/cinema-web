@@ -9,7 +9,7 @@ import { Form, Formik } from 'formik';
 import Input from '@/components/Admin/Input';
 import Typography from '@/components/Admin/Typography';
 import AutoSubmitForm from '@/components/Admin/AutoSubmitForm';
-import Select from '@/components/Admin/Select';
+import Select, { SelectProps } from '@/components/Admin/Select';
 import useFilterPagination, { PaginationState } from '@/hook/useFilterPagination';
 import { BaseStatus, BaseStatusVietnamese } from '@/modules/base/interface';
 import { useAllProductPrices, useDeleteProductPrice } from '@/modules/productPrices/repository';
@@ -26,7 +26,7 @@ import ModalUpdateProductPrice from '../../../../../../components/Admin/Pages/Pr
 import { NOT_FOUND_PRODUCT_IMAGE } from '@/variables/images';
 import { ExcelColumn, exportToExcel } from '@/utils/exportToExcel';
 
-const exportColumns : ExcelColumn[] = [
+const exportColumns: ExcelColumn[] = [
     {
         field: 'product.code',
         header: 'Mã sản phẩm',
@@ -38,28 +38,28 @@ const exportColumns : ExcelColumn[] = [
     {
         field: 'price',
         header: 'Giá',
-        formatter: (value: number) => formatNumberToCurrency(value)
+        formatter: (value: number) => formatNumberToCurrency(value),
     },
     {
         field: 'startDate',
         header: 'Ngày bắt đầu',
-        formatter: (value: Date) => formatDateToLocalDate(value)
+        formatter: (value: Date) => formatDateToLocalDate(value),
     },
     {
         field: 'endDate',
         header: 'Ngày kết thúc',
-        formatter: (value: Date) => formatDateToLocalDate(value)
+        formatter: (value: Date) => formatDateToLocalDate(value),
     },
     {
         field: 'product.status',
         header: 'Trạng thái sản phẩm',
-        formatter: (value: BaseStatus) => BaseStatusVietnamese[value]
+        formatter: (value: BaseStatus) => BaseStatusVietnamese[value],
     },
     {
         field: 'status',
         header: 'Trạng thái giá',
-        formatter: (value: BaseStatus) => BaseStatusVietnamese[value]
-    }
+        formatter: (value: BaseStatus) => BaseStatusVietnamese[value],
+    },
 ];
 
 interface ProductPriceFilter extends PaginationState {
@@ -137,13 +137,16 @@ const ProductPricePage = () => {
                 cell: ({ row }) => (
                     <div className="flex gap-2">
                         <div className="relative w-14 h-14 rounded overflow-hidden">
-                            <Image src={row.original.product.image || NOT_FOUND_PRODUCT_IMAGE}
-                                   alt={`Ảnh của sản phẩm ${row.original.product.name}`} fill
-                                   className="object-cover" />
+                            <Image
+                                src={row.original.product.image || NOT_FOUND_PRODUCT_IMAGE}
+                                alt={`Ảnh của sản phẩm ${row.original.product.name}`} fill
+                                className="object-cover"
+                            />
                         </div>
                         <div className="flex flex-col justify-center">
                             <div
-                                className="text-nowrap">#{row.original.product.code} - {row.original.product.name}</div>
+                                className="text-nowrap"
+                            >#{row.original.product.code} - {row.original.product.name}</div>
                             <div className="text-gray-800 font-normal">{row.original.product.description}</div>
                         </div>
                     </div>
@@ -166,7 +169,7 @@ const ProductPricePage = () => {
                 header: () => '',
                 cell: ({ row }) => (
                     <div className="flex gap-2 items-center justify-end">
-                        <ButtonAction.Update onClick={() => setProductPriceToUpdate(row.original)}/>
+                        <ButtonAction.Update onClick={() => setProductPriceToUpdate(row.original)} />
                         <ButtonAction.Delete onClick={() => deleteModal.openDeleteModal(row.original)} />
                     </div>
                 ),
@@ -174,6 +177,14 @@ const ProductPricePage = () => {
         ],
         [deleteModal],
     );
+
+    const statusOptions: SelectProps['options'] = [
+        { label: 'Tất cả trạng thái', value: 'ALL' },
+        ...Object.keys(BaseStatus).map(status => ({
+            label: BaseStatusVietnamese[status as BaseStatus],
+            value: status,
+        })),
+    ];
 
     const handleExportExcel = async () => {
         await exportToExcel<AdminProductPriceOverview>(products, exportColumns, 'danh-sach-gia.xlsx');
@@ -198,21 +209,17 @@ const ProductPricePage = () => {
                             <div className="px-4 pb-3">
                                 <Typography.Title level={4}>Bộ lọc</Typography.Title>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <Input name="search"
-                                           label="Tìm theo tên hoặc mã"
-                                           placeholder="Tìm theo tên hoặc mã sản phẩm"
+                                    <Input
+                                        name="search"
+                                        label="Tên hoặc mã"
+                                        placeholder="Tìm theo tên hoặc mã sản phẩm"
                                     />
-                                    <Select name="status"
-                                            label="Tìm theo trạng thái"
-                                            options={[
-                                                { label: 'Tất cả trạng thái', value: 'ALL' },
-                                                ...Object.keys(BaseStatus).map(status => ({
-                                                    label: BaseStatusVietnamese[status as BaseStatus],
-                                                    value: status,
-                                                })),
-                                            ]}
+                                    <Select
+                                        name="status"
+                                        label="Trạng thái"
+                                        options={statusOptions}
                                     />
-                                    <DatePickerWithRange />
+                                    <DatePickerWithRange label="Ngày áp dụng" />
                                 </div>
                             </div>
                             <AutoSubmitForm />
@@ -224,24 +231,30 @@ const ProductPricePage = () => {
                     <Table<AdminProductPriceOverview> data={products} columns={columns} currentPage={currentPage}
                                                       isLoading={isLoading}
                                                       totalPages={totalPages}
-                                                      onChangePage={onPageChange} />
+                                                      onChangePage={onPageChange}
+                    />
                 </Card>
             </div>
 
-            <ModalAddProductPrice onClose={() => setShowModalAddProductPrice(false)}
-                                  isOpen={showModalAddProductPrice} />
+            <ModalAddProductPrice
+                onClose={() => setShowModalAddProductPrice(false)}
+                isOpen={showModalAddProductPrice}
+            />
 
-            <ModalUpdateProductPrice onClose={() => setProductPriceToUpdate(null)}
-                                     productPrice={productPriceToUpdate} />
+            <ModalUpdateProductPrice
+                onClose={() => setProductPriceToUpdate(null)}
+                productPrice={productPriceToUpdate}
+            />
 
-            <ModalDeleteAlert onClose={deleteModal.closeDeleteModal}
-                              onConfirm={deleteModal.handleDelete}
-                              isOpen={deleteModal.showDeleteModal}
-                              title="Xóa giá sản phẩm?"
-                              content={
-                                  <>Bạn có chắc chắn muốn xóa giá sản
-                                      phẩm <HighlightedText>{deleteModal.selectedData?.product.name}</HighlightedText> không?</>
-                              }
+            <ModalDeleteAlert
+                onClose={deleteModal.closeDeleteModal}
+                onConfirm={deleteModal.handleDelete}
+                isOpen={deleteModal.showDeleteModal}
+                title="Xóa giá sản phẩm?"
+                content={
+                    <>Bạn có chắc chắn muốn xóa giá sản
+                        phẩm <HighlightedText>{deleteModal.selectedData?.product.name}</HighlightedText> không?</>
+                }
             />
         </>
     );

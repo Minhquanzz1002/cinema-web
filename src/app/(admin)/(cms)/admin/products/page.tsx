@@ -168,9 +168,12 @@ const ProductPage = () => {
                             <div className="px-4 pb-3">
                                 <Typography.Title level={4}>Bộ lọc</Typography.Title>
                                 <div className="grid sm-max:grid-cols-1 grid-cols-3 gap-4">
-                                    <Input label="Tìm theo tên hoặc mã" name="search" placeholder="Tìm theo mã hoặc tên" />
+                                    <Input label="Tên hoặc mã"
+                                           name="search"
+                                           placeholder="Tìm theo mã hoặc tên"
+                                    />
                                     <Select
-                                        label="Tìm theo trạng thái"
+                                        label="Trạng thái"
                                         name="status"
                                         options={[
                                             { label: 'Tất cả', value: 'ALL' },

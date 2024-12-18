@@ -96,6 +96,7 @@ export interface AdminOrderOverview {
     showTime: {
         id: string;
         cinemaName: string;
+        address: string;
         roomName: string;
         startTime: string;
         endTime: string;

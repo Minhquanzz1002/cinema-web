@@ -175,9 +175,10 @@ const ActorPage = () => {
                             <div className="px-4 pb-3">
                                 <Typography.Title level={4}>Bộ lọc</Typography.Title>
                                 <div className="grid sm-max:grid-cols-1 grid-cols-3 gap-4">
-                                    <Input name="search" placeholder="Mã hoặc tên diễn viên" />
-                                    <Input name="country" placeholder="Quốc gia" />
+                                    <Input label="Mã hoặc tên" name="search" placeholder="Mã hoặc tên diễn viên" />
+                                    <Input label="Quốc gia" name="country" placeholder="Quốc gia" />
                                     <Select name="status"
+                                            label="Trạng thái"
                                             placeholder="Lọc theo trạng thái"
                                             options={[
                                                 { label: 'Tất cả trạng thái', value: 'ALL' },
