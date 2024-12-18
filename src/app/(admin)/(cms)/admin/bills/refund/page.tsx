@@ -163,8 +163,8 @@ const BillRefundPage = () => {
                             <div className="px-4 pb-3">
                                 <Typography.Title level={4}>Bộ lọc</Typography.Title>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <Input name="refundCode" placeholder="Mã đơn hoàn" />
-                                    <Input name="orderCode" placeholder="Mã hóa đơn mua" />
+                                    <Input label="Mã hoàn đơn" name="refundCode" placeholder="Mã đơn hoàn" />
+                                    <Input label="Mã hóa đơn bán" name="orderCode" placeholder="Mã hóa đơn mua" />
                                 </div>
                             </div>
                             <AutoSubmitForm />

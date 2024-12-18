@@ -464,8 +464,9 @@ const ViewPromotionPage = () => {
                                 <div className="px-4 pb-3 border-t py-3">
                                     <Typography.Title level={4}>Bộ lọc</Typography.Title>
                                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                                        <DatePickerWithRange fromName="startDate" toName="endDate" />
+                                        <DatePickerWithRange label="Ngày áp dụng" fromName="startDate" toName="endDate" />
                                         <Select name="status"
+                                                label="Trạng thái"
                                                 options={[
                                                     { label: 'Tất cả', value: 'ALL' },
                                                     ...Object.keys(BaseStatus).map((status) => ({

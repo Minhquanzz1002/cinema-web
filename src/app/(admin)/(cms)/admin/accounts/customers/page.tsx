@@ -201,10 +201,11 @@ const CustomerPage: React.FC = () => {
                             <div className="px-4 pb-3">
                                 <Typography.Title level={4}>Bộ lọc</Typography.Title>
                                 <div className="grid sm-max:grid-cols-1 grid-cols-4 gap-4">
-                                    <Input name="search" placeholder="Mã hoặc tên khách hàng" />
-                                    <Input name="phone" placeholder="Số điện thoại" />
-                                    <Input name="email" placeholder="Email" />
+                                    <Input label="Mã hoặc tên" name="search" placeholder="Mã hoặc tên khách hàng" />
+                                    <Input label="Số điện thoại" name="phone" placeholder="Số điện thoại" />
+                                    <Input label="Email" name="email" placeholder="Email" />
                                     <Select
+                                        label="Trạng thái"
                                         name="status"
                                         placeholder="Lọc theo trạng thái"
                                         options={statusOptions}

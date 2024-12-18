@@ -14,7 +14,7 @@ import { useAllDirectors, useDeleteDirector } from '@/modules/directors/reposito
 import { Form, Formik } from 'formik';
 import Typography from '@/components/Admin/Typography';
 import Input from '@/components/Admin/Input';
-import Select from '@/components/Admin/Select';
+import Select, { SelectProps } from '@/components/Admin/Select';
 import AutoSubmitForm from '@/components/Admin/AutoSubmitForm';
 import BaseStatusBadge from '@/components/Admin/Badge/BaseStatusBadge';
 import ModalInfoDirector from '@/components/Admin/Pages/Directors/ModalInfoDirector';
@@ -157,6 +157,14 @@ const DirectorPage = () => {
         [],
     );
 
+    const statusOptions : SelectProps['options'] = [
+        { label: 'Tất cả trạng thái', value: 'ALL' },
+        ...Object.values(BaseStatus).map(value => ({
+            label: BaseStatusVietnamese[value],
+            value,
+        })),
+    ];
+
     const handleExportExcel = async () => {
         await exportToExcel<Director>(directors, exportColumns, 'danh-sach-dao-dien.xlsx');
     };
@@ -179,18 +187,13 @@ const DirectorPage = () => {
                             <div className="px-4 pb-3">
                                 <Typography.Title level={4}>Bộ lọc</Typography.Title>
                                 <div className="grid sm-max:grid-cols-1 grid-cols-3 gap-4">
-                                    <Input name="search" placeholder="Mã hoặc tên đạo diễn" />
-                                    <Input name="country" placeholder="Quốc gia" />
+                                    <Input label="Mã hoặc tên" name="search" placeholder="Mã hoặc tên đạo diễn" />
+                                    <Input label="Quốc gia" name="country" placeholder="Quốc gia" />
                                     <Select
+                                        label="Trạng thái"
                                         name="status"
                                         placeholder="Lọc theo trạng thái"
-                                        options={[
-                                            { label: 'Tất cả trạng thái', value: 'ALL' },
-                                            ...Object.values(BaseStatus).map(value => ({
-                                                label: BaseStatusVietnamese[value],
-                                                value,
-                                            })),
-                                        ]}
+                                        options={statusOptions}
                                     />
                                 </div>
                             </div>
