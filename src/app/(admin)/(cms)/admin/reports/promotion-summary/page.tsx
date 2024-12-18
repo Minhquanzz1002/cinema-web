@@ -61,7 +61,7 @@ const PromotionSummaryReportPage = () => {
                                                          text="Xuất báo cáo" onClick={handleExportExcel} />
                                 </div>
                                 <div className="grid sm-max:grid-cols-1 grid-cols-3 gap-4">
-                                    <DatePickerWithRange fromName="fromDate" toName="toDate" />
+                                    <DatePickerWithRange fromName="fromDate" toName="toDate" label="Ngày" />
                                 </div>
                             </div>
                             <AutoSubmitForm />

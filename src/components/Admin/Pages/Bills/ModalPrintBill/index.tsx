@@ -28,15 +28,19 @@ const PrintContent = React.forwardRef<HTMLDivElement, PrintContentProps>(({ bill
         <div ref={ref} className="flex flex-col gap-2">
             {
                 tickets.map((ticket, index) => (
-                    <div key={`ticket-${index}`} className="border p-3 relative">
-                        <div className="mr-20">
-                            <div className="text-lg font-bold bg-brand-500 text-white">
+                    <div key={`ticket-${index}`} className="border p-3 relative border-brand-500">
+                        <div className="mr-20 border-r-2 border-dashed border-brand-500">
+                            <div className="text-lg font-bold bg-brand-500 text-white rounded px-1">
                                 B&Q Cinema | {bill.showTime.cinemaName}
+                            </div>
+
+                            <div>
+                                <div>Địa chỉ: <span>{bill.showTime.address}</span></div>
                             </div>
 
                             <div className="grid grid-cols-2">
                                 <div>Phim: <span>{bill.showTime.movie.title}</span></div>
-                                <div>Rạp: <span>{bill.showTime.roomName}</span></div>
+                                <div>Phòng: <span>{bill.showTime.roomName}</span></div>
                             </div>
                             <div className="grid grid-cols-2">
                                 <div>Ngày: <span>{formatDateToLocalDate(bill.showTime.startDate)}</span></div>
@@ -51,7 +55,7 @@ const PrintContent = React.forwardRef<HTMLDivElement, PrintContentProps>(({ bill
 
                             <div className="absolute w-24 h-full top-0 right-0 flex justify-center items-center">
                                 <div className="-rotate-90">
-                                    <Barcode value={bill.code} height={55} width={0.75} fontSize={14}  />
+                                    <Barcode value={bill.code} height={55} width={0.75} fontSize={14} background="none" />
                                 </div>
                             </div>
                         </div>
@@ -61,10 +65,14 @@ const PrintContent = React.forwardRef<HTMLDivElement, PrintContentProps>(({ bill
             }
             {
                 products.length > 0 && (
-                    <div className="border p-3 relative">
-                        <div className="mr-20">
-                            <div className="text-lg font-bold bg-brand-500 text-white">B&Q Cinema
+                    <div className="border p-3 relative border-brand-500">
+                        <div className="mr-20 border-r-2 border-dashed border-brand-500">
+                            <div className="text-lg font-bold bg-brand-500 text-white rounded px-1">B&Q Cinema
                                 | {bill.showTime.cinemaName}</div>
+                            <div>
+                                <div>Địa chỉ: <span>{bill.showTime.address}</span></div>
+                            </div>
+
                             <div className="grid grid-cols-7">
                                 <div className="col-span-3">Sản phẩm</div>
                                 <div className="col-span-1 text-right">SL</div>
@@ -89,7 +97,7 @@ const PrintContent = React.forwardRef<HTMLDivElement, PrintContentProps>(({ bill
 
                             <div className="absolute w-24 h-full top-0 right-0 flex justify-center items-center">
                                 <div className="-rotate-90">
-                                    <Barcode value={bill.code} height={55} width={0.75} fontSize={14} />
+                                    <Barcode value={bill.code} height={55} width={0.75} fontSize={14} background="none" />
                                 </div>
                             </div>
                         </div>

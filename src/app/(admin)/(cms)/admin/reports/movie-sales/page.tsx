@@ -66,8 +66,8 @@ const FilterSection = (
                         onClick={onExport} />
                 </div>
                 <div className="grid sm-max:grid-cols-1 grid-cols-3 gap-4">
-                    <DatePickerWithRange fromName="fromDate" toName="toDate" />
-                    <Input name="search" placeholder="Mã hoặc tên phim" />
+                    <DatePickerWithRange label="Ngày" fromName="fromDate" toName="toDate" />
+                    <Input label="Mã hoặc tên phim" name="search" placeholder="Mã hoặc tên phim" />
                 </div>
             </div>
             <AutoSubmitForm />

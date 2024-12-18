@@ -199,8 +199,11 @@ const BillCompletePage = () => {
                             <div className="px-4 pb-3">
                                 <Typography.Title level={4}>Bộ lọc</Typography.Title>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <Input name="code" placeholder="Mã hóa đơn" />
-                                    <DatePickerWithRange fromName="fromDate" toName="toDate" />
+                                    <Input label="Mã hóa đơn" name="code" placeholder="Mã hóa đơn" />
+                                    <DatePickerWithRange label="Ngày đặt"
+                                                         fromName="fromDate"
+                                                         toName="toDate"
+                                    />
                                 </div>
                             </div>
                             <AutoSubmitForm />

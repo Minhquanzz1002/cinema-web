@@ -136,9 +136,10 @@ const PromotionPage = () => {
                             <div className="px-4 pb-3">
                                 <Typography.Title level={4}>Bộ lọc</Typography.Title>
                                 <div className="grid sm-max:grid-cols-1 grid-cols-3 gap-4">
-                                    <Input name="search" placeholder="Mã hoặc tên khuyến mãi" />
-                                    <DatePickerWithRange/>
+                                    <Input label="Mã hoặc tên" name="search" placeholder="Mã hoặc tên khuyến mãi" />
+                                    <DatePickerWithRange label="Ngày áp dụng"/>
                                     <Select name="status"
+                                            label="Trạng thái"
                                             options={[
                                                 { label: 'Tất cả', value: 'ALL' },
                                                 ...Object.keys(BaseStatus).map((status) => ({
