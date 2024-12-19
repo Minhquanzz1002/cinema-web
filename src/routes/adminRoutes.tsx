@@ -36,9 +36,9 @@ const adminRoutes: IAdminRoute[] = [
         path: '/admin/movies',
         icon: <RiMovie2Line />,
         children: [
-            { name: 'Tất cả  phim', path: '/admin/movies' },
-            { name: 'Tất cả diễn viên', path: '/admin/movies/actors' },
-            { name: 'Tất cả đạo diễn', path: '/admin/movies/directors' },
+            { name: 'Quản lý phim', path: '/admin/movies' },
+            { name: 'Quản lý diễn viên', path: '/admin/movies/actors' },
+            { name: 'Quản lý đạo diễn', path: '/admin/movies/directors' },
         ],
     },
     {
@@ -47,7 +47,7 @@ const adminRoutes: IAdminRoute[] = [
         icon: <MdOutlineLocationOn />,
     },
     {
-        name: 'Giá vé',
+        name: 'Vé',
         path: '/admin/ticket-prices',
         icon: <IoTicketOutline />,
     },
@@ -66,8 +66,8 @@ const adminRoutes: IAdminRoute[] = [
         path: '/admin/bills',
         icon: <RiMoneyDollarCircleLine />,
         children: [
-            { name: 'Bán hàng', path: '/admin/bills/completed' },
-            { name: 'Hoàn trả', path: '/admin/bills/refund' },
+            { name: 'Hóa đơn bán', path: '/admin/bills/completed' },
+            { name: 'Hóa đơn trả', path: '/admin/bills/refund' },
         ]
     },
     {
@@ -75,7 +75,7 @@ const adminRoutes: IAdminRoute[] = [
         path: '/admin/products',
         icon: <PiPopcorn />,
         children: [
-            { name: 'Tất cả sản phẩm', path: '/admin/products' },
+            { name: 'Quản lý sản phẩm', path: '/admin/products' },
             { name: 'Bảng giá', path: '/admin/products/prices' },
         ]
     },
