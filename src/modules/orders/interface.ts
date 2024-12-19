@@ -133,11 +133,16 @@ export interface OrderResponseCreated {
     showTime: {
         startDate: Date;
         startTime: string;
+        endTime: string;
         room: {
             name: string;
         }
         cinema: {
             name: string;
+            address: string;
+            city: string;
+            ward: string;
+            district: string;
         }
         movie: {
             title: string;

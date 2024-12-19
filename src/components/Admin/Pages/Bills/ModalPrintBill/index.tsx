@@ -29,33 +29,37 @@ const PrintContent = React.forwardRef<HTMLDivElement, PrintContentProps>(({ bill
             {
                 tickets.map((ticket, index) => (
                     <div key={`ticket-${index}`} className="border p-3 relative border-brand-500">
-                        <div className="mr-20 border-r-2 border-dashed border-brand-500">
-                            <div className="text-lg font-bold bg-brand-500 text-white rounded px-1">
-                                B&Q Cinema | {bill.showTime.cinemaName}
-                            </div>
+                        <div className="mr-20 border-r-2 border-dashed border-brand-500 text-sm">
+                            <div className="space-y-1">
+                                <div className="text-lg font-bold bg-brand-500 text-white rounded px-1">
+                                    B&Q Cinema | {bill.showTime.cinemaName}
+                                </div>
 
-                            <div>
-                                <div>Địa chỉ: <span>{bill.showTime.address}</span></div>
-                            </div>
+                                <div>
+                                    <div>Địa chỉ: <span>{bill.showTime.address}</span></div>
+                                </div>
 
-                            <div className="grid grid-cols-2">
-                                <div>Phim: <span>{bill.showTime.movie.title}</span></div>
-                                <div>Phòng: <span>{bill.showTime.roomName}</span></div>
-                            </div>
-                            <div className="grid grid-cols-2">
-                                <div>Ngày: <span>{formatDateToLocalDate(bill.showTime.startDate)}</span></div>
-                                <div>Giờ: <span>{formatTime(bill.showTime.startTime)}</span></div>
-                            </div>
-                            <div className="grid grid-cols-2">
-                                <div>Ghế: <span className="text-lg font-medium">{ticket.seat?.name}</span></div>
-                                <div>Giá: <span
-                                    className="text-lg font-medium"
-                                >{formatNumberToCurrency(ticket.price)}</span></div>
+                                <div className="grid grid-cols-2">
+                                    <div>Phim: <span>{bill.showTime.movie.title}</span></div>
+                                    <div>Phòng: <span>{bill.showTime.roomName}</span></div>
+                                </div>
+                                <div className="grid grid-cols-2">
+                                    <div>Ngày: <span>{formatDateToLocalDate(bill.showTime.startDate)}</span></div>
+                                    <div>Thời gian: <span>{formatTime(bill.showTime.startTime)} đến {formatTime(bill.showTime.endTime)}</span></div>
+                                </div>
+                                <div className="grid grid-cols-2">
+                                    <div>Ghế: <span className="text-lg font-medium">{ticket.seat?.name}</span></div>
+                                    <div>Giá: <span
+                                        className="text-lg font-medium"
+                                    >{formatNumberToCurrency(ticket.price)}</span></div>
+                                </div>
                             </div>
 
                             <div className="absolute w-24 h-full top-0 right-0 flex justify-center items-center">
                                 <div className="-rotate-90">
-                                    <Barcode value={bill.code} height={55} width={0.75} fontSize={14} background="none" />
+                                    <Barcode
+                                        value={bill.code} height={55} width={0.75} fontSize={14} background="none"
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -66,38 +70,42 @@ const PrintContent = React.forwardRef<HTMLDivElement, PrintContentProps>(({ bill
             {
                 products.length > 0 && (
                     <div className="border p-3 relative border-brand-500">
-                        <div className="mr-20 border-r-2 border-dashed border-brand-500">
+                        <div className="mr-20 border-r-2 border-dashed border-brand-500 text-sm">
                             <div className="text-lg font-bold bg-brand-500 text-white rounded px-1">B&Q Cinema
                                 | {bill.showTime.cinemaName}</div>
-                            <div>
-                                <div>Địa chỉ: <span>{bill.showTime.address}</span></div>
-                            </div>
+                            <div className="space-y-1">
+                                <div>
+                                    <div>Địa chỉ: <span>{bill.showTime.address}</span></div>
+                                </div>
 
-                            <div className="grid grid-cols-7">
-                                <div className="col-span-3">Sản phẩm</div>
-                                <div className="col-span-1 text-right">SL</div>
-                                <div className="col-span-3 text-right">Giá</div>
-                            </div>
-                            {
-                                products.map((product, index) => (
-                                    <div key={`product-${index}`} className="grid grid-cols-7">
-                                        <div className="col-span-3">{product.product?.name}</div>
-                                        <div className="col-span-1 text-right">{product.quantity}</div>
-                                        <div
-                                            className="col-span-3 text-right"
-                                        >{formatNumberToCurrency(product.price)}</div>
-                                    </div>
-                                ))
-                            }
-                            <div className="flex justify-end items-center">
+                                <div className="grid grid-cols-7 font-medium">
+                                    <div className="col-span-3">Sản phẩm</div>
+                                    <div className="col-span-1 text-right">SL</div>
+                                    <div className="col-span-3 text-right">Giá</div>
+                                </div>
+                                {
+                                    products.map((product, index) => (
+                                        <div key={`product-${index}`} className="grid grid-cols-7">
+                                            <div className="col-span-3">{product.product?.name}</div>
+                                            <div className="col-span-1 text-right">{product.quantity}</div>
+                                            <div
+                                                className="col-span-3 text-right"
+                                            >{formatNumberToCurrency(product.price)}</div>
+                                        </div>
+                                    ))
+                                }
+                                <div className="flex justify-end items-center">
                                 <span
                                     className="text-lg font-medium"
                                 >Tổng tiền: {formatNumberToCurrency(totalAmount)}</span>
+                                </div>
                             </div>
 
                             <div className="absolute w-24 h-full top-0 right-0 flex justify-center items-center">
                                 <div className="-rotate-90">
-                                    <Barcode value={bill.code} height={55} width={0.75} fontSize={14} background="none" />
+                                    <Barcode
+                                        value={bill.code} height={55} width={0.75} fontSize={14} background="none"
+                                    />
                                 </div>
                             </div>
                         </div>
