@@ -180,8 +180,10 @@ const BillCompletePage = () => {
         <>
             <div className="mt-3">
                 <Card extra={`mb-5 h-full w-full px-6 py-4`}>
-                    <div className="flex items-center justify-end">
-
+                    <div className="flex items-center justify-between">
+                        <div className="text-red-500 italic text-sm">
+                            Ghi chú: Chỉ được hoàn trả hóa đơn bán trong ngày
+                        </div>
                         <div className="flex gap-2 h-9">
                             <button
                                 type="button"

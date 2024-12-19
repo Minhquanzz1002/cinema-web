@@ -15,7 +15,7 @@ import { useQuery } from '@tanstack/react-query';
 
 const getAllProvince = async (): Promise<Province[]> => {
     try {
-        const response = await axios.get<ProvinceResponse>('https://vapi.vnappmob.com/api/province/');
+        const response = await axios.get<ProvinceResponse>('https://vapi.vnappmob.com/api/v2/province/');
         return response.data.results;
     } catch (error) {
         console.error('Failed to fetch provinces:', error);
@@ -37,7 +37,7 @@ export const useAllProvinces = () => {
 
 const getAllDistricts = async (provinceId?: string): Promise<District[]> => {
     try {
-        const response = await axios.get<DistrictResponse>(`https://vapi.vnappmob.com/api/province/district/${provinceId}`);
+        const response = await axios.get<DistrictResponse>(`https://vapi.vnappmob.com/api/v2/province/district/${provinceId}`);
         return response.data.results;
     } catch (error) {
         console.error('Failed to fetch provinces:', error);
@@ -59,7 +59,7 @@ export const useAllDistricts = (provinceId?: string) => {
 
 const getAllWards = async (districtId?: string): Promise<Ward[]> => {
     try {
-        const response = await axios.get<WardResponse>(`https://vapi.vnappmob.com/api/province/ward/${districtId}`);
+        const response = await axios.get<WardResponse>(`https://vapi.vnappmob.com/api/v2/province/ward/${districtId}`);
         return response.data.results;
     } catch (error) {
         console.error('Failed to fetch provinces:', error);
